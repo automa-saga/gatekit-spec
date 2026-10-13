@@ -45,6 +45,9 @@ behavior every conformant implementation MUST exhibit, so that:
 - [protocol-spec.md](protocol-spec.md) — the version model: the `{min, max,
   active}` triple, the run invariant, the configurable support window, activation
   (immediate/deferred), finalize, reversibility, and the serialized formats.
+- [migration-spec.md](migration-spec.md) — the optional migration/activation
+  layer: the migration contract, plan computation (run-now vs held), and execution
+  (run-now, finalize, rollback).
 
 ## Conformance
 

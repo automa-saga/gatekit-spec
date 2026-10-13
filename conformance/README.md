@@ -13,7 +13,9 @@ source of truth for cross-language agreement. Groups are enumerated in
 - **invariant/** — the run invariant (protocol-spec §3). Schema:
   `{ name, description, max, window, firstVersion, cases: [{ active, valid }] }`
   where `min = max(firstVersion, max - window)`.
-- **planning/** — *(reserved)* migration planning (run-now vs held).
+- **planning/** — migration planning (migration-spec §2). Schema:
+  `{ name, description, migrations: [{ id, version, scope, applies }], from, to, runNow: [id], held: [id] }`.
+  `runNow`/`held` are the expected step ids (ordered by version then id).
 - **serialization/** — *(reserved)* protocol-state and message round-trips.
 
 ## Running
