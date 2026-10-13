@@ -11,7 +11,11 @@ and how it is resolved against a protocol version. It is language-neutral; the
 - **protocolVersion** — a non-negative, monotonically increasing integer that
   identifies a behavior/contract generation. It is distinct from a release
   version (see [protocol-spec.md](protocol-spec.md)).
-- **Feature** — a stable string identifier for a gated behavior.
+- **Feature** — a stable string identifier for a gated behavior. An implementation
+  SHOULD represent `Feature` as a distinct type (not a bare string), and consumers
+  SHOULD declare each feature as a named constant/enum of that type — one source of
+  truth referenced by both registration and call sites, so an identifier cannot
+  drift or be mistyped (a mistyped identifier resolves **off**, silently).
 - **FeatureSpec** — declares a feature's `default` and `preRelease` from a given
   `version` onward:
   - `version` (integer, ≥ 0) — the protocol version at which this spec takes
