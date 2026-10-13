@@ -70,6 +70,14 @@ Lowering `active` (protocol-spec §6) is permitted only across **reversible** st
 (no migration, or every migration provides a working `rollback()` and honors the
 write floor, protocol-spec §7) and MUST be refused across an irreversible step.
 
+### 3.4 Execution is a saga
+The execution model in §3.1–§3.2 is a **saga / compensation** model: steps run in
+order and a failure compensates the completed steps in reverse. Execution SHOULD be
+**resumable** across a crash. This spec fixes the plan and the observable
+run-now/held/one-way semantics, not the runtime; an implementation MAY realize them
+with a saga runtime (the Go implementation uses `automa-saga/automa`, which carries
+its own durability specification).
+
 ## 4. Relationship to the existing frameworks
 This model generalizes conventional version-boundary migration frameworks: instead
 of "run once when the binary version crosses a boundary," a migration declares the

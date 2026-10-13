@@ -49,6 +49,29 @@ behavior every conformant implementation MUST exhibit, so that:
   layer: the migration contract, plan computation (run-now vs held), and execution
   (run-now, finalize, rollback).
 
+## Status
+
+The spec is co-defined with the first (Go) implementation: a small core is stable
+and conformance-backed now; the rest is firmed up in the same change as the
+feature that needs it. "Stable" means safe to implement against; it is still a
+draft until the whole is ratified.
+
+| Area | Status |
+|---|---|
+| Feature resolution (core §3) | **stable** — conformance-backed |
+| Plan computation (migration §2) | **stable** — conformance-backed |
+| `{min,max,active}` triple, run invariant, window `W` (protocol §2–3) | **stable** — fixtures exist |
+| Activation / finalize / reversibility (protocol §5–6, migration §3) | **draft** — behavior fixed, details firm up with the impl |
+| Min-compatibility write floor (protocol §7) | **draft** |
+| Serialized protocol-state (protocol §8.1) | **draft** — shape only; fixtures to follow |
+| Negotiation / readiness message (protocol §6, §8.2) | **reserved** — co-defined when fleet finalize is built |
+| Alpha/override enforcement, lifecycle lint | **prose** — not yet enforced or conformance-tested |
+
+Rule of practice: any implementation change that adds observable behavior lands a
+matching spec section and conformance fixtures in the same change. For genuinely
+novel behavior the Go implementation MAY lead; the spec then catches up and becomes
+authoritative.
+
 ## Conformance
 
 See [conformance/README.md](conformance/README.md). Fixtures are grouped by
