@@ -1,0 +1,13 @@
+{
+  "name": "unknown_and_unreached",
+  "description": "An unknown feature is off; a feature whose first spec is not yet reached is off.",
+  "registry": {
+    "featureC": [
+      { "version": 10, "default": true, "preRelease": "GA" }
+    ]
+  },
+  "cases": [
+    { "active": 5, "enabled": { "featureC": false, "nope": false } },
+    { "active": 10, "enabled": { "featureC": true, "nope": false } }
+  ]
+}

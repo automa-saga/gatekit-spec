@@ -1,0 +1,20 @@
+{
+  "name": "basic_lifecycle",
+  "description": "A Beta feature promoted to GA, and an Alpha feature that stays off by default.",
+  "registry": {
+    "featureA": [
+      { "version": 4, "default": false, "preRelease": "BETA" },
+      { "version": 6, "default": true, "preRelease": "GA" }
+    ],
+    "featureB": [
+      { "version": 5, "default": false, "preRelease": "ALPHA" }
+    ]
+  },
+  "cases": [
+    { "active": 3, "enabled": { "featureA": false, "featureB": false } },
+    { "active": 4, "enabled": { "featureA": false, "featureB": false } },
+    { "active": 5, "enabled": { "featureA": false, "featureB": false } },
+    { "active": 6, "enabled": { "featureA": true, "featureB": false } },
+    { "active": 99, "enabled": { "featureA": true, "featureB": false } }
+  ]
+}

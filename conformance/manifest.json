@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "groups": {
+    "resolution": ["resolution/basic_lifecycle.json", "resolution/unknown_and_unreached.json"],
+    "invariant": ["invariant/window_default.json", "invariant/window_wide.json"],
+    "planning": [],
+    "serialization": []
+  }
+}

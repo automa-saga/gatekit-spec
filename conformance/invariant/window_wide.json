@@ -1,0 +1,13 @@
+{
+  "name": "window_wide",
+  "description": "Wide window W=5 with clamp: min = max(firstVersion, max-W) = max(0,1) = 1.",
+  "max": 6,
+  "window": 5,
+  "firstVersion": 0,
+  "cases": [
+    { "active": 6, "valid": true },
+    { "active": 1, "valid": true },
+    { "active": 0, "valid": false },
+    { "active": 7, "valid": false }
+  ]
+}

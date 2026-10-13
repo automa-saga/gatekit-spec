@@ -1,0 +1,13 @@
+{
+  "name": "window_default",
+  "description": "Default window W=1: min = max-1. active must be within [min, max].",
+  "max": 6,
+  "window": 1,
+  "firstVersion": 4,
+  "cases": [
+    { "active": 6, "valid": true },
+    { "active": 5, "valid": true },
+    { "active": 4, "valid": false },
+    { "active": 7, "valid": false }
+  ]
+}
