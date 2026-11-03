@@ -3,7 +3,8 @@
   "groups": {
     "resolution": [
       "resolution/basic_lifecycle.json",
-      "resolution/unknown_and_unreached.json"
+      "resolution/unknown_and_unreached.json",
+      "resolution/overrides_and_alpha.json"
     ],
     "invariant": [
       "invariant/window_default.json",

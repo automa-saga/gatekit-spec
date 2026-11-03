@@ -1,0 +1,21 @@
+{
+  "name": "overrides_and_alpha",
+  "description": "Per-feature overrides force state regardless of version; an ALPHA feature stays off unless opted in (gate-wide allowAlpha or a per-feature override). Precedence (core-spec §5): override > version-resolved default (subject to the ALPHA opt-in, §4) > off.",
+  "registry": {
+    "betaFeature": [
+      { "version": 4, "default": true, "preRelease": "BETA" }
+    ],
+    "alphaFeature": [
+      { "version": 4, "default": true, "preRelease": "ALPHA" }
+    ]
+  },
+  "cases": [
+    { "active": 5, "enabled": { "betaFeature": true, "alphaFeature": false } },
+    { "active": 5, "allowAlpha": true, "enabled": { "betaFeature": true, "alphaFeature": true } },
+    { "active": 5, "overrides": { "alphaFeature": true }, "enabled": { "alphaFeature": true } },
+    { "active": 5, "overrides": { "betaFeature": false }, "enabled": { "betaFeature": false } },
+    { "active": 5, "allowAlpha": true, "overrides": { "alphaFeature": false }, "enabled": { "alphaFeature": false } },
+    { "active": 3, "overrides": { "betaFeature": true }, "enabled": { "betaFeature": true } },
+    { "active": 3, "enabled": { "betaFeature": false } }
+  ]
+}
