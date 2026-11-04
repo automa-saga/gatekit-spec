@@ -4,12 +4,12 @@
   "registry": {
     "betaFeature": {
       "specs": [
-        { "version": 4, "default": true, "maturity": "BETA" }
+        { "since": 4, "default": true, "maturity": "BETA" }
       ]
     },
     "alphaFeature": {
       "specs": [
-        { "version": 4, "default": true, "maturity": "ALPHA" }
+        { "since": 4, "default": true, "maturity": "ALPHA" }
       ]
     }
   },

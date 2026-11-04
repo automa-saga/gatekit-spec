@@ -17,10 +17,10 @@ and how it is resolved against a protocol version. It is language-neutral; the
   truth referenced by both registration and call sites, so an identifier cannot
   drift or be mistyped (a mistyped identifier resolves **off**, silently).
 - **FeatureSpec** — declares a feature's `default` and `maturity` from a given
-  `version` onward:
-  - `version` (integer, ≥ 0) — the protocol version at which this spec takes
-    effect.
-  - `default` (boolean) — whether the feature is on at or after `version`, unless
+  `since` protocol version onward:
+  - `since` (protocol version — a non-negative integer) — the protocol version at
+    which this spec takes effect.
+  - `default` (boolean) — whether the feature is on at or after `since`, unless
     a later spec overrides it or an explicit override is supplied.
   - `maturity` (enum) — one of `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
 - **VersionedSpecs** — a feature's ordered lifecycle: one or more `FeatureSpec`s.
@@ -39,19 +39,21 @@ and how it is resolved against a protocol version. It is language-neutral; the
 An implementation MUST reject a registry when, for any feature:
 
 - its `VersionedSpecs` is empty, or
-- any spec has a negative `version`, or
-- two specs share the same `version`.
+- any spec has a negative `since`, or
+- two specs share the same `since`.
 
 An implementation MUST treat `VersionedSpecs` as order-independent at declaration
-time and sort by `version` ascending before resolution.
+time and sort by `since` ascending before resolution. An implementation MAY make a
+negative `since` unrepresentable at the type level (e.g. an unsigned type), which
+satisfies the non-negativity rule by construction.
 
 ## 3. Resolution
 
 Given a feature `f` and a current protocol version `v`, the **effective spec** is
-the spec of `f` with the greatest `version` that is less than or equal to `v`.
+the spec of `f` with the greatest `since` that is less than or equal to `v`.
 
 - If `f` is not in the registry, `f` is **off**.
-- If `f` has no spec with `version ≤ v` (its first spec is not yet reached), `f`
+- If `f` has no spec with `since ≤ v` (its first spec is not yet reached), `f`
   is **off**.
 - Otherwise the effective spec's `default` determines the base state.
 
@@ -88,8 +90,8 @@ NOT require a gate. When a change does break the contract, record it as a new
 `FeatureSpec` at the next protocol version rather than mutating behavior in place,
 so older behavior remains resolvable within the support window.
 
-## 7. MaxVersion
+## 7. MaxProtocol
 
-`MaxVersion(registry)` is the greatest `version` across all specs, or `0` for an
+`MaxProtocol(registry)` is the greatest `since` across all specs, or `0` for an
 empty registry. Implementations derive `max` (see protocol-spec) from this rather
 than hand-maintaining it.

@@ -4,7 +4,7 @@
   "registry": {
     "featureC": {
       "specs": [
-        { "version": 10, "default": true, "maturity": "GA" }
+        { "since": 10, "default": true, "maturity": "GA" }
       ]
     }
   },

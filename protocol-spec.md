@@ -22,7 +22,7 @@ the release version.
 ## 2. The triple
 
 - **max** — the newest protocolVersion an implementation supports. It MUST equal
-  `MaxVersion(registry)` (core-spec §7).
+  `MaxProtocol(registry)` (core-spec §7).
 - **W (support window)** — a configurable non-negative integer, default **1**. It
   is the number of prior protocol versions the implementation also supports.
 - **min** — derived as `max(firstVersion, max − W)`, where `firstVersion` is the
