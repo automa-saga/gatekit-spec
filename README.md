@@ -2,6 +2,13 @@
 
 > Status: **draft** — the core and activation specs are still settling alongside the first (Go) implementation.
 
+> 📖 **New to feature gating?** Start with the course:
+> [**Releasing features & rolling upgrades**](docs/home.md) — a Grade 10–12 tutorial
+> that teaches the ideas from first principles, with runnable Go examples. It is a
+> zero-build [docsify](https://docsify.js.org) site under [`docs/`](docs/), served
+> from GitHub Pages once this repo is public. To read it locally:
+> `npx docsify-cli serve docs` (or any static server), then open the printed URL.
+
 gatekit is intended to exist in more than one language (Go first, then others such
 as Kotlin, Java, Python, and Rust) for the same audience and use cases: a
 version-keyed feature-gate and rolling-upgrade mechanism.

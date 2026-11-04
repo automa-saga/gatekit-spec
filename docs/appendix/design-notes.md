@@ -1,0 +1,142 @@
+# Appendix C: Design notes
+
+> The decisions behind gatekit, and why they went the way they did. Each note is a
+> "we chose X over Y because Z." If you are evaluating gatekit or implementing it,
+> this is the reasoning you would otherwise have to reconstruct.
+>
+> Authoritative detail lives in the specs:
+> [core](https://github.com/automa-saga/gatekit-spec/blob/main/core-spec.md),
+> [activation](https://github.com/automa-saga/gatekit-spec/blob/main/activation-spec.md),
+> [migration](https://github.com/automa-saga/gatekit-spec/blob/main/migration-spec.md).
+> The overall effort is tracked in the
+> [gatekit v1 epic](https://github.com/automa-saga/gatekit/issues/6).
+
+## 1. Spec first, implementation second
+
+**Decision.** The product is the *specification* plus the shared conformance
+fixtures. The Go code is the first conformant implementation, not the definition.
+Where code and spec disagree, the spec wins and the code is a bug.
+
+**Why.** For a library meant to exist in many languages, two runtimes that resolve a
+feature differently are worthless to a user. Pinning behavior in language-neutral
+prose + fixtures is the only way N implementations stay in agreement. See
+[Appendix B](conformance.md).
+
+## 2. In-binary and deterministic, not a flag service
+
+**Decision.** Resolution is a pure function of the registry and the version, compiled
+into the binary. No network call, no runtime flag service.
+
+**Why.** The core job is "a fleet must *agree*, deterministically, on which behavior
+generation it runs." A remote flag can differ between two machines at the same instant
+and has a failure mode when the service is down — both fatal to fleet agreement. The
+cost is giving up per-user targeting and dashboard flips, which is the right trade for
+this job (and you can run a flag service *alongside* gatekit for the product-experiment
+job). See [Lesson 2](../tutorial/2-why-gatekit.md) and
+[Lesson 3](../tutorial/3-contrast-with-existing-patterns.md).
+
+## 3. A release-independent activation version
+
+**Decision.** Feature gating keys on a standalone `activation version` — a monotonic
+counter that advances by at most one per release and *only* on a gated,
+behavior-changing feature — not on the release/semver version.
+
+**Why.** The release version moves constantly for reasons unrelated to behavior (bug
+fixes, perf, docs). Keying on it would make "are these two machines compatible?"
+impossible to read from the number. A dedicated counter makes compatibility plain
+arithmetic. This is the same choice CockroachDB (cluster version), Kafka (protocol
+version), and Kubernetes KEP-4330 (emulation version) made. See activation-spec §1.
+
+## 4. A configurable support window `W`, default 1
+
+**Decision.** The number of prior activation versions a binary supports is a
+configurable `W`, defaulting to 1 (N/N+1). `min = max(firstVersion, max − W)`.
+
+**Why.** Fleets upgrade at different speeds. A tool you control is fine at `W = 1`; a
+platform whose operators upgrade slowly needs a wider window so a lagging machine is
+still supported. Kubernetes fixes this at roughly three; making it a knob fits more
+situations without forcing everyone to the widest. See activation-spec §2 and
+[Lesson 6](../tutorial/6-rolling-upgrade-thinking.md), Rule 2.
+
+## 5. The run invariant refuses, loudly
+
+**Decision.** At startup a binary checks `min ≤ active ≤ max` and *refuses to operate*
+with a typed error if it fails.
+
+**Why.** A machine running outside its window can misread data or undermine a flip.
+Failing loud at startup converts a subtle, hard-to-trace corruption bug into an
+obvious, fixable error. A rolling upgrade needs a hard floor it cannot sink below.
+See activation-spec §3.
+
+## 6. Two layers; migrations are opt-in
+
+**Decision.** The gate core (registry + resolution) is always present and
+dependency-light. The migration/activation layer (deferred activation, migrations,
+finalize) is a separate, opt-in package.
+
+**Why.** Many consumers only need "ship dormant, flip later" and should not inherit
+the weight or the concepts of a migration engine. A consumer whose active version is
+set externally can reuse the core without the activation model at all. See
+[Lesson 2](../tutorial/2-why-gatekit.md) and the gatekit README.
+
+## 7. `applies()` reads ground truth, not a ledger
+
+**Decision.** A migration decides whether it still needs to run by inspecting the
+actual data/state, never a record of past runs.
+
+**Why.** A ledger can lie after a crash mid-migration. Reading ground truth makes a
+migration idempotent — safe to re-run, a no-op once its effect is already present —
+which is what makes the whole saga crash-safe. See migration-spec §1.
+
+## 8. Scope is consumer-defined; unmapped scopes are `held`
+
+**Decision.** A migration's `scope` is an opaque, consumer-defined string mapped to a
+run-policy (`run-now` / `held`) by a consumer-supplied classifier. gatekit predefines
+`host-local` and `interop` only as the keys of the *default* classifier, not as a
+closed enum. Any scope the classifier does not map resolves to `held`.
+
+**Why.** Consumers classify migrations by different axes (blast radius,
+deliberateness, …); baking in a fixed set would not fit them. Defaulting the unknown
+case to `held` is the safe choice, because a held step never fires automatically at
+install — a forgotten mapping fails *closed*, not open. See migration-spec §2.1.
+
+## 9. Finalize is a one-way line; the runner enforces reversibility
+
+**Decision.** `finalize` runs held migrations and advances `active` as a single,
+deliberate step. Lowering `active` is permitted only across reversible steps and is
+*refused* with a typed error across an irreversible one.
+
+**Why.** A migration may be irreversible, so rollback can only be *guaranteed* before
+finalize. Making finalize the explicit crossing point — and refusing to lower across
+an irreversible step — means you can never silently assume a retreat that is not
+actually possible. This is CockroachDB's `preserve_downgrade_option` generalized. See
+activation-spec §6 and migration-spec §3.
+
+## 10. Execution is a saga; the runtime is swappable
+
+**Decision.** The spec fixes the observable semantics — run in order, compensate
+completed steps in reverse on failure, advance the version only on full success — but
+not the runtime. The default `StdRunner` is a dependency-free sequential
+implementation; a durable, crash-resumable runner
+([gatekit-automa](https://github.com/automa-saga/gatekit-automa)) implements the same
+interface.
+
+**Why.** Separating the *contract* (what you can observe) from the *engine* (how it
+runs) lets a simple consumer stay dependency-free while a demanding one gets
+durability — without changing any call sites, and without the automa dependency
+leaking into a plain consumer's module graph. See migration-spec §3.4.
+
+## Lifecycle / removal lint (planned)
+
+**Status: prose, not yet enforced.** The spec says that when a version leaves the
+window the author must delete the now-unreachable specs and dead code paths (the
+contract step), and that lints *should* enforce this keyed to `W`. That lint is not
+yet built or conformance-tested. Until it is, the discipline from
+[Lesson 4, Step 6](../tutorial/4-build-and-release-a-feature.md) is a human
+responsibility. Tracked in the epic.
+
+## See also
+
+- [Appendix A: the resolution algorithm](algorithm.md)
+- [Appendix D: spot the failure](spot-the-failure.md) — these decisions seen through
+  the bugs they prevent.
