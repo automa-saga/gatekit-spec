@@ -1,0 +1,21 @@
+- [Start here](home.md)
+- The course
+  - [1. Why feature gating is needed](tutorial/1-why-feature-gating.md)
+  - [2. Why gatekit is built this way](tutorial/2-why-gatekit.md)
+  - [3. How it compares to other tools](tutorial/3-contrast-with-existing-patterns.md)
+  - [4. Build and release a feature](tutorial/4-build-and-release-a-feature.md)
+  - [5. Activation use cases](tutorial/5-activation-use-cases.md)
+  - [6. Rolling-upgrade thinking](tutorial/6-rolling-upgrade-thinking.md)
+- Other languages
+  - [Overview](tutorial/go.md)
+  - [Kotlin (coming)](tutorial/kotlin.md)
+  - [Rust (coming)](tutorial/rust.md)
+  - [Python (coming)](tutorial/python.md)
+- Appendix
+  - [A. The resolution algorithm](appendix/algorithm.md)
+  - [B. Conformance fixtures](appendix/conformance.md)
+  - [C. Design notes](appendix/design-notes.md)
+  - [D. Spot the failure](appendix/spot-the-failure.md)
+  - [E. A worked rollout](appendix/worked-example.md)
+  - [Glossary](appendix/glossary.md)
+- [FAQ](faq.md)
