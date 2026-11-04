@@ -24,7 +24,15 @@ and how it is resolved against a protocol version. It is language-neutral; the
     a later spec overrides it or an explicit override is supplied.
   - `preRelease` (enum) — one of `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
 - **VersionedSpecs** — a feature's ordered lifecycle: one or more `FeatureSpec`s.
-- **Registry** — a map from `Feature` to `VersionedSpecs`.
+- **FeatureDef** — a feature's registry entry: its `VersionedSpecs` plus an optional
+  `description`:
+  - `description` (string, optional) — a human-readable summary for operator-facing
+    listings, generated docs, and the plan / dry-run output. It is **informational
+    only**: it MUST NOT affect resolution (§3), the `preRelease` policy (§4),
+    overrides (§5), or the run invariant (protocol-spec §3). It MAY be empty or
+    absent.
+  - `specs` — the feature's `VersionedSpecs`.
+- **Registry** — a map from `Feature` to its `FeatureDef`.
 
 ## 2. Registry validity
 
