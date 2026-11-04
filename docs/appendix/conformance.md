@@ -61,8 +61,11 @@ stays off by default:
 - `registry` is the input feature table. `description` is present precisely to prove
   it is ignored — resolution must not change because of it.
 - Each `case` sets `active` and lists the expected `enabled` result per feature.
-- `featureA` flips on at `active = 6` (its GA spec); `featureB` stays off at every
-  version because Alpha needs an explicit opt-in.
+- `featureA` flips on at `active = 6` (its GA spec). `featureB` is Alpha with its
+  default off, so it stays off at every version shown here. (The separate
+  [`overrides_and_alpha.json`](https://github.com/automa-saga/gatekit-spec/blob/main/conformance/resolution/overrides_and_alpha.json)
+  fixture isolates the Alpha rule: it gives an Alpha feature a `true` default and
+  shows it still resolving **off** until the gate is opted in.)
 
 ## The fixture schemas
 
@@ -114,9 +117,10 @@ A new implementation becomes "conformant" by doing the same: load every file nam
 
 ## Why this matters for *you*
 
-If you are **choosing** gatekit for a polyglot system, the fixtures are your
-guarantee that the Go service and (later) the Kotlin service will not silently
-disagree about whether a feature is on. If you are **implementing** gatekit in a new
+If you are **choosing** gatekit for a [polyglot](glossary.md#polyglot) system (one
+built in more than one language), the fixtures are your guarantee that the Go service
+and (later) the Kotlin service will not silently disagree about whether a feature is
+on. If you are **implementing** gatekit in a new
 language, the fixtures are your to-do list and your definition of done.
 
 ## See also

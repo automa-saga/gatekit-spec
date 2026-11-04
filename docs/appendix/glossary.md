@@ -194,3 +194,29 @@ can be a static value, config, or the migration layer's store.
 <a id="conformance-fixture"></a>**Conformance fixture.** A language-neutral JSON file
 of inputs and expected outcomes that every implementation must pass. The source of
 truth for cross-language agreement. See [Appendix B](conformance.md).
+
+## General terms
+
+A few words from software and math that the lessons use. We keep the real term and
+define it here rather than talk around it.
+
+<a id="monotonic"></a>**Monotonic.** Only ever moves in one direction. For a counter,
+it means the value only goes up, never down. The
+[activation version](#activation-version) is monotonic.
+
+<a id="half-open-range"></a>**Half-open range `(from, to]`.** A span that *excludes*
+its lower end and *includes* its upper end: every value greater than `from`, up to and
+including `to`. gatekit's [plan](#plan) includes migrations whose version falls in
+`(from, to]`.
+
+<a id="idempotent"></a>**Idempotent.** Safe to run more than once: running it again
+when its effect is already present changes nothing. gatekit migrations are idempotent
+because [applies](#applies) reads ground truth instead of a log of past runs.
+
+<a id="blast-radius"></a>**Blast radius.** How much a change can affect if it goes
+wrong — one machine, or the whole fleet. One axis a consumer might use to classify a
+migration's [scope](#scope).
+
+<a id="polyglot"></a>**Polyglot.** Using more than one programming language. gatekit is
+built for polyglot systems, where (say) a Go service and a Kotlin service must agree
+on the same behavior.

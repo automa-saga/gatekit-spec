@@ -13,7 +13,7 @@ rule for choosing between them.
 ## Two families of tool
 
 Almost every tool in this space falls into one of two families. Getting the family
-right is 90% of the decision.
+right is most of the decision.
 
 **Family A — runtime flag services.** A flag lives *outside* your binary, on a
 server, and is decided at runtime, often per user. You change it from a dashboard.

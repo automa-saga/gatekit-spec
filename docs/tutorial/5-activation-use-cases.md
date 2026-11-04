@@ -123,8 +123,9 @@ These map to a **run-policy**:
 | `interop` | `held` | only at a deliberate `finalize` |
 | *(anything unmapped)* | `held` | the safe default — never auto-fires |
 
-You can define your own scopes (by blast radius, by how deliberate the change is,
-whatever you need) and map each to `run-now` or `held`. Any scope you forget to map
+You can define your own scopes (by [blast radius](../appendix/glossary.md#blast-radius)
+— how much a change can affect — by how deliberate the change is, whatever you need)
+and map each to `run-now` or `held`. Any scope you forget to map
 falls back to `held` — the conservative choice, because a held migration never fires
 on its own.
 
@@ -146,9 +147,10 @@ for _, step := range plan.RunNow() { /* will run at activation */ }
 for _, step := range plan.Held()   { /* waits for finalize */ }
 ```
 
-The plan includes a migration only if its version is in the half-open range
-`(from, to]` **and** its `Applies` returns true. Already-satisfied migrations are
-left out, which is why re-running a plan is safe.
+The plan includes a migration only if its version is in the
+[half-open range](../appendix/glossary.md#half-open-range) `(from, to]` — greater than
+`from`, up to and including `to` — **and** its `Applies` returns true.
+Already-satisfied migrations are left out, which is why re-running a plan is safe.
 
 ## The two execution steps
 

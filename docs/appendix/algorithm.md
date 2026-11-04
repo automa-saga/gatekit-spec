@@ -8,15 +8,20 @@
 
 ## Inputs
 
-Resolution is a pure function of exactly two inputs:
+Resolution is a deterministic function of the gate's own inputs, with no dependence
+on external state:
 
 - the **registry** — a map from each `Feature` to its `FeatureDef` (an optional
-  `description` plus `VersionedSpecs`), compiled into the binary, and
+  `description` plus `VersionedSpecs`), compiled into the binary,
 - the **active** activation version `v` — a non-negative integer supplied by the
-  version source.
+  version source, and
+- the gate's **construction-time configuration** — any per-feature overrides and
+  whether `ALPHA` is opted in (`allowAlpha`), both fixed when the gate is built.
 
 It depends on **nothing else**: not the wall clock, not the environment, not call
-order.
+order. core-spec §3 states resolution as a pure function of the registry and the
+version; the overrides (§5) and the `ALPHA` opt-in (§4) are the gate's own fixed
+configuration, applied in the precedence below — they are inputs, not external state.
 
 ## Registry validity
 
@@ -62,7 +67,7 @@ Enabled(f, v):
     if s is none:                    # f unknown, or first spec not yet reached
         return false
 
-    # 3. ALPHA is off unless opted in
+    # 3. ALPHA is off unless opted in (allowAlpha is set by WithExperimental)
     if s.maturity == ALPHA and not allowAlpha:
         return false
 

@@ -14,6 +14,8 @@ The impact labels: 🟡 *silent wrong behavior* · 🟠 *outage / broken fleet* 
 
 ---
 
+<a id="f1"></a>
+
 ## F.1 — The feature that never turns on 🟡
 
 ```go
@@ -104,34 +106,41 @@ comparison is not.
 
 ---
 
-## F.4 — The dead code that wasn't dead 🟠
+## F.4 — The dead code deleted too early 🟠
 
 ```go
-// max is now 7, window W=1, so min=6. The author cleans up aggressively:
-// "version 5 is old, delete its path."
+// max is 6, window W=1, so min=5 — version 5 is STILL supported.
+// The author cleans up anyway: "the split catalog is on in prod now, drop the old path."
 func loadCatalog(gate *gatekit.FeatureGate) {
-    // removed loadSingleCatalog() and the else branch entirely
+    // removed loadSingleCatalog() and the whole if/else; now unconditional
     loadSplitCatalog()
 }
 ```
 
-A node that upgraded slowly is still at `active = 5`... no wait — it *can't* be,
-because of one gatekit mechanism. But suppose the author *also* widened nothing and a
-node legitimately lagged. What protects the fleet, and what did the author risk?
+The fleet is mid-upgrade: most nodes are at `active = 6`, but a few slow ones are
+still at `active = 5`. After this change ships, those slow nodes start splitting the
+catalog too — a behavior they were never meant to run yet, and that their peers at 5
+don't expect. What went wrong?
 
 <details>
 <summary>Answer</summary>
 
-Deleting a code path is only safe **once its version drops below `min`** — out of the
-support window. With `W = 1` and `max = 7`, `min = 6`, so version 5 *is* out of the
-window and the deletion is actually fine here. The risk is deleting it **one release
-too early** (while `min` was still 5), which would strand any node still at 5.
+**The old path was deleted while version 5 was still in the support window.** With
+`max = 6` and `W = 1`, `min = 5`, so a node at `active = 5` is still supported and
+still *expects* the old single-catalog behavior. Removing the `if`/`else` makes
+`loadCatalog` unconditional, so it runs the new path at **every** version — including
+5. The collapse happened one generation too early.
 
-**The controls:** the **support window** defines exactly when a path is safe to delete
-(Lesson 6, Rule 2), and the **run invariant** (`min ≤ active ≤ max`) stops a node from
-running at a version whose path has been removed — it refuses to start instead of
-silently losing behavior ([design note 5](design-notes.md)). The planned removal lint
-keys this to `W` so the cleanup is not purely a human judgment call.
+A code path is only safe to delete **once its version drops below `min`** — out of the
+window (Lesson 6, Rule 2). Here that moment arrives only when `max` reaches 7 (which
+pushes `min` to 6); until then, both paths must stay. Note the run invariant does
+*not* catch this: `active = 5` is in `[5, 6]`, so the node starts cleanly and then
+misbehaves — a within-window logic bug, not an out-of-range refusal.
+
+**The control:** the **support window** defines exactly when a path is safe to delete,
+and the planned **removal lint** keys this to `W` so it is not purely a human judgment
+call ([design note 5](design-notes.md)). Delete on the window's schedule, not on "it's
+on in production now."
 </details>
 
 ---
@@ -315,8 +324,8 @@ Nearly every failure above is one of three mistakes:
 
 1. **Fusing what gatekit separates** — identifier from constant (F.1), behavior from
    history (F.2), activation from release (F.3), activate from deploy (F.8, F.9).
-2. **Skipping a guard rail** — the run invariant (F.4, F.5), idempotent `applies`
-   (F.6), the write floor (F.9).
+2. **Skipping a guard rail** — the support window (F.4), the run invariant (F.5),
+   idempotent `applies` (F.6), the write floor (F.9).
 3. **Misreading a safe default as a bug** — held-by-default scopes (F.7),
    off-by-default alpha (F.10).
 

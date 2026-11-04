@@ -4,9 +4,9 @@
 > declare a feature, ship it asleep, turn it on, and — the part everyone forgets —
 > clean up the old code afterwards?
 
-> **Prerequisites:** [Lesson 2](2-why-gatekit.md) for *activation version*,
-> *registry*, and *maturity*. A little Go helps, but the shape is the same in any
-> language.
+> **Prerequisites:** [Lesson 2](2-why-gatekit.md) for *activation version* and
+> *registry* (*maturity* is introduced in this lesson). A little Go helps, but the
+> shape is the same in any language.
 
 **You will learn:** the full life of a feature in gatekit — declare it, gate the
 code, ship it dormant, open the support window, flip it on, and delete the old path
@@ -79,9 +79,10 @@ resolves and how tools treat it:
 | `GA` | Yes, by its `Default` | Generally available. A stable promise. |
 | `Deprecated` | Yes, by its `Default` | On its way out. Lints flag it for removal. |
 
-`Alpha` is special: even if its `Default` is `true`, it stays **off** unless the
-operator opts in (an `--experimental` switch). This lets you merge genuinely
-unfinished work without any risk that it turns itself on.
+`Alpha` is special: even if its `Default` is `true`, it stays **off** unless the gate
+is opted in with `WithExperimental(true)` (the equivalent of an `--experimental`
+switch an operator would set). This lets you merge genuinely unfinished work without
+any risk that it turns itself on.
 
 ## Step 2: Gate the code
 

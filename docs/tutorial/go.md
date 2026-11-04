@@ -42,7 +42,8 @@ fixtures* — so this site never implies a library that does not exist yet.
 
 Because every implementation must pass the same fixtures, the *concepts* in Lessons
 1–6 are identical across languages. Only the syntax changes. If you have read the Go
-lessons, you already understand the others; you are waiting only on the code.
+lessons, you will understand the others as they arrive; you are waiting only on the
+code.
 
 > Want to help bring one of these to life? See
 > [CONTRIBUTING](https://github.com/automa-saga/gatekit-spec/blob/main/CONTRIBUTING.md)

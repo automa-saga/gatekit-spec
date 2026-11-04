@@ -85,7 +85,7 @@ The most common cause is a **misspelled or unregistered identifier**: an unknown
 resolves off, with no error. Declare each feature as a typed `Feature` constant and use
 that constant at both registration and call sites so the compiler catches typos. Other
 causes: the active version has not reached the feature's first spec, or its spec's
-default is off. See [F.1 in Spot the failure](appendix/spot-the-failure.md).
+default is off. See [F.1 in Spot the failure](appendix/spot-the-failure.md#f1).
 
 ## How wide should my support window be?
 

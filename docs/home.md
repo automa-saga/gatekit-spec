@@ -1,4 +1,4 @@
-# Releasing features &amp; rolling upgrades
+# Releasing features & rolling upgrades
 
 A short course on two skills every product engineer eventually needs:
 
@@ -67,11 +67,10 @@ the **activation version** — kept separate from your product's release version
 (like `v2.3.1`).
 
 ```
-Release version   v2.3.0 ── v2.3.1 ── v2.4.0 ── v2.4.1 ──►   (ships constantly)
-                                  │
-Activation version      3 ─────── 3 ─────── 4 ─────── 4  ──►   (moves only on a behavior change)
-                                            ▲
-                                     the feature turns on here
+Release version     v2.3.0    v2.3.1    v2.4.0    v2.4.1    ──►   (ships constantly)
+Activation version  3         3         4         4         ──►   (moves only on a change)
+                                        ▲
+                                 the feature turns on here
 ```
 
 Many releases can share one activation version. The activation version only

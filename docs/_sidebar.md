@@ -7,7 +7,7 @@
   - [5. Activation use cases](tutorial/5-activation-use-cases.md)
   - [6. Rolling-upgrade thinking](tutorial/6-rolling-upgrade-thinking.md)
 - Other languages
-  - [Go (reference)](tutorial/go.md)
+  - [Overview](tutorial/go.md)
   - [Kotlin (coming)](tutorial/kotlin.md)
   - [Rust (coming)](tutorial/rust.md)
   - [Python (coming)](tutorial/python.md)

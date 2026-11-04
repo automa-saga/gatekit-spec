@@ -53,8 +53,8 @@ Enabled(feature) = f(registry, version)      // nothing else
 ```
 
 No wall clock. No environment. No remote call. Two machines running the same binary
-at the same version **cannot disagree.** And there is nothing to be "down." This is
-the property that makes a fleet-wide flip safe to reason about.
+at the same version and configuration **cannot disagree.** And there is nothing to be
+"down." This is the property that makes a fleet-wide flip safe to reason about.
 
 > **Term — registry.** The in-code table that lists every feature and, for each, the
 > rule for when it is on. It is compiled into the program, so it ships *with* the
@@ -94,7 +94,8 @@ version:
 - Release version: *"How new is this build?"*
 - Activation version: *"Which generation of behavior does this build run?"*
 
-Because it is a plain monotonic counter, you can compare two machines at a glance: a
+Because it is a plain [monotonic](../appendix/glossary.md#monotonic) counter (it only
+ever goes up, never down), you can compare two machines at a glance: a
 machine at activation 6 and one at activation 5 differ by exactly one behavior
 generation, so they are one step apart — inside a support window of one, they are
 compatible. That simple arithmetic is the backbone of the rolling upgrade in
