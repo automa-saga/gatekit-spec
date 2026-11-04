@@ -7,6 +7,11 @@
 > [5](../tutorial/5-activation-use-cases.md), and
 > [6](../tutorial/6-rolling-upgrade-thinking.md), this is where they come together.
 
+> **This one is runnable.** Everything below is a real, working program you can build
+> and run — [`examples/go/kv/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/kv).
+> `cd examples/go && go run ./kv` prints the rollout stage by stage; the snippets in
+> this appendix are drawn from its source.
+
 ## The tool: `kv`, a small clustered key-value store
 
 Imagine a modest distributed database — call it `kv`. It is a **cluster** of, say,
@@ -201,6 +206,21 @@ gatekit's contribution is not any single clever trick. It is that **all six
 requirements are handled by the same small, deterministic model** — ship dormant,
 activate on a dedicated version, run the migration at finalize, guard the window — so
 the safe path is the default and the dangerous one refuses.
+
+## Run it yourself
+
+The whole walkthrough above is a runnable binary:
+
+```bash
+cd examples/go
+go run ./kv          # or: go build ./kv && ./kv
+```
+
+It prints exactly the stages above — watch `records` stay `[v1 v1]` until the final
+`finalize` line, which is the entire point: **the migration runs at activation, not at
+deploy.** The source is a handful of small files (`record.go`, `feature.go`,
+`migration.go`, `rollout.go`, `main.go`) in
+[`examples/go/kv/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/kv).
 
 ## See also
 
