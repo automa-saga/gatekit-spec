@@ -5,13 +5,13 @@
     "featureA": {
       "description": "Split the catalog into per-minor files",
       "specs": [
-        { "since": 4, "default": false, "maturity": "BETA" },
-        { "since": 6, "default": true, "maturity": "GA" }
+        { "activeFrom": 4, "default": false, "maturity": "BETA" },
+        { "activeFrom": 6, "default": true, "maturity": "GA" }
       ]
     },
     "featureB": {
       "specs": [
-        { "since": 5, "default": false, "maturity": "ALPHA" }
+        { "activeFrom": 5, "default": false, "maturity": "ALPHA" }
       ]
     }
   },

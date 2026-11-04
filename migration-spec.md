@@ -4,7 +4,7 @@
 
 This document defines the optional migration/activation layer: the migration
 contract, how a plan is computed, and how plans are executed. It builds on the
-version model in [protocol-spec.md](protocol-spec.md) (the `{min, max, active}`
+version model in [activation-spec.md](activation-spec.md) (the `{min, max, active}`
 triple, activation timing, and finalize). The [conformance/planning](conformance/planning)
 fixtures are the source of truth for plan computation.
 
@@ -14,16 +14,16 @@ resolution). Implementations that provide it MUST conform to this document.
 
 ## 1. Migration contract
 
-A **Migration** is a one-time transformation tied to a protocol version:
+A **Migration** is a one-time transformation tied to an activation version:
 
 - `id` (string) — a stable, unique identifier (stable across releases).
 - `description` (string) — human-readable summary.
-- `version` (integer) — the protocolVersion this migration activates with.
+- `version` (integer) — the activation version this migration activates with.
 - `scope` (string) — a **consumer-defined** classification of the migration. gatekit
   does not fix the set of scopes; a consumer MAY define as many as it needs. Each
   scope is mapped to a **run-policy** (§2.1) that decides the migration's timing.
   gatekit predefines `host-local` and `interop` only as the keys of the built-in
-  default policy (protocol-spec §5), not as a closed enum.
+  default policy (activation-spec §5), not as a closed enum.
 - `applies()` → boolean — whether the migration still needs to run. It MUST read
   **ground truth** (on-disk/cluster state), NOT a ledger of past runs, so that a
   migration is safe to re-run and `applies()` returns false once the effect is
@@ -31,7 +31,7 @@ A **Migration** is a one-time transformation tied to a protocol version:
 - `execute()` — performs the forward transformation. It SHOULD be safe to re-run.
 - `rollback()` — reverses `execute()` on a best-effort basis, used to compensate
   when a later step in the same run fails, and (for reversible steps) to lower
-  `active` (see protocol-spec §6).
+  `active` (see activation-spec §6).
 
 ## 2. Plan computation
 
@@ -74,7 +74,7 @@ implementation MAY let a consumer's classifier extend or override the built-in
 default.
 
 The scope string itself is opaque to gatekit: the per-host/cross-host meaning of
-`host-local`/`interop` (protocol-spec §5) is a property of the *default* policy, not
+`host-local`/`interop` (activation-spec §5) is a property of the *default* policy, not
 of the scope axis. A consumer MAY classify by any axis it needs (blast radius,
 deliberateness, …) without gatekit ascribing meaning to the names.
 
@@ -92,13 +92,13 @@ implementation MUST roll back the steps it already executed, in reverse order
 ### 3.2 Finalize
 Finalize MUST run the held steps in plan order; on failure it MUST roll back the
 executed held steps (reverse order) and MUST NOT advance `active`. On success it
-MUST advance `active` to `to`. Finalize is the **one-way line** (protocol-spec §6):
+MUST advance `active` to `to`. Finalize is the **one-way line** (activation-spec §6):
 rollback is only guaranteed before any migration in it has run.
 
 ### 3.3 Reversibility
-Lowering `active` (protocol-spec §6) is permitted only across **reversible** steps
+Lowering `active` (activation-spec §6) is permitted only across **reversible** steps
 (no migration, or every migration provides a working `rollback()` and honors the
-write floor, protocol-spec §7) and MUST be refused across an irreversible step.
+write floor, activation-spec §7) and MUST be refused across an irreversible step.
 
 ### 3.4 Execution is a saga
 The execution model in §3.1–§3.2 is a **saga / compensation** model: steps run in
@@ -111,5 +111,5 @@ its own durability specification).
 ## 4. Relationship to the existing frameworks
 This model generalizes conventional version-boundary migration frameworks: instead
 of "run once when the binary version crosses a boundary," a migration declares the
-protocolVersion it belongs to and runs when that version **activates** — at install
+activation version it belongs to and runs when that version **activates** — at install
 for run-now steps, at finalize for held steps.
