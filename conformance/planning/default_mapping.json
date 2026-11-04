@@ -1,0 +1,12 @@
+{
+  "name": "default_mapping",
+  "description": "With no scopePolicy supplied, the built-in default classifier applies (back-compat): host-local -> run-now, interop -> held.",
+  "migrations": [
+    { "id": "hl", "version": 5, "scope": "host-local", "applies": true },
+    { "id": "io", "version": 6, "scope": "interop", "applies": true }
+  ],
+  "from": 4,
+  "to": 6,
+  "runNow": ["hl"],
+  "held": ["io"]
+}
