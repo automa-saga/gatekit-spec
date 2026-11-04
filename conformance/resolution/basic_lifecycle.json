@@ -1,14 +1,19 @@
 {
   "name": "basic_lifecycle",
-  "description": "A Beta feature promoted to GA, and an Alpha feature that stays off by default.",
+  "description": "A Beta feature promoted to GA, and an Alpha feature that stays off by default. featureA carries an informational description that must not affect resolution.",
   "registry": {
-    "featureA": [
-      { "version": 4, "default": false, "preRelease": "BETA" },
-      { "version": 6, "default": true, "preRelease": "GA" }
-    ],
-    "featureB": [
-      { "version": 5, "default": false, "preRelease": "ALPHA" }
-    ]
+    "featureA": {
+      "description": "Split the catalog into per-minor files",
+      "specs": [
+        { "version": 4, "default": false, "preRelease": "BETA" },
+        { "version": 6, "default": true, "preRelease": "GA" }
+      ]
+    },
+    "featureB": {
+      "specs": [
+        { "version": 5, "default": false, "preRelease": "ALPHA" }
+      ]
+    }
   },
   "cases": [
     { "active": 3, "enabled": { "featureA": false, "featureB": false } },
