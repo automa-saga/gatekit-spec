@@ -41,6 +41,17 @@ optional migration layer. **If you are building a Kubernetes component that alre
 component-base, use component-base.** gatekit is for everything else. See
 [Lesson 3](tutorial/3-contrast-with-existing-patterns.md).
 
+## If I activate a gate later, when does its data migration run?
+
+**At the moment of activation — not at deploy.** In gatekit a migration is tied to the
+activation version, so it runs when that version activates: immediately for a
+`host-local` (run-now) migration, or at `finalize` for a `held`/`interop` one. If you
+deploy the new code today but defer activation to next week, the migration runs *next
+week, at finalize*, together with the behavior it supports — never silently at deploy
+and never forgotten. This coupling is the part plain flag services and most gate
+libraries miss: they flip a boolean and leave the data change to you as a separate,
+manual step. See [Lesson 5](tutorial/5-activation-use-cases.md).
+
 ## What happens with an irreversible migration?
 
 Rollback is only *guaranteed* before [finalize](tutorial/5-activation-use-cases.md) runs

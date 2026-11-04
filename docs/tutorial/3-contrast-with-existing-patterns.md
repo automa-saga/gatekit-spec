@@ -49,7 +49,10 @@ a web UI.
 - They add a **network dependency and a runtime story** ("what if the service is
   down?"). gatekit has neither.
 - They have **no built-in model for data migrations or an irreversible one-way
-  step.** That is not their job.
+  step.** A flag service flips a boolean; if turning the feature on also means
+  migrating data, that is a separate, manual problem it knows nothing about. gatekit
+  ties the migration to the activation version, so a gate flipped on later carries its
+  data change to that later moment (see [Lesson 5](5-activation-use-cases.md)).
 
 **What gatekit borrows:** the core idea that *deploy and activate are different
 events* — a flag you can flip without redeploying.

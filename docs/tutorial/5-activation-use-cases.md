@@ -62,7 +62,8 @@ The two axes do different jobs:
 ```
 Release version   ──►  "deploy the binaries"   (happens per machine, as they roll)
 Activation version──►  "raise the protocol"     (happens ONCE, for the whole fleet,
-                                                  after every machine is new enough)
+                                                  after every machine is new enough;
+                                                  the held migration runs here)
 ```
 
 **Deploy** moves the release version, machine by machine, new code dormant.
@@ -74,6 +75,15 @@ shared storage format), or you want a rollback-safe staging period between deplo
 activate.
 
 ## Migrations, and the one word that changes everything
+
+> **The piece almost every other gate misses.** A migration is tied to the
+> **activation version**, not to deploy. So when you defer activation, the migration
+> runs at the **moment of activation** (`finalize`) — never silently at deploy, and
+> never left behind. A gate that is flipped on *later* must carry its data change to
+> *that* later moment. Plain flag services (LaunchDarkly, Unleash) and most
+> feature-gate libraries have no idea your gate implies a migration at all: they flip a
+> boolean and leave the data change to you, as a separate, manual, easy-to-forget step.
+> Coupling the two is the whole reason this layer exists.
 
 When activation also transforms data, you attach a **migration** to the activation
 version. A migration is a small object with a forward step, a reverse step, and a way

@@ -90,14 +90,24 @@ You take only the layer you need.
 
 ## Pick a reading path
 
-**I just want to gate a feature.** Read Lessons 1, 2, and 4. That is the whole
-"ship it dormant, flip it later" story.
+**I just want to gate a feature** — the whole "ship it dormant, flip it later" story:
 
-**I am upgrading a fleet without downtime.** Read Lessons 1 and 2 for the model,
-then 5 and 6 for deferred activation, `finalize`, and the design rules.
+1. [1. Why feature gating is needed](tutorial/1-why-feature-gating.md)
+2. [2. Why gatekit is built this way](tutorial/2-why-gatekit.md)
+3. [4. Build and release a feature](tutorial/4-build-and-release-a-feature.md)
 
-**I am choosing a tool for my team.** Read Lesson 3 (the comparison) and the
-[FAQ](faq.md).
+**I am upgrading a fleet without downtime** — the model, then deferred activation,
+`finalize`, and the design rules:
+
+1. [1. Why feature gating is needed](tutorial/1-why-feature-gating.md)
+2. [2. Why gatekit is built this way](tutorial/2-why-gatekit.md)
+3. [5. Activation use cases](tutorial/5-activation-use-cases.md)
+4. [6. Rolling-upgrade thinking](tutorial/6-rolling-upgrade-thinking.md)
+
+**I am choosing a tool for my team** — the comparison and the common questions:
+
+1. [3. How it compares to other tools](tutorial/3-contrast-with-existing-patterns.md)
+2. [FAQ](faq.md)
 
 **I want the exact rules.** The [appendix](appendix/algorithm.md) states the
 resolution algorithm precisely, explains the [conformance fixtures](appendix/conformance.md)
