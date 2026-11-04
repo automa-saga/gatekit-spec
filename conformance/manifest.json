@@ -13,7 +13,9 @@
     "planning": [
       "planning/range_and_scope.json",
       "planning/empty_when_satisfied.json",
-      "planning/ordering.json"
+      "planning/ordering.json",
+      "planning/default_mapping.json",
+      "planning/custom_scope_policy.json"
     ],
     "serialization": []
   }

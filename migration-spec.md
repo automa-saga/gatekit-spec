@@ -19,7 +19,11 @@ A **Migration** is a one-time transformation tied to a protocol version:
 - `id` (string) — a stable, unique identifier (stable across releases).
 - `description` (string) — human-readable summary.
 - `version` (integer) — the protocolVersion this migration activates with.
-- `scope` (enum) — `host-local` or `interop` (see protocol-spec §5).
+- `scope` (string) — a **consumer-defined** classification of the migration. gatekit
+  does not fix the set of scopes; a consumer MAY define as many as it needs. Each
+  scope is mapped to a **run-policy** (§2.1) that decides the migration's timing.
+  gatekit predefines `host-local` and `interop` only as the keys of the built-in
+  default policy (protocol-spec §5), not as a closed enum.
 - `applies()` → boolean — whether the migration still needs to run. It MUST read
   **ground truth** (on-disk/cluster state), NOT a ledger of past runs, so that a
   migration is safe to re-run and `applies()` returns false once the effect is
@@ -40,13 +44,39 @@ is computed as follows. A migration is included iff:
 Migrations failing (1) or (2) MUST be omitted. Omitting already-satisfied
 migrations makes the plan **idempotent** across re-runs.
 
-Each included migration becomes a **step**, classified by scope:
-
-- `host-local` → **run-now** (eligible to run at install / immediate activation).
-- `interop` → **held** (deferred until finalize).
+Each included migration becomes a **step** whose timing is its scope's run-policy
+(§2.1).
 
 Steps MUST be ordered by `version` ascending, then by `id` ascending, so plans are
 deterministic. A plan is a pure value: computed on demand, never persisted.
+
+### 2.1 Run-policy and scope classification
+
+A **run-policy** is the timing a step is eligible for, one of:
+
+- `run-now` — eligible to run at install / immediate activation.
+- `held` — deferred until a deliberate `finalize` (§3.2).
+
+An implementation MUST resolve each migration's `scope` to a run-policy through a
+**consumer-supplied classifier** (a scope→policy map or equivalent). It MUST NOT
+hardcode a fixed scope→policy mapping. A consumer MUST be able to define **three or
+more** scopes, each mapped to a run-policy.
+
+The implementation MUST provide a **built-in default classifier** used when the
+consumer supplies none, so existing consumers are unaffected:
+
+- `host-local` → `run-now`,
+- `interop` → `held`.
+
+A scope that the effective classifier does not map MUST resolve to `held` — the
+conservative default, since `held` never fires automatically at install. An
+implementation MAY let a consumer's classifier extend or override the built-in
+default.
+
+The scope string itself is opaque to gatekit: the per-host/cross-host meaning of
+`host-local`/`interop` (protocol-spec §5) is a property of the *default* policy, not
+of the scope axis. A consumer MAY classify by any axis it needs (blast radius,
+deliberateness, …) without gatekit ascribing meaning to the names.
 
 An implementation MUST be able to render a plan before executing it (a
 `--plan` / dry-run preview): for each step, its `id`, `description`, `scope`, and

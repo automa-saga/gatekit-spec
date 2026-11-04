@@ -1,0 +1,19 @@
+{
+  "name": "custom_scope_policy",
+  "description": "A consumer defines three scopes (filesystem, host-system, cluster) mapped to run-policies; an unmapped scope (mystery) falls back to held. The default host-local/interop mapping is not involved.",
+  "scopePolicy": {
+    "filesystem": "run-now",
+    "host-system": "run-now",
+    "cluster": "held"
+  },
+  "migrations": [
+    { "id": "fs", "version": 5, "scope": "filesystem", "applies": true },
+    { "id": "host", "version": 5, "scope": "host-system", "applies": true },
+    { "id": "clu", "version": 6, "scope": "cluster", "applies": true },
+    { "id": "unk", "version": 6, "scope": "mystery", "applies": true }
+  ],
+  "from": 4,
+  "to": 6,
+  "runNow": ["fs", "host"],
+  "held": ["clu", "unk"]
+}

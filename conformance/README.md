@@ -17,8 +17,11 @@ source of truth for cross-language agreement. Groups are enumerated in
   `{ name, description, max, window, firstVersion, cases: [{ active, valid }] }`
   where `min = max(firstVersion, max - window)`.
 - **planning/** — migration planning (migration-spec §2). Schema:
-  `{ name, description, migrations: [{ id, version, scope, applies }], from, to, runNow: [id], held: [id] }`.
-  `runNow`/`held` are the expected step ids (ordered by version then id).
+  `{ name, description, scopePolicy?: {scope: policy}, migrations: [{ id, version, scope, applies }], from, to, runNow: [id], held: [id] }`.
+  `runNow`/`held` are the expected step ids (ordered by version then id). `scopePolicy`
+  (optional) is the consumer scope→run-policy classifier, each policy one of `run-now`
+  or `held`; when omitted the built-in default applies (`host-local`→run-now,
+  `interop`→held), and any scope the classifier does not map resolves to `held`.
 - **serialization/** — *(reserved)* protocol-state and message round-trips.
 
 ## Running
