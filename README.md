@@ -1,6 +1,6 @@
 # gatekit Specifications
 
-> Status: **draft** — the core and protocol specs are still settling alongside the first (Go) implementation.
+> Status: **draft** — the core and activation specs are still settling alongside the first (Go) implementation.
 
 gatekit is intended to exist in more than one language (Go first, then others such
 as Kotlin, Java, Python, and Rust) for the same audience and use cases: a
@@ -8,11 +8,11 @@ version-keyed feature-gate and rolling-upgrade mechanism.
 
 For a multi-language project the **product is the specification**, not any single
 implementation. Two runtimes that both "implement gatekit" are worthless to a user
-if a feature resolves differently, or a persisted protocol state is read
+if a feature resolves differently, or a persisted activation state is read
 differently, depending on the language. The specifications here define the
 behavior every conformant implementation MUST exhibit, so that:
 
-- a protocol state written by one implementation is understood identically by
+- an activation state written by one implementation is understood identically by
   another,
 - feature resolution is identical everywhere given the same registry and version,
   and
@@ -27,7 +27,7 @@ behavior every conformant implementation MUST exhibit, so that:
    conformant implementation**, not the definition. Where the Go code and a spec
    disagree, the spec is authoritative and the code is a bug.
 2. **On-disk / on-wire formats are contracts.** Any artifact persisted or
-   exchanged between processes (the `{min, max, active}` protocol state, the
+   exchanged between processes (the `{min, max, active}` activation state, the
    finalize-readiness/negotiation message) has a versioned, language-neutral
    schema. Field names and value enumerations are fixed by the spec.
 3. **Conformance is testable.** Each spec is accompanied by language-neutral
@@ -42,7 +42,7 @@ behavior every conformant implementation MUST exhibit, so that:
 
 - [core-spec.md](core-spec.md) — the feature-gate model: features, versioned
   specs, and deterministic resolution.
-- [protocol-spec.md](protocol-spec.md) — the version model: the `{min, max,
+- [activation-spec.md](activation-spec.md) — the version model: the `{min, max,
   active}` triple, the run invariant, the configurable support window, activation
   (immediate/deferred), finalize, reversibility, and the serialized formats.
 - [migration-spec.md](migration-spec.md) — the optional migration/activation
@@ -61,11 +61,11 @@ draft until the whole is ratified.
 | Feature resolution (core §3–5) | **stable** — conformance-backed |
 | Alpha/override enforcement (core §4–5) | **stable** — conformance-backed |
 | Plan computation (migration §2) | **stable** — conformance-backed |
-| `{min,max,active}` triple, run invariant, window `W` (protocol §2–3) | **stable** — fixtures exist |
-| Activation / finalize / reversibility (protocol §5–6, migration §3) | **draft** — behavior fixed, details firm up with the impl |
-| Min-compatibility write floor (protocol §7) | **draft** |
-| Serialized protocol-state (protocol §8.1) | **draft** — shape only; fixtures to follow |
-| Negotiation / readiness message (protocol §6, §8.2) | **reserved** — co-defined when fleet finalize is built |
+| `{min,max,active}` triple, run invariant, window `W` (activation §2–3) | **stable** — fixtures exist |
+| Activation / finalize / reversibility (activation §5–6, migration §3) | **draft** — behavior fixed, details firm up with the impl |
+| Min-compatibility write floor (activation §7) | **draft** |
+| Serialized activation-state (activation §8.1) | **draft** — shape only; fixtures to follow |
+| Negotiation / readiness message (activation §6, §8.2) | **reserved** — co-defined when fleet finalize is built |
 | Lifecycle metadata / removal lint (§4 increment) | **prose** — not yet enforced or conformance-tested |
 
 Rule of practice: any implementation change that adds observable behavior lands a
@@ -85,5 +85,5 @@ gatekit is the standalone, general-purpose analogue of Kubernetes'
 compatibility-version / feature-gate model (KEP-4330). Terminology maps as:
 `--emulation-version` ↔ `active`, binary version ↔ `max`,
 `--min-compatibility-version` ↔ `min`. gatekit decouples the version from the
-release (a separate monotonic `protocolVersion`) and makes the support window
+release (a separate monotonic `activation version`) and makes the support window
 configurable rather than fixed.

@@ -1,4 +1,4 @@
-# gatekit protocol specification
+# gatekit activation specification
 
 > Status: **draft**. Normative keywords (MUST, SHOULD, MAY) per RFC 2119.
 > Parts marked *(reserved)* are not yet specified and are out of scope until they are.
@@ -12,22 +12,22 @@ and the serialized formats.
 
 - **Release version** — the artifact's own version (e.g. semver). Out of scope
   here.
-- **protocolVersion** — a non-negative monotonically increasing integer that
+- **activation version** — a non-negative monotonically increasing integer that
   changes **only** when a gated, contract-breaking behavior change ships. Many
-  releases MAY share one protocolVersion.
+  releases MAY share one activation version.
 
-An implementation MUST NOT equate the two: the protocolVersion is independent of
+An implementation MUST NOT equate the two: the activation version is independent of
 the release version.
 
 ## 2. The triple
 
-- **max** — the newest protocolVersion an implementation supports. It MUST equal
-  `MaxVersion(registry)` (core-spec §7).
+- **max** — the newest activation version an implementation supports. It MUST equal
+  `MaxActivation(registry)` (core-spec §7).
 - **W (support window)** — a configurable non-negative integer, default **1**. It
-  is the number of prior protocol versions the implementation also supports.
+  is the number of prior activation versions the implementation also supports.
 - **min** — derived as `max(firstVersion, max − W)`, where `firstVersion` is the
-  lowest `version` in the registry (0 if empty).
-- **active** — the protocolVersion currently in force; the value resolution
+  lowest `activeFrom` in the registry (0 if empty).
+- **active** — the activation version currently in force; the value resolution
   (core-spec §3) uses. It is supplied by a **version source** and MAY be persisted.
 
 ## 3. Run invariant
@@ -40,9 +40,9 @@ catch-up to proceed within the window.
 
 ## 4. Increment rules
 
-- protocolVersion MUST increase by at most **1 per release**; multiple gated
+- activation version MUST increase by at most **1 per release**; multiple gated
   changes in one release share the same next integer.
-- A new protocolVersion is introduced by adding a `FeatureSpec` (or a migration,
+- A new activation version is introduced by adding a `FeatureSpec` (or a migration,
   §5) at that integer — never by hand-editing `min`/`max`.
 - Advancing the floor so a version leaves the window (`version < min`) obliges the
   author to delete that version's now-unreachable specs and dead code paths (the
@@ -50,11 +50,11 @@ catch-up to proceed within the window.
 
 ## 5. Activation and migrations
 
-A protocol step MAY carry a one-time **migration** (a data/state transformation)
+A activation step MAY carry a one-time **migration** (a data/state transformation)
 in addition to gated code paths. Each migration declares a `scope`:
 
 - `host-local` — affects only the local participant; MAY run when its
-  protocolVersion activates (e.g. at install).
+  activation version activates (e.g. at install).
 - `interop` — requires agreement across participants; MUST be **held** until a
   coordinated finalize (§6).
 
@@ -76,7 +76,7 @@ versus are held (a plan / dry-run).
 the target version. Finalize is the **one-way line**: because a migration MAY be
 irreversible, rollback is only guaranteed *before* finalize has run any migration.
 
-A protocol step is **reversible** iff it has no migration, or every migration in it
+A activation step is **reversible** iff it has no migration, or every migration in it
 provides a working reverse and writes nothing that an older version in the window
 cannot read (the write floor, §7). For a reversible step an implementation MAY
 lower `active` (running reverse migrations). Lowering `active` across an
@@ -90,15 +90,15 @@ not yet specified.
 
 To keep lowering `active` data-safe, an implementation MUST NOT emit on-disk or
 on-wire data in a format that a version below `min` could not read. A
-writer/migration MAY declare the minimum protocolVersion required to read its
+writer/migration MAY declare the minimum activation version required to read its
 output; emitting below the floor MUST be rejected. Within `[min, max]`, lowering
 `active` is data-safe; crossing below `min` is not supported (and the run invariant
 forbids running there).
 
 ## 8. Serialized formats *(draft)*
 
-### 8.1 Protocol state
-The persisted protocol state is an object:
+### 8.1 Activation state
+The persisted activation state is an object:
 
 ```json
 { "schema": 1, "active": <int>, "min": <int>, "max": <int> }
@@ -116,6 +116,6 @@ Not yet specified; depends on §6.
 
 `active` ↔ `--emulation-version`; `max` ↔ binary version; `min` ↔
 `--min-compatibility-version`. gatekit differs by: a release-independent
-`protocolVersion`, a configurable window `W` (K8s fixes ~3), and bundling the
+`activation version`, a configurable window `W` (K8s fixes ~3), and bundling the
 optional migration/activation layer (K8s keeps storage migration/conversion
 separate).

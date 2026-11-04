@@ -2,9 +2,11 @@
   "name": "unknown_and_unreached",
   "description": "An unknown feature is off; a feature whose first spec is not yet reached is off.",
   "registry": {
-    "featureC": [
-      { "version": 10, "default": true, "preRelease": "GA" }
-    ]
+    "featureC": {
+      "specs": [
+        { "activeFrom": 10, "default": true, "maturity": "GA" }
+      ]
+    }
   },
   "cases": [
     { "active": 5, "enabled": { "featureC": false, "nope": false } },
