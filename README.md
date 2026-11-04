@@ -58,14 +58,15 @@ draft until the whole is ratified.
 
 | Area | Status |
 |---|---|
-| Feature resolution (core §3) | **stable** — conformance-backed |
+| Feature resolution (core §3–5) | **stable** — conformance-backed |
+| Alpha/override enforcement (core §4–5) | **stable** — conformance-backed |
 | Plan computation (migration §2) | **stable** — conformance-backed |
 | `{min,max,active}` triple, run invariant, window `W` (protocol §2–3) | **stable** — fixtures exist |
 | Activation / finalize / reversibility (protocol §5–6, migration §3) | **draft** — behavior fixed, details firm up with the impl |
 | Min-compatibility write floor (protocol §7) | **draft** |
 | Serialized protocol-state (protocol §8.1) | **draft** — shape only; fixtures to follow |
 | Negotiation / readiness message (protocol §6, §8.2) | **reserved** — co-defined when fleet finalize is built |
-| Alpha/override enforcement, lifecycle lint | **prose** — not yet enforced or conformance-tested |
+| Lifecycle metadata / removal lint (§4 increment) | **prose** — not yet enforced or conformance-tested |
 
 Rule of practice: any implementation change that adds observable behavior lands a
 matching spec section and conformance fixtures in the same change. For genuinely
