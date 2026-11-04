@@ -16,19 +16,19 @@ and how it is resolved against a protocol version. It is language-neutral; the
   SHOULD declare each feature as a named constant/enum of that type — one source of
   truth referenced by both registration and call sites, so an identifier cannot
   drift or be mistyped (a mistyped identifier resolves **off**, silently).
-- **FeatureSpec** — declares a feature's `default` and `preRelease` from a given
+- **FeatureSpec** — declares a feature's `default` and `maturity` from a given
   `version` onward:
   - `version` (integer, ≥ 0) — the protocol version at which this spec takes
     effect.
   - `default` (boolean) — whether the feature is on at or after `version`, unless
     a later spec overrides it or an explicit override is supplied.
-  - `preRelease` (enum) — one of `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
+  - `maturity` (enum) — one of `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
 - **VersionedSpecs** — a feature's ordered lifecycle: one or more `FeatureSpec`s.
 - **FeatureDef** — a feature's registry entry: its `VersionedSpecs` plus an optional
   `description`:
   - `description` (string, optional) — a human-readable summary for operator-facing
     listings, generated docs, and the plan / dry-run output. It is **informational
-    only**: it MUST NOT affect resolution (§3), the `preRelease` policy (§4),
+    only**: it MUST NOT affect resolution (§3), the `maturity` policy (§4),
     overrides (§5), or the run invariant (protocol-spec §3). It MAY be empty or
     absent.
   - `specs` — the feature's `VersionedSpecs`.
@@ -60,7 +60,7 @@ version source (see [protocol-spec.md](protocol-spec.md) §Active). Resolution M
 be a pure function of the registry and the version; it MUST NOT depend on wall
 clock, environment, or call order.
 
-## 4. preRelease policy
+## 4. maturity policy
 
 - `ALPHA` features are **not guaranteed across versions** and MUST resolve to
   **off** unless explicitly opted in (an override, see §5, or an implementation's
