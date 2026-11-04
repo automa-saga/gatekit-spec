@@ -109,6 +109,9 @@ You take only the layer you need.
 1. [3. How it compares to other tools](tutorial/3-contrast-with-existing-patterns.md)
 2. [FAQ](faq.md)
 
+**I want to see it all on one real tool** — a capstone that rolls a format change
+across a live cluster, end to end: [Appendix E: a worked rollout](appendix/worked-example.md).
+
 **I want the exact rules.** The [appendix](appendix/algorithm.md) states the
 resolution algorithm precisely, explains the [conformance fixtures](appendix/conformance.md)
 that keep every implementation in agreement, and records the [design decisions](appendix/design-notes.md).

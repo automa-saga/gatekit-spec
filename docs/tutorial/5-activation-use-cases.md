@@ -187,6 +187,42 @@ if err := runner.Finalize(ctx, plan, store); err != nil {
 - **`Finalize`** does the coordinated work and *then* advances the active version to
   the target. The version moves **only if every held step succeeds.**
 
+### A deferred migration, start to finish
+
+Put the whole sequence on one timeline, using the `RewriteReceipts` migration above
+(an `interop` step tied to activation version 6). Watch *when* the migration actually
+runs — not at deploy, but at finalize:
+
+```
+         Monday: DEPLOY                    (days pass…)              Friday: FINALIZE
+  ───────────────────────────────────────────────────────────────────────────────►
+  new binaries rolled out, dormant      preserve-downgrade        held migration RUNS,
+  active = 5                             window: rollback safe     then active → 6
+                                                                   behavior now live
+
+  plan = Plan(from:5, to:6)             (nothing has run yet)      runner.Finalize(...)
+  RewriteReceipts is HELD (interop)                                 → RewriteReceipts.Execute
+  runner.RunNow(...) → no-op here                                   → store.SetActive(6)
+```
+
+Read it left to right:
+
+1. **Monday — deploy.** You install the new binaries across the fleet. `active` is
+   still 5, so every node behaves exactly as before. You compute the plan for `5 → 6`;
+   `RewriteReceipts` is an `interop` migration, so it is **held** — `RunNow` has
+   nothing to do. **The data has not been touched.**
+2. **The days in between — the preserve-downgrade window.** The new code sits dormant.
+   Nothing irreversible has happened, so rolling back to the old binary is clean. You
+   watch metrics and wait until every node reports `max ≥ 6` (readiness).
+3. **Friday — finalize.** You call `runner.Finalize`. *Now* `RewriteReceipts.Execute`
+   runs — the receipts are rewritten — and only if it succeeds does `active` advance to
+   6 and the new behavior wake up, fleet-wide, together.
+
+This is the whole point from the top of the section, made concrete: **the migration
+runs at the moment of activation, Friday — not when the code was deployed on Monday.**
+A plain flag service would have flipped a boolean on Monday and left you to remember
+the receipt rewrite yourself.
+
 ## The one-way line
 
 Here is the sharpest idea in the whole course.
@@ -243,15 +279,60 @@ precise about this:
 | Shared wire/storage format; fleet must agree | two | `interop` → held | at `finalize` |
 | You want a rollback-safe staging pause | two | either, deferred | at `finalize`, after the preserve-downgrade window |
 
-## A saga underneath
+## A saga underneath — and surviving a crash
 
 The execution model — run steps in order, and on failure compensate the completed
 ones in reverse — is a **saga**: a sequence of steps each with an undo, so a partial
-failure can be unwound. gatekit's default `StdRunner` does this sequentially; a
-separate, durable, crash-resumable runner
-([gatekit-automa](https://github.com/automa-saga/gatekit-automa)) implements the same
-interface for systems that need to survive a crash mid-migration. Your call sites do
-not change when you swap runners.
+failure can be unwound.
+
+But notice the question the Friday timeline above quietly raises: **what if the
+process crashes in the *middle* of finalize?** Say `RewriteReceipts` is halfway
+through rewriting records when the machine reboots. You restart — and now what? Some
+records are v2, some are still v1, and `active` never advanced. You must be able to
+pick up exactly where you left off, not start over blindly or lose track.
+
+gatekit answers this by making the **runner a pluggable interface**. You pick the
+execution engine that matches how much safety you need, and your call sites
+(`RunNow`, `Finalize`) never change:
+
+| Runner | Dependencies | Guarantees | Use it when |
+|--------|-------------|------------|-------------|
+| `migration.StdRunner` (built in) | none | sequential; compensates on failure | the default — short migrations, or a tool you can just re-run |
+| [gatekit-automa](https://github.com/automa-saga/gatekit-automa) | automa | all of the above **plus a journal**: survives a crash and **resumes** | long or multi-step migrations that must survive a crash mid-finalize |
+
+`gatekit-automa` implements the same `migration.Runner` interface, so it is a
+**drop-in swap**:
+
+```go
+import gkautoma "github.com/automa-saga/gatekit-automa"
+
+// Was: runner := migration.NewStdRunner()
+runner := gkautoma.NewRunner(gkautoma.WithJournal("/var/lib/app/finalize.journal"))
+
+runner.RunNow(ctx, plan)          // same calls…
+runner.Finalize(ctx, plan, store) // …now crash-safe and resumable
+```
+
+With a journal, automa write-aheads each step. If finalize crashes, re-running it
+**skips the steps that already completed and re-runs the one that was interrupted** —
+then advances `active` as the final step, exactly as before. This is why
+[`Applies` must read ground truth](#migrations-and-the-one-word-that-changes-everything)
+and migrations must be idempotent: resuming means a step may run again, and that must
+be safe.
+
+Two design notes worth holding onto:
+
+- **Zero-dependency core.** `automa` is imported only inside `gatekit-automa`, never in
+  gatekit itself — so a consumer that uses `StdRunner` never inherits the dependency.
+  This is the "take only the layer you need" principle ([Lesson 2](2-why-gatekit.md))
+  carried all the way down to the execution engine.
+- **The spec fixes behavior, not the engine.** The migration spec pins the observable
+  semantics (order, compensation, the one-way line); it does not mandate a runtime. Any
+  conformant runner is interchangeable.
+
+For a tool-sized worked example that puts deploy, deferred activation, the held
+migration, finalize, and a crash-safe runner together, see
+[Appendix E: a worked rollout](../appendix/worked-example.md).
 
 ## Check yourself
 

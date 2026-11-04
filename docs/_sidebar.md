@@ -16,5 +16,6 @@
   - [B. Conformance fixtures](appendix/conformance.md)
   - [C. Design notes](appendix/design-notes.md)
   - [D. Spot the failure](appendix/spot-the-failure.md)
+  - [E. A worked rollout](appendix/worked-example.md)
   - [Glossary](appendix/glossary.md)
 - [FAQ](faq.md)
