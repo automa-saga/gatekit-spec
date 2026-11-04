@@ -222,6 +222,23 @@ deploy.** The source is a handful of small files (`record.go`, `feature.go`,
 `migration.go`, `rollout.go`, `main.go`) in
 [`examples/go/kv/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/kv).
 
+### A live two-peer version
+
+Where `kv` focuses on the **data migration** in one process, its companion
+[`examples/go/pingpong/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/pingpong)
+shows the **protocol coexistence** across two peers:
+
+```bash
+cd examples/go
+go run ./pingpong
+```
+
+Ping and pong exchange messages while the wire format rolls from v1 to v2. You can
+watch each peer get upgraded, keep sending v1 while dormant (so it still interoperates
+with the peer that has not upgraded), and then flip to v2 together at a single
+coordinated finalize — the mixed-binary coexistence and one-flip story of
+[Lesson 6](../tutorial/6-rolling-upgrade-thinking.md), live.
+
 ## See also
 
 - [Lesson 5: activation use cases](../tutorial/5-activation-use-cases.md) — the
