@@ -148,6 +148,6 @@ would make the binary refuse to start.
 
 ## See also
 
-- [Appendix B: conformance fixtures](conformance.md) — the JSON cases that pin this
+- [Appendix B: conformance fixtures](/appendix/conformance.md) — the JSON cases that pin this
   algorithm down across languages.
-- [Glossary](glossary.md) — every term above, defined.
+- [Glossary](/appendix/glossary.md) — every term above, defined.

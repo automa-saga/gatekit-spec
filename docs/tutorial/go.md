@@ -2,7 +2,7 @@
 
 gatekit is a **spec-first** project. The product is the
 [specification](https://github.com/automa-saga/gatekit-spec) and the shared
-[conformance fixtures](../appendix/conformance.md) — not any single implementation.
+[conformance fixtures](/appendix/conformance.md) — not any single implementation.
 That is what lets an activation state written by one language be read identically by
 another.
 
@@ -36,9 +36,9 @@ The pages below are **placeholders**. The lessons and examples for these languag
 are written *as each implementation lands and passes the shared conformance
 fixtures* — so this site never implies a library that does not exist yet.
 
-- [Kotlin (coming)](kotlin.md)
-- [Rust (coming)](rust.md)
-- [Python (coming)](python.md)
+- [Kotlin (coming)](/tutorial/kotlin.md)
+- [Rust (coming)](/tutorial/rust.md)
+- [Python (coming)](/tutorial/python.md)
 
 Because every implementation must pass the same fixtures, the *concepts* in Lessons
 1–6 are identical across languages. Only the syntax changes. If you have read the Go

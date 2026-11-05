@@ -20,7 +20,7 @@ Where code and spec disagree, the spec wins and the code is a bug.
 **Why.** For a library meant to exist in many languages, two runtimes that resolve a
 feature differently are worthless to a user. Pinning behavior in language-neutral
 prose + fixtures is the only way N implementations stay in agreement. See
-[Appendix B](conformance.md).
+[Appendix B](/appendix/conformance.md).
 
 ## 2. In-binary and deterministic, not a flag service
 
@@ -32,8 +32,8 @@ generation it runs." A remote flag can differ between two machines at the same i
 and has a failure mode when the service is down — both fatal to fleet agreement. The
 cost is giving up per-user targeting and dashboard flips, which is the right trade for
 this job (and you can run a flag service *alongside* gatekit for the product-experiment
-job). See [Lesson 2](../tutorial/2-why-gatekit.md) and
-[Lesson 3](../tutorial/3-contrast-with-existing-patterns.md).
+job). See [Lesson 2](/tutorial/2-why-gatekit.md) and
+[Lesson 3](/tutorial/3-contrast-with-existing-patterns.md).
 
 ## 3. A release-independent activation version
 
@@ -56,7 +56,7 @@ configurable `W`, defaulting to 1 (N/N+1). `min = max(firstVersion, max − W)`.
 platform whose operators upgrade slowly needs a wider window so a lagging machine is
 still supported. Kubernetes fixes this at roughly three; making it a knob fits more
 situations without forcing everyone to the widest. See activation-spec §2 and
-[Lesson 6](../tutorial/6-rolling-upgrade-thinking.md), Rule 2.
+[Lesson 6](/tutorial/6-rolling-upgrade-thinking.md), Rule 2.
 
 ## 5. The run invariant refuses, loudly
 
@@ -77,7 +77,7 @@ finalize) is a separate, opt-in package.
 **Why.** Many consumers only need "ship dormant, flip later" and should not inherit
 the weight or the concepts of a migration engine. A consumer whose active version is
 set externally can reuse the core without the activation model at all. See
-[Lesson 2](../tutorial/2-why-gatekit.md) and the gatekit README.
+[Lesson 2](/tutorial/2-why-gatekit.md) and the gatekit README.
 
 ## 7. `applies()` reads ground truth, not a ledger
 
@@ -132,11 +132,11 @@ leaking into a plain consumer's module graph. See migration-spec §3.4.
 window the author must delete the now-unreachable specs and dead code paths (the
 contract step), and that lints *should* enforce this keyed to `W`. That lint is not
 yet built or conformance-tested. Until it is, the discipline from
-[Lesson 4, Step 6](../tutorial/4-build-and-release-a-feature.md) is a human
+[Lesson 4, Step 6](/tutorial/4-build-and-release-a-feature.md) is a human
 responsibility. Tracked in the epic.
 
 ## See also
 
-- [Appendix A: the resolution algorithm](algorithm.md)
-- [Appendix D: spot the failure](spot-the-failure.md) — these decisions seen through
+- [Appendix A: the resolution algorithm](/appendix/algorithm.md)
+- [Appendix D: spot the failure](/appendix/spot-the-failure.md) — these decisions seen through
   the bugs they prevent.

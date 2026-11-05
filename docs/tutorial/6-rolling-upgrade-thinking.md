@@ -4,8 +4,8 @@
 > designing a *product* so that a whole fleet of machines can move to a new version,
 > one at a time, while users keep using it. What principles make that possible?
 
-> **Prerequisites:** [Lesson 2](2-why-gatekit.md) (the triple, the run invariant) and
-> [Lesson 5](5-activation-use-cases.md) (migrations, finalize, the one-way line).
+> **Prerequisites:** [Lesson 2](/tutorial/2-why-gatekit.md) (the triple, the run invariant) and
+> [Lesson 5](/tutorial/5-activation-use-cases.md) (migrations, finalize, the one-way line).
 
 **You will learn:** the five design rules behind a zero-downtime upgrade, and how
 gatekit's pieces enforce each one. This lesson has less new API and more thinking —
@@ -172,7 +172,7 @@ When you design a system for zero-downtime upgrades, ask:
 If you can tick all five, you can upgrade your fleet while it is in use. gatekit gives
 you the machinery; these rules are how you *use* it well.
 
-> **See it all on one tool.** [Appendix E: a worked rollout](../appendix/worked-example.md)
+> **See it all on one tool.** [Appendix E: a worked rollout](/appendix/worked-example.md)
 > takes a small clustered key-value store, writes down its six rollout requirements, and
 > walks the entire gatekit flow — ship dormant, defer, run the migration at a crash-safe
 > finalize, keep a way back — against those requirements, start to finish.
@@ -195,7 +195,7 @@ you the machinery; these rules are how you *use* it well.
   — the run invariant and finalize/reversibility, normatively.
 - Kubernetes [version skew policy](https://kubernetes.io/releases/version-skew-policy/)
   — a large fleet's coexistence rules in practice.
-- [Appendix C: design notes](../appendix/design-notes.md) — why these rules are
+- [Appendix C: design notes](/appendix/design-notes.md) — why these rules are
   shaped the way they are.
 
-**Next:** [Other languages](go.md) · or jump to the [FAQ](../faq.md).
+**Next:** [Other languages](/tutorial/go.md) · or jump to the [FAQ](/faq.md).

@@ -4,7 +4,7 @@
 > this for years. What did gatekit borrow, where does it differ, and — the question
 > you actually care about — *which tool should you reach for?*
 
-> **Prerequisites:** [Lesson 2](2-why-gatekit.md). You need *in-binary resolution*,
+> **Prerequisites:** [Lesson 2](/tutorial/2-why-gatekit.md). You need *in-binary resolution*,
 > *activation version*, *support window*, and *the triple*.
 
 **You will learn:** how gatekit sits next to five well-known patterns, and a simple
@@ -52,7 +52,7 @@ a web UI.
   step.** A flag service flips a boolean; if turning the feature on also means
   migrating data, that is a separate, manual problem it knows nothing about. gatekit
   ties the migration to the activation version, so a gate flipped on later carries its
-  data change to that later moment (see [Lesson 5](5-activation-use-cases.md)).
+  data change to that later moment (see [Lesson 5](/tutorial/5-activation-use-cases.md)).
 
 **What gatekit borrows:** the core idea that *deploy and activate are different
 events* — a flag you can flip without redeploying.
@@ -61,7 +61,7 @@ events* — a flag you can flip without redeploying.
 
 Kubernetes has long had `component-base/featuregate`: in-code features with Alpha /
 Beta / GA stages, flipped with `--feature-gates=Foo=true`. gatekit's gate core is a
-close cousin — the maturity stages in [Lesson 4](4-build-and-release-a-feature.md)
+close cousin — the maturity stages in [Lesson 4](/tutorial/4-build-and-release-a-feature.md)
 come straight from this lineage.
 
 More recently, [KEP-4330](https://github.com/kubernetes/enhancements/tree/master/keps/sig-api-machinery/4330-compatibility-versions)
@@ -114,7 +114,7 @@ This is almost exactly gatekit's model:
 | CockroachDB | gatekit |
 |-------------|---------|
 | cluster version | `active` (activation version) |
-| finalize the cluster version | `finalize` ([Lesson 5](5-activation-use-cases.md)) |
+| finalize the cluster version | `finalize` ([Lesson 5](/tutorial/5-activation-use-cases.md)) |
 | `preserve_downgrade_option` | the **preserve-downgrade window** — the span before finalize when rollback is still safe |
 | "nodes must be new enough" | the run invariant + support window |
 
@@ -190,4 +190,4 @@ answer different questions.
 - [Kafka: upgrading and `inter.broker.protocol.version`](https://kafka.apache.org/documentation/#upgrade).
 - Kubernetes [KEP-4330](https://github.com/kubernetes/enhancements/tree/master/keps/sig-api-machinery/4330-compatibility-versions).
 
-**Next:** [4. Build and release a feature](4-build-and-release-a-feature.md)
+**Next:** [4. Build and release a feature](/tutorial/4-build-and-release-a-feature.md)

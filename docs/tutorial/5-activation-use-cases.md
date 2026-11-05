@@ -5,7 +5,7 @@
 > data that you cannot un-rewrite? This is where one version axis sometimes becomes
 > two.
 
-> **Prerequisites:** [Lesson 4](4-build-and-release-a-feature.md). You need the
+> **Prerequisites:** [Lesson 4](/tutorial/4-build-and-release-a-feature.md). You need the
 > activation version, specs, and the support window. This lesson uses the optional
 > **migration/activation** layer.
 
@@ -133,7 +133,7 @@ These map to a **run-policy**:
 | `interop` | `held` | only at a deliberate `finalize` |
 | *(anything unmapped)* | `held` | the safe default — never auto-fires |
 
-You can define your own scopes (by [blast radius](../appendix/glossary.md#blast-radius)
+You can define your own scopes (by [blast radius](/appendix/glossary.md#blast-radius)
 — how much a change can affect — by how deliberate the change is, whatever you need)
 and map each to `run-now` or `held`. Any scope you forget to map
 falls back to `held` — the conservative choice, because a held migration never fires
@@ -158,7 +158,7 @@ for _, step := range plan.Held()   { /* waits for finalize */ }
 ```
 
 The plan includes a migration only if its version is in the
-[half-open range](../appendix/glossary.md#half-open-range) `(from, to]` — greater than
+[half-open range](/appendix/glossary.md#half-open-range) `(from, to]` — greater than
 `from`, up to and including `to` — **and** its `Applies` returns true.
 Already-satisfied migrations are left out, which is why re-running a plan is safe.
 
@@ -324,7 +324,7 @@ Two design notes worth holding onto:
 
 - **Zero-dependency core.** `automa` is imported only inside `gatekit-automa`, never in
   gatekit itself — so a consumer that uses `StdRunner` never inherits the dependency.
-  This is the "take only the layer you need" principle ([Lesson 2](2-why-gatekit.md))
+  This is the "take only the layer you need" principle ([Lesson 2](/tutorial/2-why-gatekit.md))
   carried all the way down to the execution engine.
 - **The spec fixes behavior, not the engine.** The migration spec pins the observable
   semantics (order, compensation, the one-way line); it does not mandate a runtime. Any
@@ -332,7 +332,7 @@ Two design notes worth holding onto:
 
 For a tool-sized worked example that puts deploy, deferred activation, the held
 migration, finalize, and a crash-safe runner together, see
-[Appendix E: a worked rollout](../appendix/worked-example.md).
+[Appendix E: a worked rollout](/appendix/worked-example.md).
 
 ## Check yourself
 
@@ -353,7 +353,7 @@ migration, finalize, and a crash-safe runner together, see
   — activation modes, finalize, reversibility, and the write floor.
 - [gatekit migration spec](https://github.com/automa-saga/gatekit-spec/blob/main/migration-spec.md)
   — the migration contract, plan computation, and the saga execution model.
-- [Appendix B: conformance fixtures](../appendix/conformance.md) — the `planning/`
+- [Appendix B: conformance fixtures](/appendix/conformance.md) — the `planning/`
   fixtures that pin down plan computation.
 
-**Next:** [6. Rolling-upgrade thinking](6-rolling-upgrade-thinking.md)
+**Next:** [6. Rolling-upgrade thinking](/tutorial/6-rolling-upgrade-thinking.md)

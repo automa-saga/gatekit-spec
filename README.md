@@ -2,12 +2,20 @@
 
 > Status: **draft** — the core and activation specs are still settling alongside the first (Go) implementation.
 
-> 📖 **New to feature gating?** Start with the course:
-> [**Releasing features & rolling upgrades**](docs/home.md) — a Grade 10–12 tutorial
-> that teaches the ideas from first principles, with runnable Go examples. It is a
-> zero-build [docsify](https://docsify.js.org) site under [`docs/`](docs/), served
-> from GitHub Pages once this repo is public. To read it locally:
-> `npx docsify-cli serve docs` (or any static server), then open the printed URL.
+> 📖 **Documentation: <https://automa-saga.github.io/gatekit-spec>**
+>
+> The docs site has three parts:
+> [**Tutorials**](https://automa-saga.github.io/gatekit-spec/#/tutorial/index) (a
+> Grade 10–12 course on releasing features and rolling upgrades, with runnable Go
+> examples), the
+> [**User manual**](https://automa-saga.github.io/gatekit-spec/#/manual/index)
+> (task-oriented how-tos, in progress), and the
+> [**Reference & appendix**](https://automa-saga.github.io/gatekit-spec/#/appendix/algorithm)
+> (resolution algorithm, conformance, design notes, glossary).
+>
+> The site is zero-build [docsify](https://docsify.js.org) under [`docs/`](docs/).
+> To read or edit it locally: `npx docsify-cli serve docs`. To add a tutorial or
+> manual page, see [Contributing to the docs](docs/contributing-docs.md).
 
 gatekit is intended to exist in more than one language (Go first, then others such
 as Kotlin, Java, Python, and Rust) for the same audience and use cases: a
@@ -79,6 +87,14 @@ Rule of practice: any implementation change that adds observable behavior lands 
 matching spec section and conformance fixtures in the same change. For genuinely
 novel behavior the Go implementation MAY lead; the spec then catches up and becomes
 authoritative.
+
+## Documentation
+
+- **Site:** <https://automa-saga.github.io/gatekit-spec>
+- **Tutorials** — [`docs/tutorial/`](docs/tutorial/index.md)
+- **User manual** — [`docs/manual/`](docs/manual/index.md)
+- **Reference & appendix** — [`docs/appendix/`](docs/appendix/algorithm.md)
+- **Adding docs** — [`docs/contributing-docs.md`](docs/contributing-docs.md)
 
 ## Conformance
 

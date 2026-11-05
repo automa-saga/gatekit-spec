@@ -4,7 +4,7 @@
 > declare a feature, ship it asleep, turn it on, and — the part everyone forgets —
 > clean up the old code afterwards?
 
-> **Prerequisites:** [Lesson 2](2-why-gatekit.md) for *activation version* and
+> **Prerequisites:** [Lesson 2](/tutorial/2-why-gatekit.md) for *activation version* and
 > *registry* (*maturity* is introduced in this lesson). A little Go helps, but the
 > shape is the same in any language.
 
@@ -163,7 +163,7 @@ gate.EnabledAt(catalog.SplitCatalog, 6) // true  — the 6-spec: default on, GA
 > as a **new spec at the next activation version** — you never edit the old spec in
 > place. Keeping the old spec is what lets a machine still at version 5 resolve the
 > *old* behavior correctly during a rolling upgrade. (More in
-> [Lesson 6](6-rolling-upgrade-thinking.md).)
+> [Lesson 6](/tutorial/6-rolling-upgrade-thinking.md).)
 
 ### 4b. Right now, for one machine: an override
 
@@ -248,7 +248,7 @@ loadSplitCatalog()
 Eventually you remove the feature entirely. The gate was **scaffolding** — it held
 the two paths apart while the fleet crossed from one to the other, and then it comes
 down. A feature gate that never gets deleted is a bug, and lints should remind you
-(see [design notes](../appendix/design-notes.md)).
+(see [design notes](/appendix/design-notes.md)).
 
 ## Do I even need a gate?
 
@@ -291,9 +291,9 @@ meaningful signal — spend it only on real behavior changes.
 
 - [gatekit core spec §3–6](https://github.com/automa-saga/gatekit-spec/blob/main/core-spec.md)
   — resolution, maturity, overrides, and the author obligation, stated normatively.
-- [Appendix A: the resolution algorithm](../appendix/algorithm.md) — the exact rule
+- [Appendix A: the resolution algorithm](/appendix/algorithm.md) — the exact rule
   behind every example above.
 - [`examples/go/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go)
   — the runnable versions of these snippets.
 
-**Next:** [5. Activation use cases](5-activation-use-cases.md)
+**Next:** [5. Activation use cases](/tutorial/5-activation-use-cases.md)

@@ -176,4 +176,4 @@ when the old path is finally safe to delete.
 - Paul Hammant, ["Trunk-Based Development"](https://trunkbaseddevelopment.com/)
   — why short-lived branches and gates go together.
 
-**Next:** [2. Why gatekit is built this way](2-why-gatekit.md)
+**Next:** [2. Why gatekit is built this way](/tutorial/2-why-gatekit.md)
