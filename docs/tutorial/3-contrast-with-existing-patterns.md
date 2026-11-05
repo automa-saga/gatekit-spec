@@ -31,16 +31,17 @@ neighbor does.
 
 Family A vs. B is about the *tool*. There is a second, orthogonal lens worth
 holding alongside it: the *job the flag is doing*. Martin Fowler's
-[feature-toggle taxonomy](/tutorial/1-why-feature-gating.md) sorts flags into four
-categories along two axes — how long they live, and whether they are decided at
-compile time or at runtime:
+[feature-toggle taxonomy](https://martinfowler.com/articles/feature-toggles.html)
+sorts flags into four categories, along two axes: **how long they live**, and **how
+they are switched** — from a static build-time setting to a per-request runtime
+decision.
 
-| Category | Job | Longevity | Decided | gatekit? |
-|----------|-----|-----------|---------|----------|
-| **Release** | hide not-yet-finished work so it can merge to trunk | short | can be static | **yes — this is gatekit's cell** |
-| **Experiment** | A/B test, measure a variant | long | runtime, per user | no |
-| **Ops** | kill switch, throttle, degrade | long | runtime, flip *now* | no |
-| **Permissioning** | per user / tenant / plan | long | runtime | no |
+| Category | What it's for | How long it lives | How it's switched | gatekit? |
+|----------|---------------|-------------------|-------------------|----------|
+| **Release** | Hide not-yet-finished work so it ships dormant and merges to trunk | Short — days to weeks | A build or config setting, the same for the whole fleet | **Yes — this is gatekit's cell** |
+| **Experiment** | A/B test — measure one variant against another | Long — weeks to months | At runtime, *per user*: each request is bucketed into a variant | No |
+| **Ops** | Operational safety — kill switch, throttle, degrade under load | Short, or a long-lived kill switch | At runtime, by an operator — flip the whole system *now* | No |
+| **Permissioning** | Show a feature to only some users — per user, tenant, or plan | Long — months to years | At runtime, *per user* — based on who they are | No |
 
 gatekit implements exactly one cell: **short-lived, static, in-binary release
 toggles**. The other three all need runtime, per-request decisions — which is
