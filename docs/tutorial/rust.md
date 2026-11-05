@@ -3,7 +3,7 @@
 > **Status: placeholder.** There is no Rust implementation of gatekit yet. This page
 > exists so the course's structure is complete; it will be filled in *when a Rust
 > implementation lands and passes the shared
-> [conformance fixtures](../appendix/conformance.md).* Nothing here implies a Rust
+> [conformance fixtures](/appendix/conformance.md).* Nothing here implies a Rust
 > crate you can install today.
 
 ## What will go here

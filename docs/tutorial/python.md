@@ -3,7 +3,7 @@
 > **Status: placeholder.** There is no Python implementation of gatekit yet. This
 > page exists so the course's structure is complete; it will be filled in *when a
 > Python implementation lands and passes the shared
-> [conformance fixtures](../appendix/conformance.md).* Nothing here implies a Python
+> [conformance fixtures](/appendix/conformance.md).* Nothing here implies a Python
 > package you can install today.
 
 ## What will go here

@@ -46,7 +46,7 @@ protocol version or CockroachDB's cluster version). In gatekit's vocabulary it i
 
 <a id="single-axis"></a>**Single axis.** Reusing your [release version](#release-version)
 (or a build number) as the activation version, activating on deploy. The simple case:
-no separate counter, no finalize. See [Lesson 5](../tutorial/5-activation-use-cases.md).
+no separate counter, no finalize. See [Lesson 5](/tutorial/5-activation-use-cases.md).
 
 <a id="two-axis"></a>**Two axes.** Running a dedicated [activation version](#activation-version)
 counter separate from the release version, advanced deliberately at

@@ -133,7 +133,7 @@ These map to a **run-policy**:
 | `interop` | `held` | only at a deliberate `finalize` |
 | *(anything unmapped)* | `held` | the safe default — never auto-fires |
 
-You can define your own scopes (by [blast radius](../appendix/glossary.md#blast-radius)
+You can define your own scopes (by [blast radius](/appendix/glossary.md#blast-radius)
 — how much a change can affect — by how deliberate the change is, whatever you need)
 and map each to `run-now` or `held`. Any scope you forget to map
 falls back to `held` — the conservative choice, because a held migration never fires
@@ -158,7 +158,7 @@ for _, step := range plan.Held()   { /* waits for finalize */ }
 ```
 
 The plan includes a migration only if its version is in the
-[half-open range](../appendix/glossary.md#half-open-range) `(from, to]` — greater than
+[half-open range](/appendix/glossary.md#half-open-range) `(from, to]` — greater than
 `from`, up to and including `to` — **and** its `Applies` returns true.
 Already-satisfied migrations are left out, which is why re-running a plan is safe.
 
@@ -332,7 +332,7 @@ Two design notes worth holding onto:
 
 For a tool-sized worked example that puts deploy, deferred activation, the held
 migration, finalize, and a crash-safe runner together, see
-[Appendix E: a worked rollout](../appendix/worked-example.md).
+[Appendix E: a worked rollout](/appendix/worked-example.md).
 
 ## Check yourself
 
@@ -353,7 +353,7 @@ migration, finalize, and a crash-safe runner together, see
   — activation modes, finalize, reversibility, and the write floor.
 - [gatekit migration spec](https://github.com/automa-saga/gatekit-spec/blob/main/migration-spec.md)
   — the migration contract, plan computation, and the saga execution model.
-- [Appendix B: conformance fixtures](../appendix/conformance.md) — the `planning/`
+- [Appendix B: conformance fixtures](/appendix/conformance.md) — the `planning/`
   fixtures that pin down plan computation.
 
 **Next:** [6. Rolling-upgrade thinking](6-rolling-upgrade-thinking.md)

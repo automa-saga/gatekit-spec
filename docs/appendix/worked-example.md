@@ -3,9 +3,9 @@
 > This appendix puts the whole course to work on one concrete tool. We take a real
 > rollout requirement, list what makes it hard, then solve it with gatekit end to end —
 > declare, ship dormant, defer activation, run the migration at finalize, and keep a
-> way back. If you have read Lessons [4](../tutorial/4-build-and-release-a-feature.md),
-> [5](../tutorial/5-activation-use-cases.md), and
-> [6](../tutorial/6-rolling-upgrade-thinking.md), this is where they come together.
+> way back. If you have read Lessons [4](/tutorial/4-build-and-release-a-feature.md),
+> [5](/tutorial/5-activation-use-cases.md), and
+> [6](/tutorial/6-rolling-upgrade-thinking.md), this is where they come together.
 
 > **This one is runnable.** Everything below is a real, working program you can build
 > and run — [`examples/go/kv/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/kv).
@@ -58,10 +58,10 @@ map onto a gatekit mechanism.
 
 | Requirement | gatekit mechanism |
 |-------------|-------------------|
-| R1 zero downtime | ship dormant; activate separately ([Lesson 1](../tutorial/1-why-feature-gating.md)) |
-| R2 no flag day | deploy is behavior-neutral; `active` unchanged on install ([Lesson 6](../tutorial/6-rolling-upgrade-thinking.md), Rule 1) |
-| R3 mixed versions coexist | the support window `W`; the run invariant ([Lesson 2](../tutorial/2-why-gatekit.md)) |
-| R4 fleet flips together | deferred activation + `finalize` after readiness ([Lesson 5](../tutorial/5-activation-use-cases.md)) |
+| R1 zero downtime | ship dormant; activate separately ([Lesson 1](/tutorial/1-why-feature-gating.md)) |
+| R2 no flag day | deploy is behavior-neutral; `active` unchanged on install ([Lesson 6](/tutorial/6-rolling-upgrade-thinking.md), Rule 1) |
+| R3 mixed versions coexist | the support window `W`; the run invariant ([Lesson 2](/tutorial/2-why-gatekit.md)) |
+| R4 fleet flips together | deferred activation + `finalize` after readiness ([Lesson 5](/tutorial/5-activation-use-cases.md)) |
 | R5 rollback until committed | the preserve-downgrade window; reversibility + the write floor |
 | R6 crash-safe migration | a durable runner — [gatekit-automa](https://github.com/automa-saga/gatekit-automa) |
 
@@ -175,7 +175,7 @@ Finalize is the **one-way line**: the v2 rewrite is not perfectly reversible (yo
 away the v1 encoding), so gatekit will now **refuse** to lower `active` back across it —
 it will not let you pretend a rollback is safe when it is not. From here you move
 forward. When version 5 later drops out of the support window, you delete the old v1
-code path and its spec ([Lesson 4, Step 6](../tutorial/4-build-and-release-a-feature.md)).
+code path and its spec ([Lesson 4, Step 6](/tutorial/4-build-and-release-a-feature.md)).
 
 ## The timeline, in one view
 
@@ -237,13 +237,13 @@ Ping and pong exchange messages while the wire format rolls from v1 to v2. You c
 watch each peer get upgraded, keep sending v1 while dormant (so it still interoperates
 with the peer that has not upgraded), and then flip to v2 together at a single
 coordinated finalize — the mixed-binary coexistence and one-flip story of
-[Lesson 6](../tutorial/6-rolling-upgrade-thinking.md), live.
+[Lesson 6](/tutorial/6-rolling-upgrade-thinking.md), live.
 
 ## See also
 
-- [Lesson 5: activation use cases](../tutorial/5-activation-use-cases.md) — the
+- [Lesson 5: activation use cases](/tutorial/5-activation-use-cases.md) — the
   mechanics used here, in general form.
-- [Lesson 6: rolling-upgrade thinking](../tutorial/6-rolling-upgrade-thinking.md) — the
+- [Lesson 6: rolling-upgrade thinking](/tutorial/6-rolling-upgrade-thinking.md) — the
   five design rules this rollout follows.
 - [Appendix D: spot the failure](spot-the-failure.md) — what happens when a rollout
   skips one of these steps.

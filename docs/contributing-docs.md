@@ -41,4 +41,4 @@ The normative specs stay at the repository root and are authoritative over any p
 - Keep real technical terms; add a [glossary](appendix/glossary.md) entry and link
   the first use, with a short inline gloss.
 - Examples must run against the real API. Mark anything not yet implemented as planned.
-- Use relative links so the pages also read correctly on GitHub.
+- Link between pages with site-absolute paths (`/tutorial/go.md`), not `../`: on GitHub Pages the site lives under `/gatekit-spec/`, and `../` links escape that prefix and 404.

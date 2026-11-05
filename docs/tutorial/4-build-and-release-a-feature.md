@@ -248,7 +248,7 @@ loadSplitCatalog()
 Eventually you remove the feature entirely. The gate was **scaffolding** — it held
 the two paths apart while the fleet crossed from one to the other, and then it comes
 down. A feature gate that never gets deleted is a bug, and lints should remind you
-(see [design notes](../appendix/design-notes.md)).
+(see [design notes](/appendix/design-notes.md)).
 
 ## Do I even need a gate?
 
@@ -291,7 +291,7 @@ meaningful signal — spend it only on real behavior changes.
 
 - [gatekit core spec §3–6](https://github.com/automa-saga/gatekit-spec/blob/main/core-spec.md)
   — resolution, maturity, overrides, and the author obligation, stated normatively.
-- [Appendix A: the resolution algorithm](../appendix/algorithm.md) — the exact rule
+- [Appendix A: the resolution algorithm](/appendix/algorithm.md) — the exact rule
   behind every example above.
 - [`examples/go/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go)
   — the runnable versions of these snippets.

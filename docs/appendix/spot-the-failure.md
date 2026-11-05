@@ -6,7 +6,7 @@
 > feature gating and rolling upgrades bite teams. Each answer names the gatekit
 > control that prevents it.
 >
-> This is the "failure modes" companion to [Lesson 6](../tutorial/6-rolling-upgrade-thinking.md)
+> This is the "failure modes" companion to [Lesson 6](/tutorial/6-rolling-upgrade-thinking.md)
 > and the [design notes](design-notes.md). It is a teaching tool, not a changelog.
 
 The impact labels: 🟡 *silent wrong behavior* · 🟠 *outage / broken fleet* · 🔴
@@ -335,5 +335,5 @@ When something surprises you, check first whether it is a guard rail doing its j
 ## See also
 
 - [Appendix C: design notes](design-notes.md) — the decisions these failures justify.
-- [Lesson 6](../tutorial/6-rolling-upgrade-thinking.md) — the five rules, stated
+- [Lesson 6](/tutorial/6-rolling-upgrade-thinking.md) — the five rules, stated
   positively.

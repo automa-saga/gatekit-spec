@@ -2,7 +2,7 @@
 
 gatekit is a **spec-first** project. The product is the
 [specification](https://github.com/automa-saga/gatekit-spec) and the shared
-[conformance fixtures](../appendix/conformance.md) — not any single implementation.
+[conformance fixtures](/appendix/conformance.md) — not any single implementation.
 That is what lets an activation state written by one language be read identically by
 another.
 

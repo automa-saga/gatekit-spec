@@ -127,5 +127,5 @@ language, the fixtures are your to-do list and your definition of done.
 
 - [Appendix A: the resolution algorithm](algorithm.md) — the rules the `resolution/`
   and `invariant/` fixtures encode.
-- [Lesson 5](../tutorial/5-activation-use-cases.md) — the plan computation the
+- [Lesson 5](/tutorial/5-activation-use-cases.md) — the plan computation the
   `planning/` fixtures encode.

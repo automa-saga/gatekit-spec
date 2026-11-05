@@ -94,7 +94,7 @@ version:
 - Release version: *"How new is this build?"*
 - Activation version: *"Which generation of behavior does this build run?"*
 
-Because it is a plain [monotonic](../appendix/glossary.md#monotonic) counter (it only
+Because it is a plain [monotonic](/appendix/glossary.md#monotonic) counter (it only
 ever goes up, never down), you can compare two machines at a glance: a
 machine at activation 6 and one at activation 5 differ by exactly one behavior
 generation, so they are one step apart — inside a support window of one, they are

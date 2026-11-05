@@ -8,7 +8,7 @@ A short course on two skills every product engineer eventually needs:
    of servers can move to a new version one machine at a time, while users keep
    using it.
 
-This is a course, not a reference: for task-oriented how-tos see the [User manual](../manual/index.md). It explains the ideas from first
+This is a course, not a reference: for task-oriented how-tos see the [User manual](/manual/index.md). It explains the ideas from first
 principles, for someone who may have never thought about "feature gating" before.
 **gatekit** — a small library that does exactly this — is the worked example that
 makes the ideas concrete.
@@ -107,14 +107,14 @@ You take only the layer you need.
 **I am choosing a tool for my team** — the comparison and the common questions:
 
 1. [3. How it compares to other tools](3-contrast-with-existing-patterns.md)
-2. [FAQ](../faq.md)
+2. [FAQ](/faq.md)
 
 **I want to see it all on one real tool** — a capstone that rolls a format change
-across a live cluster, end to end: [Appendix E: a worked rollout](../appendix/worked-example.md).
+across a live cluster, end to end: [Appendix E: a worked rollout](/appendix/worked-example.md).
 
-**I want the exact rules.** The [appendix](../appendix/algorithm.md) states the
-resolution algorithm precisely, explains the [conformance fixtures](../appendix/conformance.md)
-that keep every implementation in agreement, and records the [design decisions](../appendix/design-notes.md).
+**I want the exact rules.** The [appendix](/appendix/algorithm.md) states the
+resolution algorithm precisely, explains the [conformance fixtures](/appendix/conformance.md)
+that keep every implementation in agreement, and records the [design decisions](/appendix/design-notes.md).
 
 ## A note on languages
 
