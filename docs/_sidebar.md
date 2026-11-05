@@ -9,6 +9,15 @@
   - [6. Rolling-upgrade thinking](tutorial/6-rolling-upgrade-thinking.md)
 - User manual
   - [Overview](manual/index.md)
+  - [Installing](manual/installing.md)
+  - [Declaring features](manual/declaring-features.md)
+  - [Resolving gates](manual/resolving-gates.md)
+  - [Activation](manual/activation.md)
+  - [Migrations](manual/migrations.md)
+  - [Finalize & rollback](manual/finalize-and-rollback.md)
+  - [Implementing activation](manual/implementing-activation.md)
+  - [Testing against conformance](manual/conformance-testing.md)
+  - [Troubleshooting](manual/troubleshooting.md)
 - Other languages
   - [Overview](tutorial/go.md)
   - [Kotlin (coming)](tutorial/kotlin.md)

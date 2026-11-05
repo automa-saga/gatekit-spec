@@ -9,7 +9,7 @@
 > Grade 10–12 course on releasing features and rolling upgrades, with runnable Go
 > examples), the
 > [**User manual**](https://automa-saga.github.io/gatekit-spec/#/manual/index)
-> (task-oriented how-tos, in progress), and the
+> (task-oriented how-tos for the Go API), and the
 > [**Reference & appendix**](https://automa-saga.github.io/gatekit-spec/#/appendix/algorithm)
 > (resolution algorithm, conformance, design notes, glossary).
 >

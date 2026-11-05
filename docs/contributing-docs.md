@@ -33,8 +33,7 @@ The normative specs stay at the repository root and are authoritative over any p
 
 1. Create `docs/manual/<slug>.md`.
 2. Add it to the *User manual* section of [`_sidebar.md`](/_sidebar.md).
-3. Replace the matching row in the planned-chapters table in
-   [`manual/index.md`](/manual/index.md) with a link to the new page.
+3. Add a row for it to the chapter table in [`manual/index.md`](/manual/index.md).
 
 ## Style
 
