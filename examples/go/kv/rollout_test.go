@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// TestRollout verifies the capstone's key invariants: the migration is held at plan
+// TestRollout verifies the capstone's key invariants: the migration is run-at-finalize at plan
 // time, nothing changes until finalize, and finalize advances the active version and
 // rewrites every record to v2.
 func TestRollout(t *testing.T) {
@@ -31,9 +31,9 @@ func TestRollout(t *testing.T) {
 	}
 
 	joined := strings.Join(log, "\n")
-	// The migration must be held at plan time (interop), not run at deploy.
-	if !strings.Contains(joined, "HELD for finalize") {
-		t.Errorf("expected the migration to be reported HELD at plan time:\n%s", joined)
+	// The migration must be run-at-finalize at plan time (shared), not run at deploy.
+	if !strings.Contains(joined, "run at finalize") {
+		t.Errorf("expected the migration to be reported run-at-finalize at plan time:\n%s", joined)
 	}
 	// At deploy, before finalize, records must still be v1 (dormant).
 	if !strings.Contains(log[0], "records=[v1 v1]") {

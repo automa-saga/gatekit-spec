@@ -12,9 +12,9 @@ import (
 // logf. It is a plain function so both main (printing to stdout) and the test
 // (capturing lines) can drive it.
 //
-// The sequence: deploy dormant, compute the plan (the rewrite is held), run the
-// host-local steps (none), wait in the preserve-downgrade window, then finalize —
-// which runs the held migration and advances the active version.
+// The sequence: deploy dormant, compute the plan (the rewrite is run-at-finalize), run the
+// local steps (none), wait in the preserve-downgrade window, then finalize —
+// which runs the run-at-finalize migration and advances the active version.
 func Rollout(ctx context.Context, store *Store, logf func(string, ...any)) error {
 	gate, err := gatekit.New(Registry, version{store})
 	if err != nil {
@@ -28,29 +28,29 @@ func Rollout(ctx context.Context, store *Store, logf func(string, ...any)) error
 	// Monday — deploy the new binaries, dormant. active stays 5, records stay v1.
 	logf("deploy    rolled out new binaries, dormant        | %s", state())
 
-	// Compute the plan 5 -> 6. The rewrite is interop, so it is HELD for finalize.
+	// Compute the plan 5 -> 6. The rewrite is shared, so it is run at finalize.
 	plan, err := migration.NewPlanner(RewriteToV2{store}).Plan(ctx, 5, 6)
 	if err != nil {
 		return err
 	}
-	for _, s := range plan.Held() {
-		logf("plan      %q is interop -> HELD for finalize", s.Migration.ID())
+	for _, s := range plan.RunAtFinalize() {
+		logf("plan      %q is shared -> run at finalize", s.Migration.ID())
 	}
 
-	// RunNow does the host-local steps immediately (none here); never advances active.
+	// RunNow does the local steps immediately (none here); never advances active.
 	runner := migration.NewStdRunner() // swap gatekit-automa here for crash-safe finalize
 	if err := runner.RunNow(ctx, plan); err != nil {
 		return err
 	}
-	logf("runnow    ran host-local steps (none)             | %s", state())
+	logf("runnow    ran local steps (none)             | %s", state())
 
 	// The preserve-downgrade window: rollback to the old binary is still safe here.
 	logf("wait      preserve-downgrade window; rollback safe, waiting for readiness")
 
-	// Friday — finalize. Runs the held migration, then advances active to 6.
+	// Friday — finalize. Runs the run-at-finalize migration, then advances active to 6.
 	if err := runner.Finalize(ctx, plan, store); err != nil {
 		return err
 	}
-	logf("finalize  ran held migration, advanced active     | %s", state())
+	logf("finalize  ran run-at-finalize migration, advanced active     | %s", state())
 	return nil
 }

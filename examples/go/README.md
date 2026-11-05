@@ -30,7 +30,7 @@ git checkout go.mod   # drop the replace before committing
 | File | Lessons | Shows |
 |------|---------|-------|
 | `gate_example_test.go` | 4 | declare a feature, ship it dormant, flip it on, override, alpha opt-in, the dry-run report |
-| `activation_example_test.go` | 2, 5, 6 | the `{min,max,active}` triple + run invariant, migration planning (run-now vs held), and `finalize` |
+| `activation_example_test.go` | 2, 5, 6 | the `{min,max,active}` triple + run invariant, migration planning (run-now vs run-at-finalize), and `finalize` |
 | [`kv/`](kv/) | Appendix E | a **runnable capstone binary** — a clustered key-value store rolling a record format from v1 to v2 (the data-migration story): `go run ./kv` |
 | [`pingpong/`](pingpong/) | Appendix E | a **runnable live demo** — two peers rolling a message format from v1 to v2 with no downtime (the protocol-coexistence story): `go run ./pingpong` |
 
