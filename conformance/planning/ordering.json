@@ -2,12 +2,12 @@
   "name": "ordering",
   "description": "Steps are ordered by version ascending then id ascending.",
   "migrations": [
-    { "id": "z", "version": 5, "scope": "host-local", "applies": true },
-    { "id": "a", "version": 5, "scope": "host-local", "applies": true },
-    { "id": "m", "version": 6, "scope": "host-local", "applies": true }
+    { "id": "z", "version": 5, "scope": "local", "applies": true },
+    { "id": "a", "version": 5, "scope": "local", "applies": true },
+    { "id": "m", "version": 6, "scope": "local", "applies": true }
   ],
   "from": 4,
   "to": 6,
   "runNow": ["a", "z", "m"],
-  "held": []
+  "runAtFinalize": []
 }

@@ -217,12 +217,12 @@ finalize. Annoying, but notice: this is the *safe* direction. What is the real l
 <details>
 <summary>Answer</summary>
 
-An **unmapped scope resolves to `held`**, not `run-now`. The author forgot to map
+An **unmapped scope resolves to `run-at-finalize`**, not `run-now`. The author forgot to map
 `"reshard"` with `WithScopePolicy`, so gatekit fell back to the conservative default: a
-held step never fires automatically at install.
+run-at-finalize step never fires automatically at install.
 
 **The control / design intent:** scopes are consumer-defined and unmapped scopes
-**fail closed** to `held` ([design note 8](/appendix/design-notes.md); migration-spec §2.1). The
+**fail closed** to `run-at-finalize` ([design note 8](/appendix/design-notes.md); migration-spec §2.1). The
 bug — forgetting the mapping — produces a *delayed* migration, never a *surprise*
 one. If the opposite default had been chosen, a forgotten mapping would auto-fire a
 reshard across the fleet at install. The lesson: map every scope explicitly, and be
@@ -238,13 +238,13 @@ glad the default is the safe one.
 runner.Finalize(ctx, plan, store) // advances active to 7 for everyone
 ```
 
-Finalize runs the interop migration and advances `active` to 7. But three nodes are
+Finalize runs the shared migration and advances `active` to 7. But three nodes are
 still on the v6 binary (`max = 6`). They crash on startup / can't read the new format.
 
 <details>
 <summary>Answer</summary>
 
-**Finalize happened before readiness.** The interop migration and the version advance
+**Finalize happened before readiness.** The shared migration and the version advance
 must wait until *every* participant reports `max ≥ 7` (Lesson 6, Rule 4). Finalizing
 first means the nodes still at `max = 6` now face `active = 7`, which violates their run
 invariant (`active > max`).
@@ -264,7 +264,7 @@ func (m RewriteReceipts) Execute(ctx context.Context) error {
     // writes the v7 format, which the v6 binary cannot parse
     return writeReceiptsAsV7(ctx)
 }
-// scope: host-local -> runs NOW, at install, while fleet is still mixed v6/v7
+// scope: local -> runs NOW, at install, while fleet is still mixed v6/v7
 ```
 
 The team wanted to keep rollback open for a week (the preserve-downgrade window). But
@@ -276,12 +276,12 @@ cannot read — and rollback to v6 is now impossible.
 
 **A write crossed the write floor during the preserve-downgrade window.** The migration
 emitted v7-format data while a supported version (v6) still needed to read it, and it
-ran *now* (host-local) instead of being held — collapsing the rollback window the team
+ran *now* (local) instead of being deferred — collapsing the rollback window the team
 thought they had.
 
 **The controls:** honor the **write floor** — never write data a version down to `min`
 cannot read (Lesson 5; activation-spec §7) — and give a format-changing migration an
-`interop` scope so it is **held for finalize** rather than running at install. Together
+`shared` scope so it is **run at finalize** rather than running at install. Together
 these keep "lower the active version" safe and keep the preserve-downgrade window
 actually open. gatekit also **refuses to lower `active` across an irreversible step**,
 so it will not let you pretend the door is still open once it isn't.
@@ -326,7 +326,7 @@ Nearly every failure above is one of three mistakes:
    history (F.2), activation from release (F.3), activate from deploy (F.8, F.9).
 2. **Skipping a guard rail** — the support window (F.4), the run invariant (F.5),
    idempotent `applies` (F.6), the write floor (F.9).
-3. **Misreading a safe default as a bug** — held-by-default scopes (F.7),
+3. **Misreading a safe default as a bug** — run-at-finalize-by-default scopes (F.7),
    off-by-default alpha (F.10).
 
 gatekit's job is to make the safe path the default and the dangerous path *refuse*.

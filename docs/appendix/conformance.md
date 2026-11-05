@@ -93,11 +93,11 @@ the run invariant.
 ```
 { name, description, scopePolicy?: {scope: policy},
   migrations: [ {id, version, scope, applies} ],
-  from, to, runNow: [id], held: [id] }
+  from, to, runNow: [id], runAtFinalize: [id] }
 ```
-`runNow`/`held` are the expected step ids (ordered by version then id). When
-`scopePolicy` is omitted the built-in default applies (`host-local`→run-now,
-`interop`→held); any scope the classifier does not map resolves to `held`.
+`runNow`/`run-at-finalize` are the expected step ids (ordered by version then id). When
+`scopePolicy` is omitted the built-in default applies (`local`→run-now,
+`shared`→run-at-finalize); any scope the classifier does not map resolves to `run-at-finalize`.
 
 ## How to run them
 

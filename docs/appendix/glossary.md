@@ -122,29 +122,29 @@ Must read **ground truth** (the actual data), not a ledger of past runs, so the
 migration is idempotent and crash-safe.
 
 <a id="scope"></a>**Scope.** A consumer-defined classification of a migration, mapped
-to a [run-policy](#run-policy) by a classifier. gatekit predefines `host-local` and
-`interop` only as the keys of the default classifier, not a closed set.
+to a [run-policy](#run-policy) by a classifier. gatekit predefines `local` and
+`shared` only as the keys of the default classifier, not a closed set.
 
-<a id="host-local"></a>**host-local.** A migration affecting only the machine it runs
+<a id="local"></a>**local.** A migration affecting only the machine it runs
 on. In the default policy it runs immediately when its version activates.
 
-<a id="interop"></a>**interop.** A migration affecting agreement between machines. In
-the default policy it is [held](#held) until a coordinated [finalize](#finalize).
+<a id="shared"></a>**shared.** A migration affecting agreement between machines. In
+the default policy it is [run at finalize](#run-at-finalize) until a coordinated [finalize](#finalize).
 
 <a id="run-policy"></a>**Run-policy.** The timing a migration is eligible for:
-`run-now` (at install/activation) or [held](#held) (until finalize). An unmapped scope
-resolves to `held` — the safe, fail-closed default.
+`run-now` (at install/activation) or [run at finalize](#run-at-finalize) (until finalize). An unmapped scope
+resolves to `run-at-finalize` — the safe, fail-closed default.
 
-<a id="held"></a>**Held.** A migration step deferred until a deliberate
+<a id="run-at-finalize"></a>**Run at finalize.** A migration step deferred until a deliberate
 [finalize](#finalize); it never fires automatically at install.
 
 <a id="plan"></a>**Plan.** The ordered set of migration steps to move from one version
-to another, each marked run-now or held. A pure value computed on demand and never
+to another, each marked run-now or run-at-finalize. A pure value computed on demand and never
 stored; the basis of a `--dry-run` preview.
 
-<a id="finalize"></a>**Finalize.** The deliberate step that runs the [held](#held)
+<a id="finalize"></a>**Finalize.** The deliberate step that runs the [run at finalize](#run-at-finalize)
 migrations and advances [active](#active) to the target. The
-[one-way line](#one-way-line): the version advances only if every held step succeeds.
+[one-way line](#one-way-line): the version advances only if every run-at-finalize step succeeds.
 
 <a id="one-way-line"></a>**One-way line.** The point at which rollback stops being
 guaranteed, because [finalize](#finalize) may run an irreversible migration. Before it,

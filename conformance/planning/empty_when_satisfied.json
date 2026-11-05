@@ -2,10 +2,10 @@
   "name": "empty_when_satisfied",
   "description": "A migration whose applies() is false yields an empty plan (idempotent re-run).",
   "migrations": [
-    { "id": "a", "version": 5, "scope": "host-local", "applies": false }
+    { "id": "a", "version": 5, "scope": "local", "applies": false }
   ],
   "from": 4,
   "to": 5,
   "runNow": [],
-  "held": []
+  "runAtFinalize": []
 }

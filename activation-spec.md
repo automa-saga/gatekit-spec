@@ -53,26 +53,26 @@ catch-up to proceed within the window.
 A activation step MAY carry a one-time **migration** (a data/state transformation)
 in addition to gated code paths. Each migration declares a `scope`:
 
-- `host-local` — affects only the local participant; MAY run when its
+- `local` — affects only the local participant; MAY run when its
   activation version activates (e.g. at install).
-- `interop` — requires agreement across participants; MUST be **held** until a
+- `shared` — requires agreement across participants; MUST be **run-at-finalize** until a
   coordinated finalize (§6).
 
 Activation modes:
 
 - **Immediate** — `active` is set to the migration's version on install; the
-  migration runs then. Valid for `host-local`.
+  migration runs then. Valid for `local`.
 - **Deferred** — the implementation operates at the prior `active` (reading older
   formats down to `min`) and **holds** the migration until finalize. Required for
-  `interop`; permitted for `host-local` when an operator wants rollback-safe
+  `shared`; permitted for `local` when an operator wants rollback-safe
   staged validation.
 
 Implementations MUST be able to preview, before running, which migrations run now
-versus are held (a plan / dry-run).
+versus run at finalize (a plan / dry-run).
 
 ## 6. Finalize and reversibility
 
-**Finalize** advances `active`. Before advancing it runs the held migrations for
+**Finalize** advances `active`. Before advancing it runs the run-at-finalize migrations for
 the target version. Finalize is the **one-way line**: because a migration MAY be
 irreversible, rollback is only guaranteed *before* finalize has run any migration.
 

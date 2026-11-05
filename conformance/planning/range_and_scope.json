@@ -1,14 +1,14 @@
 {
   "name": "range_and_scope",
-  "description": "In-range applicable migrations become steps; host-local run now, interop held; out-of-range and already-satisfied are omitted.",
+  "description": "In-range applicable migrations become steps; local run now, shared run at finalize; out-of-range and already-satisfied are omitted.",
   "migrations": [
-    { "id": "a", "version": 5, "scope": "host-local", "applies": true },
-    { "id": "b", "version": 6, "scope": "interop", "applies": true },
-    { "id": "c", "version": 6, "scope": "host-local", "applies": false },
-    { "id": "d", "version": 7, "scope": "host-local", "applies": true }
+    { "id": "a", "version": 5, "scope": "local", "applies": true },
+    { "id": "b", "version": 6, "scope": "shared", "applies": true },
+    { "id": "c", "version": 6, "scope": "local", "applies": false },
+    { "id": "d", "version": 7, "scope": "local", "applies": true }
   ],
   "from": 4,
   "to": 6,
   "runNow": ["a"],
-  "held": ["b"]
+  "runAtFinalize": ["b"]
 }

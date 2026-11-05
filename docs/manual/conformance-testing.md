@@ -10,7 +10,7 @@ want to confirm yours agrees with the spec, run them.
 |---|---|---|
 | `resolution/` | Feature resolution, including alpha and overrides | core §3–5 |
 | `invariant/` | The run invariant `min <= active <= max` | activation §3 |
-| `planning/` | Run-now vs. held plan computation | migration §2 |
+| `planning/` | Run-now vs. run-at-finalize plan computation | migration §2 |
 | `serialization/` | Reserved; empty until the formats are fixed | activation §8 |
 
 Every fixture is listed in

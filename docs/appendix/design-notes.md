@@ -88,21 +88,21 @@ actual data/state, never a record of past runs.
 migration idempotent — safe to re-run, a no-op once its effect is already present —
 which is what makes the whole saga crash-safe. See migration-spec §1.
 
-## 8. Scope is consumer-defined; unmapped scopes are `held`
+## 8. Scope is consumer-defined; unmapped scopes are `run-at-finalize`
 
 **Decision.** A migration's `scope` is an opaque, consumer-defined string mapped to a
-run-policy (`run-now` / `held`) by a consumer-supplied classifier. gatekit predefines
-`host-local` and `interop` only as the keys of the *default* classifier, not as a
-closed enum. Any scope the classifier does not map resolves to `held`.
+run-policy (`run-now` / `run-at-finalize`) by a consumer-supplied classifier. gatekit predefines
+`local` and `shared` only as the keys of the *default* classifier, not as a
+closed enum. Any scope the classifier does not map resolves to `run-at-finalize`.
 
 **Why.** Consumers classify migrations by different axes (blast radius,
 deliberateness, …); baking in a fixed set would not fit them. Defaulting the unknown
-case to `held` is the safe choice, because a held step never fires automatically at
+case to `run-at-finalize` is the safe choice, because a run-at-finalize step never fires automatically at
 install — a forgotten mapping fails *closed*, not open. See migration-spec §2.1.
 
 ## 9. Finalize is a one-way line; the runner enforces reversibility
 
-**Decision.** `finalize` runs held migrations and advances `active` as a single,
+**Decision.** `finalize` runs run-at-finalize migrations and advances `active` as a single,
 deliberate step. Lowering `active` is permitted only across reversible steps and is
 *refused* with a typed error across an irreversible one.
 

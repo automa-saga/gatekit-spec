@@ -61,7 +61,7 @@ behavior every conformant implementation MUST exhibit, so that:
   active}` triple, the run invariant, the configurable support window, activation
   (immediate/deferred), finalize, reversibility, and the serialized formats.
 - [migration-spec.md](migration-spec.md) — the optional migration/activation
-  layer: the migration contract, plan computation (run-now vs held), and execution
+  layer: the migration contract, plan computation (run-now vs. run-at-finalize), and execution
   (run-now, finalize, rollback).
 
 ## Status
