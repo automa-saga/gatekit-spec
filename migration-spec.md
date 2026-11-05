@@ -22,7 +22,7 @@ A **Migration** is a one-time transformation tied to an activation version:
 - `scope` (string) — a **consumer-defined** classification of the migration. gatekit
   does not fix the set of scopes; a consumer MAY define as many as it needs. Each
   scope is mapped to a **run-policy** (§2.1) that decides the migration's timing.
-  gatekit predefines `host-local` and `interop` only as the keys of the built-in
+  gatekit predefines `local` and `shared` only as the keys of the built-in
   default policy (activation-spec §5), not as a closed enum.
 - `applies()` → boolean — whether the migration still needs to run. It MUST read
   **ground truth** (on-disk/cluster state), NOT a ledger of past runs, so that a
@@ -55,7 +55,7 @@ deterministic. A plan is a pure value: computed on demand, never persisted.
 A **run-policy** is the timing a step is eligible for, one of:
 
 - `run-now` — eligible to run at install / immediate activation.
-- `held` — deferred until a deliberate `finalize` (§3.2).
+- `run-at-finalize` — deferred until a deliberate `finalize` (§3.2).
 
 An implementation MUST resolve each migration's `scope` to a run-policy through a
 **consumer-supplied classifier** (a scope→policy map or equivalent). It MUST NOT
@@ -65,22 +65,22 @@ more** scopes, each mapped to a run-policy.
 The implementation MUST provide a **built-in default classifier** used when the
 consumer supplies none, so existing consumers are unaffected:
 
-- `host-local` → `run-now`,
-- `interop` → `held`.
+- `local` → `run-now`,
+- `shared` → `run-at-finalize`.
 
-A scope that the effective classifier does not map MUST resolve to `held` — the
-conservative default, since `held` never fires automatically at install. An
+A scope that the effective classifier does not map MUST resolve to `run-at-finalize` — the
+conservative default, since `run-at-finalize` never fires automatically at install. An
 implementation MAY let a consumer's classifier extend or override the built-in
 default.
 
 The scope string itself is opaque to gatekit: the per-host/cross-host meaning of
-`host-local`/`interop` (activation-spec §5) is a property of the *default* policy, not
+`local`/`shared` (activation-spec §5) is a property of the *default* policy, not
 of the scope axis. A consumer MAY classify by any axis it needs (blast radius,
 deliberateness, …) without gatekit ascribing meaning to the names.
 
 An implementation MUST be able to render a plan before executing it (a
 `--plan` / dry-run preview): for each step, its `id`, `description`, `scope`, and
-whether it is run-now or held.
+whether it is run-now or run-at-finalize.
 
 ## 3. Execution
 
@@ -90,8 +90,8 @@ implementation MUST roll back the steps it already executed, in reverse order
 (best-effort), and MUST NOT advance `active`.
 
 ### 3.2 Finalize
-Finalize MUST run the held steps in plan order; on failure it MUST roll back the
-executed held steps (reverse order) and MUST NOT advance `active`. On success it
+Finalize MUST run the run-at-finalize steps in plan order; on failure it MUST roll back the
+executed run-at-finalize steps (reverse order) and MUST NOT advance `active`. On success it
 MUST advance `active` to `to`. Finalize is the **one-way line** (activation-spec §6):
 rollback is only guaranteed before any migration in it has run.
 
@@ -104,7 +104,7 @@ write floor, activation-spec §7) and MUST be refused across an irreversible ste
 The execution model in §3.1–§3.2 is a **saga / compensation** model: steps run in
 order and a failure compensates the completed steps in reverse. Execution SHOULD be
 **resumable** across a crash. This spec fixes the plan and the observable
-run-now/held/one-way semantics, not the runtime; an implementation MAY realize them
+run-now/run-at-finalize/one-way semantics, not the runtime; an implementation MAY realize them
 with a saga runtime (the Go implementation uses `automa-saga/automa`, which carries
 its own durability specification).
 
@@ -112,4 +112,4 @@ its own durability specification).
 This model generalizes conventional version-boundary migration frameworks: instead
 of "run once when the binary version crosses a boundary," a migration declares the
 activation version it belongs to and runs when that version **activates** — at install
-for run-now steps, at finalize for held steps.
+for run-now steps, at finalize for run-at-finalize steps.

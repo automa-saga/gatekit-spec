@@ -34,8 +34,8 @@ The active version is outside `[Min, Max]`.
 - Is its `Version()` in the half-open range `(from, to]`? A migration at `from` is
   excluded.
 - Does `Applies` return true? It reads ground truth; a satisfied migration is omitted.
-- Is its scope **held**? Interop migrations run at `Finalize`, not `RunNow`. A scope
-  your policy does not map also resolves to held.
+- Is its scope **run-at-finalize**? Shared migrations run at `Finalize`, not `RunNow`. A scope
+  your policy does not map also resolves to run-at-finalize.
 
 ## `Finalize` failed
 

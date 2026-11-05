@@ -4,8 +4,8 @@ A **runner** executes a plan. Two methods, two moments:
 
 | Method | When | Does | Advances `active`? |
 |---|---|---|---|
-| `RunNow(ctx, plan)` | At install / immediate activation | Runs the **run-now** (host-local) steps in plan order. | **No** |
-| `Finalize(ctx, plan, store)` | When the operator is ready | Runs the **held** (interop) steps in order, then calls `store.SetActive(plan.To)`. | **Yes**, only if every held step succeeded |
+| `RunNow(ctx, plan)` | At install / immediate activation | Runs the **run-now** (local) steps in plan order. | **No** |
+| `Finalize(ctx, plan, store)` | When the operator is ready | Runs the **run-at-finalize** (shared) steps in order, then calls `store.SetActive(plan.To)`. | **Yes**, only if every run-at-finalize step succeeded |
 
 ```go
 runner := migration.NewStdRunner()
@@ -22,7 +22,7 @@ if err := runner.Finalize(ctx, plan, store); err != nil {
 ## Failure behavior
 
 On the first failing step the runner calls `Rollback` on the steps it already ran,
-in reverse order (best-effort), and returns the error. If a held step fails during
+in reverse order (best-effort), and returns the error. If a run-at-finalize step fails during
 `Finalize`, `active` is left unchanged.
 
 ## Finalize is the one-way line

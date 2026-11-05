@@ -10,7 +10,7 @@
 > **migration/activation** layer.
 
 **You will learn:** when one version axis is enough and when you need two; the
-difference between a *host-local* and an *interop* migration; and the two ideas that
+difference between a *local* and an *shared* migration; and the two ideas that
 make rollback safe — the **one-way line** and the **preserve-downgrade window**.
 
 ## Two questions decide everything
@@ -63,7 +63,7 @@ The two axes do different jobs:
 Release version   ──►  "deploy the binaries"   (happens per machine, as they roll)
 Activation version──►  "raise the protocol"     (happens ONCE, for the whole fleet,
                                                   after every machine is new enough;
-                                                  the held migration runs here)
+                                                  the run-at-finalize migration runs here)
 ```
 
 **Deploy** moves the release version, machine by machine, new code dormant.
@@ -95,7 +95,7 @@ type RewriteReceipts struct{}
 func (RewriteReceipts) ID() string          { return "rewrite-receipts-v6" }
 func (RewriteReceipts) Description() string  { return "Rewrite receipts into the v6 format" }
 func (RewriteReceipts) Version() int         { return 6 }      // activates with activation version 6
-func (RewriteReceipts) Scope() migration.Scope { return migration.Interop } // see below
+func (RewriteReceipts) Scope() migration.Scope { return migration.Shared } // see below
 
 // Applies reads GROUND TRUTH — the actual data — not a log of past runs. So it is
 // safe to re-run: once the data is already v6, Applies returns false.
@@ -112,37 +112,37 @@ func (RewriteReceipts) Rollback(ctx context.Context) error { return restoreRecei
 > itself — "is any receipt still old-format?" — the migration is **idempotent**: safe
 > to run again and again, doing nothing once the effect is already present.
 
-## Scope: host-local vs interop
+## Scope: local vs shared
 
 A migration's **scope** decides *when* it is allowed to run. gatekit does not hardwire
 the meaning — you classify your own scopes — but it ships two well-understood ones:
 
-> **host-local.** The migration affects only the machine it runs on (converting a
+> **local.** The migration affects only the machine it runs on (converting a
 > local cache, say). It is safe to run **as soon as** its activation version activates
 > — nobody else is affected.
 >
-> **interop.** The migration affects agreement *between* machines (a shared format, a
-> wire protocol). It must be **held** until a coordinated finalize, or you get
+> **shared.** The migration affects agreement *between* machines (a shared format, a
+> wire protocol). It must be **run-at-finalize** until a coordinated finalize, or you get
 > split-brain.
 
 These map to a **run-policy**:
 
 | Scope | Default run-policy | Runs when |
 |-------|--------------------|-----------|
-| `host-local` | `run-now` | immediately, at install/activation |
-| `interop` | `held` | only at a deliberate `finalize` |
-| *(anything unmapped)* | `held` | the safe default — never auto-fires |
+| `local` | `run-now` | immediately, at install/activation |
+| `shared` | `run-at-finalize` | only at a deliberate `finalize` |
+| *(anything unmapped)* | `run-at-finalize` | the safe default — never auto-fires |
 
 You can define your own scopes (by [blast radius](/appendix/glossary.md#blast-radius)
 — how much a change can affect — by how deliberate the change is, whatever you need)
-and map each to `run-now` or `held`. Any scope you forget to map
-falls back to `held` — the conservative choice, because a held migration never fires
+and map each to `run-now` or `run-at-finalize`. Any scope you forget to map
+falls back to `run-at-finalize` — the conservative choice, because a run-at-finalize migration never fires
 on its own.
 
 ## Preview before you leap: the plan
 
 Before running anything, gatekit computes a **plan**: exactly which migrations will
-run now and which are held, for the move from one version to another. A plan is a
+run now and which run at finalize, for the move from one version to another. A plan is a
 pure preview — it changes nothing — so it is perfect for a `--dry-run`:
 
 ```go
@@ -154,7 +154,7 @@ if err != nil {
 }
 
 for _, step := range plan.RunNow() { /* will run at activation */ }
-for _, step := range plan.Held()   { /* waits for finalize */ }
+for _, step := range plan.RunAtFinalize()   { /* waits for finalize */ }
 ```
 
 The plan includes a migration only if its version is in the
@@ -169,39 +169,39 @@ Running a plan happens in up to two steps, with a runner:
 ```go
 runner := migration.NewStdRunner() // dependency-free; a durable runner exists separately
 
-// 1. Run the host-local (run-now) steps immediately. On any failure, it rolls back
+// 1. Run the local (run-now) steps immediately. On any failure, it rolls back
 //    the steps already done, in reverse, and does NOT advance the version.
 if err := runner.RunNow(ctx, plan); err != nil {
     return err
 }
 
-// 2. Later, once the fleet is ready: finalize. This runs the held (interop) steps,
+// 2. Later, once the fleet is ready: finalize. This runs the run-at-finalize (shared) steps,
 //    then advances the active version via the store. This is the one-way line.
 if err := runner.Finalize(ctx, plan, store); err != nil {
-    return err // version did NOT advance; held steps were rolled back
+    return err // version did NOT advance; run-at-finalize steps were rolled back
 }
 ```
 
 - **`RunNow`** does the safe, local work at install time. It never advances the
   active version.
 - **`Finalize`** does the coordinated work and *then* advances the active version to
-  the target. The version moves **only if every held step succeeds.**
+  the target. The version moves **only if every run-at-finalize step succeeds.**
 
 ### A deferred migration, start to finish
 
 Put the whole sequence on one timeline, using the `RewriteReceipts` migration above
-(an `interop` step tied to activation version 6). Watch *when* the migration actually
+(an `shared` step tied to activation version 6). Watch *when* the migration actually
 runs — not at deploy, but at finalize:
 
 ```
          Monday: DEPLOY                    (days pass…)              Friday: FINALIZE
   ───────────────────────────────────────────────────────────────────────────────►
-  new binaries rolled out, dormant      preserve-downgrade        held migration RUNS,
+  new binaries rolled out, dormant      preserve-downgrade        run-at-finalize migration RUNS,
   active = 5                             window: rollback safe     then active → 6
                                                                    behavior now live
 
   plan = Plan(from:5, to:6)             (nothing has run yet)      runner.Finalize(...)
-  RewriteReceipts is HELD (interop)                                 → RewriteReceipts.Execute
+  RewriteReceipts is HELD (shared)                                 → RewriteReceipts.Execute
   runner.RunNow(...) → no-op here                                   → store.SetActive(6)
 ```
 
@@ -209,7 +209,7 @@ Read it left to right:
 
 1. **Monday — deploy.** You install the new binaries across the fleet. `active` is
    still 5, so every node behaves exactly as before. You compute the plan for `5 → 6`;
-   `RewriteReceipts` is an `interop` migration, so it is **held** — `RunNow` has
+   `RewriteReceipts` is an `shared` migration, so it is **run-at-finalize** — `RunNow` has
    nothing to do. **The data has not been touched.**
 2. **The days in between — the preserve-downgrade window.** The new code sits dormant.
    Nothing irreversible has happened, so rolling back to the old binary is clean. You
@@ -275,8 +275,8 @@ precise about this:
 | Situation | Axes | Migration scope | Activation |
 |-----------|------|-----------------|------------|
 | Tool you deploy & control; no shared protocol | single (reuse release) | none | on deploy |
-| Local format change, no coordination needed | single or two | `host-local` → run-now | at install |
-| Shared wire/storage format; fleet must agree | two | `interop` → held | at `finalize` |
+| Local format change, no coordination needed | single or two | `local` → run-now | at install |
+| Shared wire/storage format; fleet must agree | two | `shared` → run-at-finalize | at `finalize` |
 | You want a rollback-safe staging pause | two | either, deferred | at `finalize`, after the preserve-downgrade window |
 
 ## A saga underneath — and surviving a crash
@@ -330,14 +330,14 @@ Two design notes worth holding onto:
   semantics (order, compensation, the one-way line); it does not mandate a runtime. Any
   conformant runner is interchangeable.
 
-For a tool-sized worked example that puts deploy, deferred activation, the held
+For a tool-sized worked example that puts deploy, deferred activation, the run-at-finalize
 migration, finalize, and a crash-safe runner together, see
 [Appendix E: a worked rollout](/appendix/worked-example.md).
 
 ## Check yourself
 
 - Your change rewrites a shared storage format every node reads. One axis or two?
-  Which scope? *(Two axes; `interop` (held) — the fleet must agree before the format
+  Which scope? *(Two axes; `shared` (run-at-finalize) — the fleet must agree before the format
   changes.)*
 - Why must `Applies` read the data instead of a "have I run this?" record? *(So the
   migration is idempotent and a crash can't leave a lying ledger.)*

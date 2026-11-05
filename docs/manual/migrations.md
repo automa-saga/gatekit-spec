@@ -33,11 +33,11 @@ Guidance for each method:
 
 | Scope | Default policy | Meaning |
 |---|---|---|
-| `migration.HostLocal` | **run now** | Affects only the local host; runs when its activation version activates. |
-| `migration.Interop` | **held** | Affects cross-host agreement; held for a coordinated `finalize`. |
+| `migration.Local` | **run now** | Affects only the local host; runs when its activation version activates. |
+| `migration.Shared` | **run-at-finalize** | Affects cross-host agreement; deferred to a coordinated `finalize`. |
 
 Scopes are not a closed set. Map your own scopes to a policy
-(`migration.PolicyRunNow` or `migration.PolicyHeld`):
+(`migration.PolicyRunNow` or `migration.PolicyRunAtFinalize`):
 
 ```go
 planner := migration.NewPlanner(migs...).WithScopePolicy(migration.ScopePolicy{
@@ -46,7 +46,7 @@ planner := migration.NewPlanner(migs...).WithScopePolicy(migration.ScopePolicy{
 ```
 
 Your entries merge over the default. A scope that nothing maps resolves to
-**held**, the conservative choice, because a held step never fires automatically.
+**run-at-finalize**, the conservative choice, because a run-at-finalize step never fires automatically.
 
 ## Compute a plan
 
@@ -60,7 +60,7 @@ and never stored.
 
 ```go
 for _, s := range plan.RunNow() { fmt.Println("run-now:", s.Migration.ID()) }
-for _, s := range plan.Held()   { fmt.Println("held:   ", s.Migration.ID()) }
+for _, s := range plan.RunAtFinalize()   { fmt.Println("run-at-finalize:", s.Migration.ID()) }
 ```
 
 ## Preview before running
@@ -71,12 +71,12 @@ for a `--plan` or `--dry-run` flag:
 ```go
 fmt.Print(plan.Report())
 // Plan: activation 5 -> 6
-//   Run now (host-local):
-//     - warm-cache [host-local] warm local cache
-//         reason: host-local: runs now on activation
-//   Held for finalize (interop):
-//     - reshard [interop] reshard shared index
-//         reason: interop: held for finalize
+//   Run now (local):
+//     - warm-cache [local] warm local cache
+//         reason: local: runs now on activation
+//   Held for finalize (shared):
+//     - reshard [shared] reshard shared index
+//         reason: shared: run at finalize
 ```
 
 ## The Store

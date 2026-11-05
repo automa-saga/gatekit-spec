@@ -137,7 +137,7 @@ the all-at-once release you were trying to avoid. You flip in **stages**, gated 
 > participant is new enough to handle the next activation version (its `max ≥
 > target`). You do not finalize until readiness holds.
 
-The staged sequence for a two-axis (interop) change:
+The staged sequence for a two-axis (shared) change:
 
 1. **Roll the new binaries out, dormant.** Deploy v6 everywhere. `active` stays 5.
    Each machine passes the run invariant (`5` is in `[5,6]`). Service unaffected.
@@ -145,7 +145,7 @@ The staged sequence for a two-axis (interop) change:
    finish catching up. (The coordinated, negotiated form of this check — every
    participant reporting in — is the piece gatekit reserves for a future spec; today
    you confirm it with your own fleet tooling.)
-3. **Finalize, once.** Run the held `interop` migrations and advance `active` to 6 for
+3. **Finalize, once.** Run the run-at-finalize `shared` migrations and advance `active` to 6 for
    the fleet. Now, and only now, the new behavior is live everywhere — together.
 4. **Later, clean up.** When 5 leaves the window, delete the old paths (Rule 2).
 

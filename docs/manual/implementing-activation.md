@@ -13,7 +13,7 @@ library: adapt the state location, locking, and logging to your product.
 Three guarantees:
 
 - **Idempotent.** Running activation twice has the same effect as running it once.
-- **Safe.** `active` advances only after every held migration has succeeded, and the
+- **Safe.** `active` advances only after every run-at-finalize migration has succeeded, and the
   write is atomic.
 - **One-way.** Once activated, `active` never goes back down. An older binary then
   refuses to start, because `active` is above its `Max`.
@@ -142,7 +142,7 @@ Run this once the new binary is up (and again on every start). It does four thin
    does, `active` was edited or raised without the work being done, or a finalize
    was cut short. Refuse to run and name the migration.
 3. **Run-now steps.** Plan from `active` to this binary's `Max` and run the
-   host-local steps. `active` does not move.
+   local steps. `active` does not move.
 4. **Decide whether to activate now** (see the next section).
 
 ```go
@@ -161,7 +161,7 @@ type Outcome int
 
 const (
 	Activated Outcome = iota // active advanced to the target
-	Pending                  // held steps remain; waiting for finalize
+	Pending                  // run-at-finalize steps remain; waiting for finalize
 )
 
 // OnStartup is called once the new binary is running. synchronized reports whether
@@ -193,7 +193,7 @@ func OnStartup(
 			active, drift.Steps[0].Migration.ID())
 	}
 
-	// 3. Plan the move to this binary's max and run the host-local steps.
+	// 3. Plan the move to this binary's max and run the local steps.
 	target := int(gate.MaxActivation())
 	plan, err := planner.Plan(ctx, active, target)
 	if err != nil {
@@ -204,13 +204,13 @@ func OnStartup(
 	}
 
 	// 4. Activate now if nothing needs fleet agreement, or the whole fleet moves together.
-	if synchronized || len(plan.Held()) == 0 {
+	if synchronized || len(plan.RunAtFinalize()) == 0 {
 		if err := runner.Finalize(ctx, plan, store); err != nil {
 			return Pending, err
 		}
 		return Activated, nil
 	}
-	return Pending, nil // held steps wait for an explicit finalize
+	return Pending, nil // run-at-finalize steps wait for an explicit finalize
 }
 ```
 
@@ -221,7 +221,7 @@ because the gate you passed was built from the old value.
 
 The rule in `OnStartup` is:
 
-> Activate now if the whole fleet upgrades together, **or** if nothing is held.
+> Activate now if the whole fleet upgrades together, **or** if nothing is deferred.
 > Otherwise wait for an explicit finalize.
 
 | Upgrade | Held steps? | Result |
@@ -247,11 +247,11 @@ func Finalize(ctx context.Context, store *FileStore, migs []migration.Migration,
 	if err != nil {
 		return err
 	}
-	fmt.Print(plan.Report()) // what runs now, what is held
+	fmt.Print(plan.Report()) // what runs now, what is deferred
 	if dryRun {
 		return nil
 	}
-	return runner.Finalize(ctx, plan, store) // held steps, then SetActive(target)
+	return runner.Finalize(ctx, plan, store) // run-at-finalize steps, then SetActive(target)
 }
 ```
 
@@ -264,7 +264,7 @@ Take a lock around it so a daemon and an operator can't race, and log the old an
 A daemon can finalize on its own once the upgrade has proven itself, for example
 after a healthy soak period. Keep it conservative:
 
-- Auto-finalize only host-local or explicitly "safe" migrations; leave irreversible
+- Auto-finalize only local or explicitly "safe" migrations; leave irreversible
   ones to the operator.
 - Wait out the soak window first. Deferring is what gives you the rollback window,
   so don't finalize at download time.

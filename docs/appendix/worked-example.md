@@ -71,8 +71,8 @@ Let us build it.
 
 The behavior change is "use record format v2," gated and introduced at the next
 activation version (we are at 5; v2 is 6). The data change is a migration tied to that
-same version. Because it changes the **wire** format too, its scope is `interop` — it
-must be **held** for a coordinated finalize, not run at install.
+same version. Because it changes the **wire** format too, its scope is `shared` — it
+must be **run-at-finalize** for a coordinated finalize, not run at install.
 
 ```go
 const RecordFormatV2 gatekit.Feature = "RecordFormatV2"
@@ -89,13 +89,13 @@ var Registry = gatekit.Registry{
 ```
 
 ```go
-// The data migration, tied to activation version 6. interop → held for finalize.
+// The data migration, tied to activation version 6. shared → run at finalize.
 type RewriteToV2 struct{ /* db handle, etc. */ }
 
 func (RewriteToV2) ID() string            { return "rewrite-records-v2" }
 func (RewriteToV2) Description() string    { return "Rewrite all records from v1 to v2" }
 func (RewriteToV2) Version() int           { return 6 }
-func (RewriteToV2) Scope() migration.Scope { return migration.Interop } // R4: held
+func (RewriteToV2) Scope() migration.Scope { return migration.Shared } // R4: run at finalize
 
 // R6 groundwork: read ground truth, so a re-run after a crash is safe.
 func (m RewriteToV2) Applies(ctx context.Context) (bool, error) { return anyRecordStillV1(ctx) }
@@ -143,7 +143,7 @@ on.
 ## Step 4 — Finalize: the migration runs *here* (R4, R6)
 
 When the fleet is ready, you finalize **once**. This is the moment the whole course has
-been pointing at: the held migration runs at the point of activation, and only then
+been pointing at: the run-at-finalize migration runs at the point of activation, and only then
 does the behavior turn on, for everyone, together.
 
 ```go
@@ -160,7 +160,7 @@ if err := runner.Finalize(ctx, plan, store); err != nil {
 
 Two requirements are satisfied right here:
 
-- **R4 (flip together).** `Finalize` runs the held `RewriteToV2` and *then* advances
+- **R4 (flip together).** `Finalize` runs the run-at-finalize `RewriteToV2` and *then* advances
   `active` to 6. The advance lands only if the migration succeeds, so the cluster
   crosses from v1 to v2 as one step — never node-by-node.
 - **R6 (crash-safe).** Because the runner journals each step, a node that crashes

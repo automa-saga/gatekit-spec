@@ -45,7 +45,7 @@ component-base, use component-base.** gatekit is for everything else. See
 
 **At the moment of activation — not at deploy.** In gatekit a migration is tied to the
 activation version, so it runs when that version activates: immediately for a
-`host-local` (run-now) migration, or at `finalize` for a `held`/`interop` one. If you
+`local` (run-now) migration, or at `finalize` for a `run-at-finalize`/`shared` one. If you
 deploy the new code today but defer activation to next week, the migration runs *next
 week, at finalize*, together with the behavior it supports — never silently at deploy
 and never forgotten. This coupling is the part plain flag services and most gate

@@ -45,9 +45,9 @@ gate, _ := gatekit.New(reg, storeSource{store}) // Enabled now tracks the store 
 
 You can also drive the version from an environment variable (a few lines over
 `os.Getenv`), which suits a CLI or a dev setup. But a bare env var bypasses
-`finalize`: it moves `active` **without running that version's held migrations**, and
+`finalize`: it moves `active` **without running that version's run-at-finalize migrations**, and
 it is per-process rather than coordinated fleet state. Keep the activation version in
-a store for any fleet with interop migrations. See [Activation](/manual/activation.md)
+a store for any fleet with shared migrations. See [Activation](/manual/activation.md)
 and [Implementing activation](/manual/implementing-activation.md).
 
 ## Precedence

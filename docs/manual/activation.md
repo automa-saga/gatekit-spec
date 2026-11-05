@@ -58,8 +58,8 @@ forces catch-up to proceed within the window.
 
 | Mode | What happens | Valid for |
 |---|---|---|
-| **Immediate** | `active` is set to the migration's version on install and the migration runs then. | `host-local` migrations |
-| **Deferred** | The binary keeps operating at the prior `active`, reads older formats down to `min`, and holds the migration until `finalize`. | Required for `interop`; optional for `host-local` |
+| **Immediate** | `active` is set to the migration's version on install and the migration runs then. | `local` migrations |
+| **Deferred** | The binary keeps operating at the prior `active`, reads older formats down to `min`, and holds the migration until `finalize`. | Required for `shared`; optional for `local` |
 
 Use deferred activation whenever mixed versions can coexist in a fleet. Details
 and the migration side: [Migrations](/manual/migrations.md) and
