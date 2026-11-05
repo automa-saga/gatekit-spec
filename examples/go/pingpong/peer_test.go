@@ -94,7 +94,9 @@ func TestDemo(t *testing.T) {
 
 	joined := strings.Join(log, "\n")
 	for _, want := range []string{
-		"proposing flip to v2 at message",
+		"supports 5/6/5",                    // upgraded: Max rose to 6, still active=5
+		"both peers now support v2 (Max=6)", // the Max>=6 handshake
+		"proposing flip at message",
 		"flipping to v2",
 		"decode both, send one",
 		fmt.Sprintf("done after %d messages", cfg.Total),
@@ -124,24 +126,34 @@ func TestHoldsWhenPeerNeverUpgrades(t *testing.T) {
 	}
 }
 
-// TestEncodeFollowsActivation is the unit-level version of the flip: the format a peer
-// sends is driven by its gate, which resolves against its live activation version.
-// Advancing active (what the agreed flip does) flips encode from v1 to v2 — no new gate.
-func TestEncodeFollowsActivation(t *testing.T) {
-	p, err := newPeer("ping", 1)
+// TestUpgradeAndFlip is the unit-level version of the rollout. A fresh peer is the old
+// binary: Max=5, cannot read v2, sends v1. Upgrading raises Max to 6 (can read v2) but it
+// still sends v1 until active advances. Advancing active to 6 flips its send format to v2.
+func TestUpgradeAndFlip(t *testing.T) {
+	p, err := newPeer("ping", 3)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if p.speaksV2() {
-		t.Fatal("a dormant peer (active=5) must not speak v2")
+	if int(p.ev().Max) != 5 || p.canReadV2() {
+		t.Fatalf("old binary should have Max=5 and not read v2, got Max=%d", p.ev().Max)
 	}
-	if _, format, _ := decode(p.encode(Msg{From: "ping", Seq: 1})); format != "v1" {
-		t.Fatalf("at active=5 encode = %s, want v1", format)
+	if p.speaksV2() {
+		t.Fatal("old binary must not speak v2")
+	}
+
+	if err := p.maybeUpgrade(3, func(string, ...any) {}); err != nil {
+		t.Fatal(err)
+	}
+	if int(p.ev().Max) != 6 || !p.canReadV2() {
+		t.Fatalf("upgraded binary should have Max=6 and read v2, got Max=%d", p.ev().Max)
+	}
+	if p.speaksV2() {
+		t.Fatal("upgraded-but-dormant peer (active=5) must still send v1")
 	}
 
 	p.act.active = 6 // what the agreed flip does
 	if !p.speaksV2() {
-		t.Fatal("at active=6 a peer must speak v2")
+		t.Fatal("at active=6 an upgraded peer must speak v2")
 	}
 	if _, format, _ := decode(p.encode(Msg{From: "ping", Seq: 9})); format != "v2" {
 		t.Fatalf("at active=6 encode = %s, want v2", format)
@@ -151,7 +163,7 @@ func TestEncodeFollowsActivation(t *testing.T) {
 // TestDecodeDetectsCorruption confirms the v2 checksum is actually checked: a tampered
 // message fails to decode instead of being acted on.
 func TestDecodeDetectsCorruption(t *testing.T) {
-	wire := encodeV2(Msg{From: "pong", Seq: 8, Upgraded: true, Flip: 7})
+	wire := encodeV2(Msg{From: "pong", Seq: 8, Min: 5, Max: 6, Active: 6, Flip: 7})
 	tampered := strings.Replace(wire, "seq=8", "seq=9", 1) // body changes, checksum does not
 	if _, _, err := decode(tampered); err == nil {
 		t.Fatal("decode should have reported a checksum mismatch, got nil error")

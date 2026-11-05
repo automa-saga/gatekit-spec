@@ -8,30 +8,34 @@ import (
 )
 
 // Msg is one volley. From is the sender ("ping" or "pong"); Seq is the shared,
-// incrementing conversation counter; Upgraded is the handshake signal — true once the
-// sender has been upgraded to the new binary and can read v2; Flip is the negotiated
-// message number at which to switch to v2 (0 = not agreed yet).
+// incrementing conversation counter; Min/Max/Active is the sender's gatekit activation
+// triple (gate.EffectiveVersion) — Max is the key signal, since Max >= 6 means the sender
+// runs the new binary and can read v2; Flip is the negotiated message number at which to
+// switch to v2 (0 = not agreed yet).
 //
-// Upgraded and Flip together are the handshake: a peer advertises that it is upgraded,
-// and once both are, one proposes a Flip number on the wire. Both carry that number in
-// their v1 messages until Seq reaches it — then they send v2. So no peer is ever handed a
-// format it cannot read, and the switch point is agreed in-band rather than hard-coded.
+// The triple and Flip are the handshake: each peer advertises the versions it supports,
+// and once both advertise Max >= 6, one proposes a Flip number on the wire. Both carry
+// that number in their v1 messages until Seq reaches it — then they send v2. So no peer is
+// ever handed a format it cannot read, and the switch point is agreed in-band rather than
+// hard-coded.
 type Msg struct {
-	From     string
-	Seq      int
-	Upgraded bool
-	Flip     int
+	From   string
+	Seq    int
+	Min    int
+	Max    int
+	Active int
+	Flip   int
 }
 
 // body renders the format-independent fields. Both v1 and v2 wrap the same body; v2
-// adds a checksum over it.
+// adds a checksum over it. The triple travels as ev=min/max/active.
 func (m Msg) body() string {
-	return fmt.Sprintf("from=%s|seq=%d|up=%t|flip=%d", m.From, m.Seq, m.Upgraded, m.Flip)
+	return fmt.Sprintf("from=%s|seq=%d|ev=%d/%d/%d|flip=%d", m.From, m.Seq, m.Min, m.Max, m.Active, m.Flip)
 }
 
 // encodeV1 is the original wire format: a "v1" tag and the plain body.
 //
-//	v1|from=ping|seq=3|up=false|flip=0
+//	v1|from=ping|seq=3|ev=5/5/5|flip=0
 func encodeV1(m Msg) string {
 	return "v1|" + m.body()
 }
@@ -40,7 +44,7 @@ func encodeV1(m Msg) string {
 // verifies the checksum, so a corrupted or truncated message is caught rather than
 // acted on — the reason the format change is worth making.
 //
-//	v2|from=ping|seq=8|up=true|flip=7|crc=1a2b3c4d
+//	v2|from=ping|seq=8|ev=5/6/6|flip=7|crc=1a2b3c4d
 func encodeV2(m Msg) string {
 	body := m.body()
 	return fmt.Sprintf("v2|%s|crc=%08x", body, crc32.ChecksumIEEE([]byte(body)))
@@ -93,8 +97,18 @@ func decode(wire string) (m Msg, format string, err error) {
 				return Msg{}, "", fmt.Errorf("malformed seq %q in %q", value, wire)
 			}
 			m.Seq = n
-		case "up":
-			m.Upgraded = value == "true"
+		case "ev":
+			nums := strings.Split(value, "/")
+			if len(nums) != 3 {
+				return Msg{}, "", fmt.Errorf("malformed triple %q in %q", value, wire)
+			}
+			for i, dst := range []*int{&m.Min, &m.Max, &m.Active} {
+				n, err := strconv.Atoi(nums[i])
+				if err != nil {
+					return Msg{}, "", fmt.Errorf("malformed triple %q in %q: %w", value, wire, err)
+				}
+				*dst = n
+			}
 		case "flip":
 			n, err := strconv.Atoi(value)
 			if err != nil {
