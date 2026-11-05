@@ -76,12 +76,51 @@ undermine a flip. The guard is the **run invariant** (Lesson 2):
 > At startup, check `min ≤ active ≤ max`. If it fails, **refuse to start** and report
 > a typed error.
 
+The whole entrypoint, start to finish — the check belongs in `main`, before the
+process does any real work:
+
 ```go
-if err := gate.Check(); err != nil {
-    // active is outside [min, max]: do not serve. Surface a clear, typed error.
-    log.Fatalf("refusing to start: %v", err)
+func main() {
+    // 1. Load the authoritative active version from its store (Lesson 5).
+    store, err := activation.OpenFileStore("/opt/myapp/activation.json", int(catalog.MaxActivation))
+    if err != nil {
+        log.Fatalf("activation state: %v", err)
+    }
+
+    // 2. Build the gate from the registry and a live, store-backed version source.
+    gate, err := gatekit.New(catalog.Registry, storeSource{store})
+    if err != nil {
+        log.Fatalf("invalid gate configuration: %v", err)
+    }
+
+    // 3. The run invariant: min <= active <= max. Check it once, here, before serving.
+    if err := gate.Check(); err != nil {
+        var ve *gatekit.VersionRangeError
+        if errors.As(err, &ve) {
+            // The typed error carries the offending triple and which way to fix it.
+            log.Fatalf("refusing to start: activation %d is outside the supported window [%d, %d] — %s",
+                ve.Active, ve.Min, ve.Max, remedy(ve))
+        }
+        log.Fatalf("refusing to start: %v", err)
+    }
+
+    // 4. Inside the window — safe to serve.
+    serve(gate)
+}
+
+// remedy turns the two failure directions into an actionable message.
+func remedy(ve *gatekit.VersionRangeError) string {
+    if ve.Active > ve.Max {
+        return "this binary is too old for the active state; upgrade the binary"
+    }
+    return "the active state fell behind this binary's support window; catch it up, or widen W with WithSupportWindow"
 }
 ```
+
+`OpenFileStore` and `storeSource` are the persistent store and live version source
+from [Lesson 5](/tutorial/5-activation-use-cases.md) (and the manual's
+[Implementing activation](/manual/implementing-activation.md)); `serve` is your app.
+Everything else is the live gatekit API.
 
 Why *refuse* rather than muddle on? Because a machine that runs outside the window is
 exactly the "stale node silently corrupting a flip" failure. Failing loud and early
@@ -158,16 +197,11 @@ service. That one promise is what a rolling upgrade *is*.
 
 When you design a system for zero-downtime upgrades, ask:
 
-- [ ] **Is deploying a machine behavior-neutral?** (New code runs at the old `active`
-      until told otherwise — Rule 1.)
-- [ ] **Is the old behavior still reachable for the whole window?** (Don't delete a
-      path while a supported version still needs it — Rule 2.)
-- [ ] **Does each machine refuse to run outside its window, loudly?** (The run
-      invariant at startup — Rule 3.)
-- [ ] **Does the risky flip happen only after the fleet is ready?** (Staged
-      activation gated on readiness — Rule 4.)
-- [ ] **Is there a preserve-downgrade window, and do writes honor the floor?** (A way
-      back until you deliberately choose otherwise — Rule 5.)
+- [ ] **Is deploying a machine behavior-neutral?** (New code runs at the old `active` until told otherwise — Rule 1.)
+- [ ] **Is the old behavior still reachable for the whole window?** (Don't delete a path while a supported version still needs it — Rule 2.)
+- [ ] **Does each machine refuse to run outside its window, loudly?** (The run invariant at startup — Rule 3.)
+- [ ] **Does the risky flip happen only after the fleet is ready?** (Staged activation gated on readiness — Rule 4.)
+- [ ] **Is there a preserve-downgrade window, and do writes honor the floor?** (A way back until you deliberately choose otherwise — Rule 5.)
 
 If you can tick all five, you can upgrade your fleet while it is in use. gatekit gives
 you the machinery; these rules are how you *use* it well.
