@@ -247,3 +247,5 @@ coordinated finalize — the mixed-binary coexistence and one-flip story of
   five design rules this rollout follows.
 - [Appendix D: spot the failure](/appendix/spot-the-failure.md) — what happens when a rollout
   skips one of these steps.
+- [Implementing activation](/manual/implementing-activation.md) — the how-to for building
+  this wiring (state store, startup routine, finalize command) into your own tool.

@@ -1,7 +1,5 @@
 # gatekit Specifications
 
-> Status: **draft** — the core and activation specs are still settling alongside the first (Go) implementation.
-
 > 📖 **Documentation: <https://automa-saga.github.io/gatekit-spec>**
 >
 > The docs site has three parts:
@@ -63,30 +61,6 @@ behavior every conformant implementation MUST exhibit, so that:
 - [migration-spec.md](migration-spec.md) — the optional migration/activation
   layer: the migration contract, plan computation (run-now vs. run-at-finalize), and execution
   (run-now, finalize, rollback).
-
-## Status
-
-The spec is co-defined with the first (Go) implementation: a small core is stable
-and conformance-backed now; the rest is firmed up in the same change as the
-feature that needs it. "Stable" means safe to implement against; it is still a
-draft until the whole is ratified.
-
-| Area | Status |
-|---|---|
-| Feature resolution (core §3–5) | **stable** — conformance-backed |
-| Alpha/override enforcement (core §4–5) | **stable** — conformance-backed |
-| Plan computation (migration §2) | **stable** — conformance-backed |
-| `{min,max,active}` triple, run invariant, window `W` (activation §2–3) | **stable** — fixtures exist |
-| Activation / finalize / reversibility (activation §5–6, migration §3) | **draft** — behavior fixed, details firm up with the impl |
-| Min-compatibility write floor (activation §7) | **draft** |
-| Serialized activation-state (activation §8.1) | **draft** — shape only; fixtures to follow |
-| Negotiation / readiness message (activation §6, §8.2) | **reserved** — co-defined when fleet finalize is built |
-| Lifecycle metadata / removal lint (§4 increment) | **prose** — not yet enforced or conformance-tested |
-
-Rule of practice: any implementation change that adds observable behavior lands a
-matching spec section and conformance fixtures in the same change. For genuinely
-novel behavior the Go implementation MAY lead; the spec then catches up and becomes
-authoritative.
 
 ## Documentation
 
