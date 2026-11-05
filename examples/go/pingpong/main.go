@@ -24,6 +24,13 @@ func main() {
 	_ = fs.Parse(os.Args[2:])
 
 	cfg := Config{UpgradePing: *upPing, UpgradePong: *upPong, Lead: *lead, Total: *rounds, Delay: *delay}
+	// Validate the pacing flags. A Lead < 1 would make agreed <= seq at proposal time, so
+	// the proposal message itself would be sent as v2 — breaking the "propose in a v1
+	// message" invariant. The others must be positive message numbers.
+	if cfg.Lead < 1 || cfg.Total < 1 || cfg.UpgradePing < 1 || cfg.UpgradePong < 1 {
+		fmt.Fprintln(os.Stderr, "pingpong: -lead, -rounds, -upgrade-ping, -upgrade-pong must all be >= 1")
+		os.Exit(2)
+	}
 	logf := func(format string, args ...any) { fmt.Printf(format+"\n", args...) }
 
 	var err error

@@ -169,3 +169,15 @@ func TestDecodeDetectsCorruption(t *testing.T) {
 		t.Fatal("decode should have reported a checksum mismatch, got nil error")
 	}
 }
+
+// TestDecodeRejectsMissingField confirms a v1 message (which has no checksum) is rejected
+// when a required field is missing, rather than read with a zero-valued field.
+func TestDecodeRejectsMissingField(t *testing.T) {
+	if _, _, err := decode("v1|from=ping|ev=5/5/5|flip=0"); err == nil { // no seq
+		t.Fatal("decode should reject a message missing seq, got nil error")
+	}
+	// A complete message still decodes.
+	if _, _, err := decode("v1|from=ping|seq=1|ev=5/5/5|flip=0"); err != nil {
+		t.Fatalf("decode of a complete v1 message failed: %v", err)
+	}
+}

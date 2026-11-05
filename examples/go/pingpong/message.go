@@ -83,11 +83,13 @@ func decode(wire string) (m Msg, format string, err error) {
 		return Msg{}, "", fmt.Errorf("unrecognized message format %q in %q", format, wire)
 	}
 
+	seen := map[string]bool{}
 	for _, f := range fields {
 		key, value, ok := strings.Cut(f, "=")
 		if !ok {
 			return Msg{}, "", fmt.Errorf("malformed field %q in %q", f, wire)
 		}
+		seen[key] = true
 		switch key {
 		case "from":
 			m.From = value
@@ -115,6 +117,14 @@ func decode(wire string) (m Msg, format string, err error) {
 				return Msg{}, "", fmt.Errorf("malformed flip %q in %q", value, wire)
 			}
 			m.Flip = n
+		}
+	}
+
+	// Require every field, so a truncated or malformed message (v1 has no checksum to
+	// catch it) is rejected rather than read as a valid one with zero-valued fields.
+	for _, key := range []string{"from", "seq", "ev", "flip"} {
+		if !seen[key] {
+			return Msg{}, "", fmt.Errorf("message missing required field %q: %q", key, wire)
 		}
 	}
 	return m, format, nil

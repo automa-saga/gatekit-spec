@@ -116,7 +116,10 @@ func runPeer(conn net.Conn, name string, initiator bool, upgradeAt int, cfg Conf
 			logf("-- both peers now support v2 (Max=6): proposing flip at message %d", agreed)
 		}
 		// At the agreed message, advance active to 6 so the gate turns v2 on for sending.
-		if agreed > 0 && seq >= agreed && p.act.active < 6 {
+		// Only an upgraded peer (Max >= 6) may flip: advancing active past a binary's Max
+		// would be an out-of-range state. In the happy path a flip is only ever proposed
+		// once both are upgraded, so this guard is belt-and-suspenders.
+		if agreed > 0 && seq >= agreed && p.canReadV2() && p.act.active < 6 {
 			p.act.active = 6
 			logf("-- reached the agreed message %d: flipping to v2 (sending v2 now)", agreed)
 		}
@@ -138,7 +141,12 @@ func runPeer(conn net.Conn, name string, initiator bool, upgradeAt int, cfg Conf
 		line, err := r.ReadString('\n')
 		if err != nil {
 			if errors.Is(err, io.EOF) {
-				return nil // partner finished and closed the connection
+				if len(line) > 0 {
+					// The stream ended mid-message (no trailing newline): a truncated
+					// final message is a failure, not a clean shutdown.
+					return fmt.Errorf("%s: connection closed mid-message: %q", name, line)
+				}
+				return nil // partner finished and closed the connection cleanly
 			}
 			return err
 		}

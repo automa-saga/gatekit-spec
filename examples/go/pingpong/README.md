@@ -63,6 +63,7 @@ sequenceDiagram
     Note over P,Q: Phase 1 - OLD binary, ev=5/5/5 (send v1, read only v1)
     P->>Q: seq1 v1 ev=5/5/5 flip=0
     Q->>P: seq2 v1 ev=5/5/5 flip=0
+    P->>Q: seq3 v1 ev=5/5/5 flip=0
     Note over Q: pong upgraded, ev=5/6/5 (max=6, reads v1+v2, still sends v1)
     Q->>P: seq4 v1 ev=5/6/5 flip=0
     Note over P: ping upgraded, ev=5/6/5, both now advertise max=6
