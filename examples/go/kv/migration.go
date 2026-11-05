@@ -7,8 +7,10 @@ import (
 )
 
 // RewriteToV2 is the data migration tied to activation version 6: it rewrites every
-// record from v1 to v2. The format change is also a wire change, so its scope is
-// shared — it is run-at-finalize for a coordinated finalize, not run at install.
+// stored record from the v1 format to the v2 format. Its scope is Shared, so the
+// planner holds it for a deliberate finalize rather than running it at install — once a
+// record is v2, an older binary rolled back onto this data could not read it, so the
+// rewrite waits until the upgrade is committed.
 type RewriteToV2 struct{ Store *Store }
 
 // ID uniquely identifies the migration (stable across releases).
@@ -20,33 +22,49 @@ func (RewriteToV2) Description() string { return "Rewrite all records from v1 to
 // Version is the activation version this migration activates with.
 func (RewriteToV2) Version() int { return 6 }
 
-// Scope marks this shared, so the planner holds it for finalize.
+// Scope marks this Shared, so the planner holds it for finalize.
 func (RewriteToV2) Scope() migration.Scope { return migration.Shared }
 
-// Applies reads ground truth (any record still v1), not a ledger, so a re-run after a
-// crash is safe and becomes a no-op once every record is already v2.
+// Applies reads ground truth (is any record still in v1?), not a ledger, so a re-run
+// after a crash is safe and becomes a no-op once every record is already v2.
 func (m RewriteToV2) Applies(context.Context) (bool, error) {
-	for _, r := range m.Store.Records {
-		if r.Format == "v1" {
+	for _, r := range m.Store.records {
+		if r.Format() == "v1" {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-// Execute performs the forward transformation.
+// Execute performs the forward transformation: decode each v1 record and re-encode it
+// in v2. It re-reads the value rather than string-patching the bytes, so the new
+// checksum is computed from the real value.
 func (m RewriteToV2) Execute(context.Context) error {
-	for i := range m.Store.Records {
-		m.Store.Records[i].Format = "v2"
+	for i := range m.Store.records {
+		if m.Store.records[i].Format() != "v1" {
+			continue
+		}
+		value, err := decode(m.Store.records[i].Stored)
+		if err != nil {
+			return err
+		}
+		m.Store.records[i].Stored = encodeV2(value)
 	}
 	return nil
 }
 
 // Rollback reverses Execute (used to compensate on failure, and for a reversible
-// downgrade).
+// downgrade): decode each v2 record and re-encode it in v1.
 func (m RewriteToV2) Rollback(context.Context) error {
-	for i := range m.Store.Records {
-		m.Store.Records[i].Format = "v1"
+	for i := range m.Store.records {
+		if m.Store.records[i].Format() != "v2" {
+			continue
+		}
+		value, err := decode(m.Store.records[i].Stored)
+		if err != nil {
+			return err
+		}
+		m.Store.records[i].Stored = encodeV1(value)
 	}
 	return nil
 }
