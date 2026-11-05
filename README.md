@@ -4,7 +4,7 @@
 >
 > The docs site has three parts:
 > [**Tutorials**](https://automa-saga.github.io/gatekit-spec/#/tutorial/index) (a
-> Grade 10–12 course on releasing features and rolling upgrades, with runnable Go
+> tutorial course on releasing features and rolling upgrades, with runnable Go
 > examples), the
 > [**User manual**](https://automa-saga.github.io/gatekit-spec/#/manual/index)
 > (task-oriented how-tos for the Go API), and the
