@@ -4,8 +4,8 @@
 version, but it deliberately leaves two things to you: **when** `active` advances,
 and **where** it is stored. This chapter wires gatekit's pieces — a gate, a planner,
 and a runner — together with a little of your own code, so the "ship dormant, then
-activate later" lifecycle runs end to end in a real, restartable, possibly-clustered
-program.
+activate later" lifecycle runs end to end in a real, restartable program — whether it
+runs on one node or a fleet.
 
 **How — three pieces you add around gatekit,** built one per section below:
 

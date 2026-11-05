@@ -110,7 +110,7 @@ You take only the layer you need.
 2. [FAQ](/faq.md)
 
 **I want to see it all on one real tool** — a capstone that rolls a format change
-across a live cluster, end to end: [Appendix E: a worked rollout](/appendix/worked-example.md).
+from deploy to finalize, end to end: [Appendix E: a worked rollout](/appendix/worked-example.md).
 
 **I want the exact rules.** The [appendix](/appendix/algorithm.md) states the
 resolution algorithm precisely, explains the [conformance fixtures](/appendix/conformance.md)
