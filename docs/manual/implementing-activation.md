@@ -224,7 +224,7 @@ The rule in `OnStartup` is:
 > Activate now if the whole fleet upgrades together, **or** if nothing is deferred.
 > Otherwise wait for an explicit finalize.
 
-| Upgrade | Held steps? | Result |
+| Upgrade | Run-at-finalize steps? | Result |
 |---|---|---|
 | Synchronized (all nodes together) | any | Activate immediately. There is no mixed-version window. |
 | Rolling (one node at a time) | none | Activate immediately. Nothing needs fleet agreement. |

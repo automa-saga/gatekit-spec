@@ -8,7 +8,7 @@ import (
 
 // RewriteToV2 is the data migration tied to activation version 6: it rewrites every
 // record from v1 to v2. The format change is also a wire change, so its scope is
-// interop — it is held for a coordinated finalize, not run at install.
+// shared — it is run-at-finalize for a coordinated finalize, not run at install.
 type RewriteToV2 struct{ Store *Store }
 
 // ID uniquely identifies the migration (stable across releases).
@@ -20,8 +20,8 @@ func (RewriteToV2) Description() string { return "Rewrite all records from v1 to
 // Version is the activation version this migration activates with.
 func (RewriteToV2) Version() int { return 6 }
 
-// Scope marks this interop, so the planner holds it for finalize.
-func (RewriteToV2) Scope() migration.Scope { return migration.Interop }
+// Scope marks this shared, so the planner holds it for finalize.
+func (RewriteToV2) Scope() migration.Scope { return migration.Shared }
 
 // Applies reads ground truth (any record still v1), not a ledger, so a re-run after a
 // crash is safe and becomes a no-op once every record is already v2.

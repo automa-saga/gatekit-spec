@@ -74,7 +74,7 @@ fmt.Print(plan.Report())
 //   Run now (local):
 //     - warm-cache [local] warm local cache
 //         reason: local: runs now on activation
-//   Held for finalize (shared):
+//   Run at finalize (shared):
 //     - reshard [shared] reshard shared index
 //         reason: shared: run at finalize
 ```

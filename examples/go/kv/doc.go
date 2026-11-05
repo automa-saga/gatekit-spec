@@ -3,7 +3,7 @@
 // the executable version of Appendix E's worked rollout.
 //
 // It ships the change dormant, holds the data migration (the format change is an
-// interop change, so the fleet must agree), and runs the migration at a coordinated
+// shared change, so the fleet must agree), and runs the migration at a coordinated
 // finalize — then, and only then, advances the active version and turns the new
 // format on.
 //

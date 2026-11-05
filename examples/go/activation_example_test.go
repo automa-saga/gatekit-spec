@@ -50,11 +50,11 @@ func (m demoMigration) Applies(context.Context) (bool, error) { return m.applies
 func (m demoMigration) Execute(context.Context) error         { return nil }
 func (m demoMigration) Rollback(context.Context) error        { return nil }
 
-// Example_plan previews which migrations run now (host-local) and which are held for
-// finalize (interop) when moving from activation 5 to 6 (Lesson 5).
+// Example_plan previews which migrations run now (local) and which are run-at-finalize for
+// finalize (shared) when moving from activation 5 to 6 (Lesson 5).
 func Example_plan() {
-	warm := demoMigration{id: "warm-cache", desc: "warm local cache", version: 6, scope: migration.HostLocal, applies: true}
-	reshard := demoMigration{id: "reshard", desc: "reshard shared index", version: 6, scope: migration.Interop, applies: true}
+	warm := demoMigration{id: "warm-cache", desc: "warm local cache", version: 6, scope: migration.Local, applies: true}
+	reshard := demoMigration{id: "reshard", desc: "reshard shared index", version: 6, scope: migration.Shared, applies: true}
 
 	planner := migration.NewPlanner(warm, reshard)
 	plan, err := planner.Plan(context.Background(), 5, 6)
@@ -65,30 +65,30 @@ func Example_plan() {
 	for _, s := range plan.RunNow() {
 		fmt.Printf("run-now: %s\n", s.Migration.ID())
 	}
-	for _, s := range plan.Held() {
-		fmt.Printf("held:    %s\n", s.Migration.ID())
+	for _, s := range plan.RunAtFinalize() {
+		fmt.Printf("run-at-finalize:    %s\n", s.Migration.ID())
 	}
 	// Output:
 	// run-now: warm-cache
-	// held:    reshard
+	// run-at-finalize:    reshard
 }
 
-// Example_finalize runs the held (interop) steps and advances the active version —
+// Example_finalize runs the run-at-finalize (shared) steps and advances the active version —
 // the one-way line (Lesson 5).
 func Example_finalize() {
 	store := &memStore{v: 5}
-	reshard := demoMigration{id: "reshard", desc: "reshard shared index", version: 6, scope: migration.Interop, applies: true}
+	reshard := demoMigration{id: "reshard", desc: "reshard shared index", version: 6, scope: migration.Shared, applies: true}
 
 	plan, _ := migration.NewPlanner(reshard).Plan(context.Background(), 5, 6)
 	runner := migration.NewStdRunner()
 
-	// RunNow does the host-local steps immediately (none here) and never advances.
+	// RunNow does the local steps immediately (none here) and never advances.
 	if err := runner.RunNow(context.Background(), plan); err != nil {
 		panic(err)
 	}
 	fmt.Println("active before finalize:", store.Current())
 
-	// Finalize runs the held steps, then advances active to plan.To.
+	// Finalize runs the run-at-finalize steps, then advances active to plan.To.
 	if err := runner.Finalize(context.Background(), plan, store); err != nil {
 		panic(err)
 	}
