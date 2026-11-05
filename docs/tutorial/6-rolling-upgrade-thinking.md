@@ -76,12 +76,51 @@ undermine a flip. The guard is the **run invariant** (Lesson 2):
 > At startup, check `min ≤ active ≤ max`. If it fails, **refuse to start** and report
 > a typed error.
 
+The whole entrypoint, start to finish — the check belongs in `main`, before the
+process does any real work:
+
 ```go
-if err := gate.Check(); err != nil {
-    // active is outside [min, max]: do not serve. Surface a clear, typed error.
-    log.Fatalf("refusing to start: %v", err)
+func main() {
+    // 1. Load the authoritative active version from its store (Lesson 5).
+    store, err := activation.OpenFileStore("/opt/myapp/activation.json", int(catalog.MaxActivation))
+    if err != nil {
+        log.Fatalf("activation state: %v", err)
+    }
+
+    // 2. Build the gate from the registry and a live, store-backed version source.
+    gate, err := gatekit.New(catalog.Registry, storeSource{store})
+    if err != nil {
+        log.Fatalf("invalid gate configuration: %v", err)
+    }
+
+    // 3. The run invariant: min <= active <= max. Check it once, here, before serving.
+    if err := gate.Check(); err != nil {
+        var ve *gatekit.VersionRangeError
+        if errors.As(err, &ve) {
+            // The typed error carries the offending triple and which way to fix it.
+            log.Fatalf("refusing to start: activation %d is outside the supported window [%d, %d] — %s",
+                ve.Active, ve.Min, ve.Max, remedy(ve))
+        }
+        log.Fatalf("refusing to start: %v", err)
+    }
+
+    // 4. Inside the window — safe to serve.
+    serve(gate)
+}
+
+// remedy turns the two failure directions into an actionable message.
+func remedy(ve *gatekit.VersionRangeError) string {
+    if ve.Active > ve.Max {
+        return "this binary is too old for the active state; upgrade the binary"
+    }
+    return "the active state fell behind this binary's support window; catch it up, or widen W with WithSupportWindow"
 }
 ```
+
+`OpenFileStore` and `storeSource` are the persistent store and live version source
+from [Lesson 5](/tutorial/5-activation-use-cases.md) (and the manual's
+[Implementing activation](/manual/implementing-activation.md)); `serve` is your app.
+Everything else is the live gatekit API.
 
 Why *refuse* rather than muddle on? Because a machine that runs outside the window is
 exactly the "stale node silently corrupting a flip" failure. Failing loud and early
