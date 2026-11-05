@@ -15,6 +15,7 @@
   - [Activation](manual/activation.md)
   - [Migrations](manual/migrations.md)
   - [Finalize & rollback](manual/finalize-and-rollback.md)
+  - [Implementing activation](manual/implementing-activation.md)
   - [Testing against conformance](manual/conformance-testing.md)
   - [Troubleshooting](manual/troubleshooting.md)
 - Other languages

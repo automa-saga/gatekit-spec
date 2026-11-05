@@ -16,6 +16,7 @@ anything here disagrees.
 | [Activation](/manual/activation.md) | The `{min, max, active}` triple, support window, run invariant, immediate vs. deferred |
 | [Migrations](/manual/migrations.md) | Writing migrations, scopes, plans, dry-run preview |
 | [Finalize & rollback](/manual/finalize-and-rollback.md) | `RunNow`, `Finalize`, the one-way line, the durable runner |
+| [Implementing activation](/manual/implementing-activation.md) | A worked design: state store, startup, synchronized vs. rolling, finalize command, auto-finalize |
 | [Testing against conformance](/manual/conformance-testing.md) | Running the shared fixtures |
 | [Troubleshooting](/manual/troubleshooting.md) | Why a feature is off, range errors, migrations that did not run |
 
