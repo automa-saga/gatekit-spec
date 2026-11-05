@@ -11,13 +11,10 @@ No code in this lesson. We are building the mental model first.
 
 ## The core difficulty
 
-When software ran on a disk you mailed to customers, a "release" was a single
-event. Everyone got version 5, then later everyone got version 6. You could change
-anything between them, because no two versions had to coexist.
-
-Modern software is not like that. Your product is **always on**. It runs on many
-machines, it talks to other services, and users are using it *while* you change it.
-That turns one hard question into the heart of this whole course:
+Modern software is **always on**. It runs on many machines, it talks to other
+services, and users are using it *while* you change it. When you release a new
+version, your users may not use the latest release at the same time. That turns one
+hard question into the heart of this whole course:
 
 > How do you change a system that is already running, used, and connected — without
 > breaking it, and without having to get everything perfect in a single risky
