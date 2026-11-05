@@ -1,16 +1,34 @@
 # Implementing activation
 
-gatekit gives you the pieces: a gate, a planner, and a runner. **When** `active`
-advances, and **where it is stored**, are yours to decide. This chapter shows one
-complete way to wire them together for a tool that upgrades itself, one node at a
-time or all nodes at once.
+**The goal.** gatekit tells you *whether a feature is on* at a given activation
+version, but it deliberately leaves two things to you: **when** `active` advances,
+and **where** it is stored. This chapter wires gatekit's pieces — a gate, a planner,
+and a runner — together with a little of your own code, so the "ship dormant, then
+activate later" lifecycle runs end to end in a real, restartable, possibly-clustered
+program.
+
+**How — three pieces you add around gatekit,** built one per section below:
+
+1. **A state store** (§1) owns the `active` value: persistent, forward-only, written
+   atomically.
+2. **A startup routine** (§2) runs on every boot — enforce the run invariant, catch
+   drift, run the migrations that are safe now, and decide whether to activate.
+3. **A finalize command** (§3–4) is the deliberate step — driven by an operator or a
+   trigger — that runs the deferred migrations and advances `active` for the fleet;
+   §5 adds an optional auto-finalize daemon.
 
 The code below compiles and runs against the Go API. It is a starting point, not a
 library: adapt the state location, locking, and logging to your product.
 
+> **Want to see it running first?** The capstone —
+> [Appendix E: a worked rollout](/appendix/worked-example.md) and the runnable
+> [`examples/go/kv`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/kv)
+> — is a complete rollout of these pieces on one concrete tool. This chapter is the
+> how-to for building the same wiring into *your own* program.
+
 ## What you are building
 
-Three guarantees:
+Those pieces exist to keep three guarantees — they are what §1–4 protect:
 
 - **Idempotent.** Running activation twice has the same effect as running it once.
 - **Safe.** `active` advances only after every run-at-finalize migration has succeeded, and the
@@ -144,6 +162,19 @@ Run this once the new binary is up (and again on every start). It does four thin
 3. **Run-now steps.** Plan from `active` to this binary's `Max` and run the
    local steps. `active` does not move.
 4. **Decide whether to activate now** (see the next section).
+
+**What "drift" means.** The stored `active` is a *claim* — that every migration at
+or below it has already run. The drift check tests that claim against ground truth:
+`Plan(ctx, -1, active)` returns any migration in the range `(-1, active]` whose
+`Applies()` is still true, i.e. whose work is *not* actually done. An empty result
+means the recorded version matches reality; a non-empty one means the version and
+the data have **diverged**. The classic trigger is restoring the database from an
+older backup without resetting `active`: the records are old again, but `active`
+still says they were migrated — so the binary would run as if the new format were in
+place over old data. Failing fast, and naming the migration, is safer than operating
+on that lie. (This is the data-level complement to the run invariant in step 1:
+step 1 checks `active` is in a supportable *range*; the drift check verifies it is
+actually *true*.)
 
 ```go
 package activation
@@ -283,4 +314,5 @@ after a healthy soak period. Keep it conservative:
 
 Related: [Activation](/manual/activation.md) ·
 [Migrations](/manual/migrations.md) ·
-[Finalize & rollback](/manual/finalize-and-rollback.md)
+[Finalize & rollback](/manual/finalize-and-rollback.md) ·
+[Appendix E: a worked rollout](/appendix/worked-example.md) (the runnable capstone)
