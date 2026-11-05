@@ -197,16 +197,11 @@ service. That one promise is what a rolling upgrade *is*.
 
 When you design a system for zero-downtime upgrades, ask:
 
-- [ ] **Is deploying a machine behavior-neutral?** (New code runs at the old `active`
-      until told otherwise — Rule 1.)
-- [ ] **Is the old behavior still reachable for the whole window?** (Don't delete a
-      path while a supported version still needs it — Rule 2.)
-- [ ] **Does each machine refuse to run outside its window, loudly?** (The run
-      invariant at startup — Rule 3.)
-- [ ] **Does the risky flip happen only after the fleet is ready?** (Staged
-      activation gated on readiness — Rule 4.)
-- [ ] **Is there a preserve-downgrade window, and do writes honor the floor?** (A way
-      back until you deliberately choose otherwise — Rule 5.)
+- [ ] **Is deploying a machine behavior-neutral?** (New code runs at the old `active` until told otherwise — Rule 1.)
+- [ ] **Is the old behavior still reachable for the whole window?** (Don't delete a path while a supported version still needs it — Rule 2.)
+- [ ] **Does each machine refuse to run outside its window, loudly?** (The run invariant at startup — Rule 3.)
+- [ ] **Does the risky flip happen only after the fleet is ready?** (Staged activation gated on readiness — Rule 4.)
+- [ ] **Is there a preserve-downgrade window, and do writes honor the floor?** (A way back until you deliberately choose otherwise — Rule 5.)
 
 If you can tick all five, you can upgrade your fleet while it is in use. gatekit gives
 you the machinery; these rules are how you *use* it well.
