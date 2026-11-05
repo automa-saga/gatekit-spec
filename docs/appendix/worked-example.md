@@ -7,10 +7,13 @@
 > [5](/tutorial/5-activation-use-cases.md), and
 > [6](/tutorial/6-rolling-upgrade-thinking.md), this is where they come together.
 
-> **This one is runnable.** Everything below is a real, working program you can build
-> and run — [`examples/go/kv/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/kv).
-> `cd examples/go && go run ./kv` prints the rollout stage by stage; the snippets in
-> this appendix are drawn from its source.
+> **This one is runnable.** The data-migration spine below is a real, working program you
+> can build and run — [`examples/go/kv/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/kv).
+> It runs the story in a **single process** for runnability: `cd examples/go && go run ./kv`
+> writes records, holds the migration, and finalizes, stage by stage. The fleet-wide
+> coexistence this scenario describes is shown live by its two-process companion,
+> [`pingpong`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/pingpong).
+> The snippets below follow the kv source closely.
 
 ## The tool: `kv`, a small clustered key-value store
 
@@ -28,9 +31,8 @@ Today both are "format **v1**."
 
 ## The change we want to ship
 
-We want to improve how records are stored: a new **format v2** that compresses values
-and adds a checksum. This is not a small internal tweak — it changes **both** facts
-above:
+We want to improve how records are stored: a new **format v2** that adds an integrity
+checksum. This is not a small internal tweak — it changes **both** facts above:
 
 - what each node writes to **disk** (a stored-data change → a **migration**), and
 - what nodes **send each other** (a wire-protocol change → nodes must **agree**).
@@ -79,7 +81,7 @@ const RecordFormatV2 gatekit.Feature = "RecordFormatV2"
 
 var Registry = gatekit.Registry{
     RecordFormatV2: {
-        Description: "Store and replicate records in the compressed, checksummed v2 format",
+        Description: "Store and replicate records in the checksummed v2 format",
         Specs: gatekit.VersionedSpecs{
             {ActiveFrom: 5, Default: false, Maturity: gatekit.Beta}, // born dormant
             {ActiveFrom: 6, Default: true,  Maturity: gatekit.GA},   // on at 6
@@ -216,28 +218,38 @@ cd examples/go
 go run ./kv          # or: go build ./kv && ./kv
 ```
 
-It prints exactly the stages above — watch `records` stay `[v1 v1]` until the final
-`finalize` line, which is the entire point: **the migration runs at activation, not at
-deploy.** The source is a handful of small files (`record.go`, `feature.go`,
-`migration.go`, `rollout.go`, `main.go`) in
+It writes two records while dormant (stored v1), holds the migration, finalizes — watch
+`formats` stay `[v1 v1]` until the `finalize` line — then writes a third record (now v2)
+and reads them all back. That is the entire point: **the migration runs at activation, not
+at deploy**, and the format a write uses follows the gate. The source is a handful of small
+files (`record.go`, `store.go`, `kv.go`, `feature.go`, `migration.go`, `rollout.go`,
+`main.go`) in
 [`examples/go/kv/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/kv).
 
 ### A live two-peer version
 
 Where `kv` focuses on the **data migration** in one process, its companion
 [`examples/go/pingpong/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go/pingpong)
-shows the **protocol coexistence** across two peers:
+shows the **protocol coexistence** across two **real processes** over TCP:
 
 ```bash
 cd examples/go
-go run ./pingpong
+go run ./pingpong pong     # terminal 1 — listens
+go run ./pingpong ping     # terminal 2 — connects
+# or both in one process:
+go run ./pingpong demo
 ```
 
-Ping and pong exchange messages while the wire format rolls from v1 to v2. You can
-watch each peer get upgraded, keep sending v1 while dormant (so it still interoperates
-with the peer that has not upgraded), and then flip to v2 together at a single
-coordinated finalize — the mixed-binary coexistence and one-flip story of
-[Lesson 6](/tutorial/6-rolling-upgrade-thinking.md), live.
+Ping and pong exchange messages while the wire format rolls from v1 to v2. Each message
+advertises the sender's activation triple (`ev=min/max/active`, i.e.
+`gate.EffectiveVersion()`). You can watch each peer get **upgraded** — its `max` rises
+from 5 to 6, so it can read v2 — while it keeps **sending v1** (its `active` is still 5),
+so it still interoperates with the peer that has not upgraded. Once both advertise
+`max = 6`, they **negotiate a flip message number on the wire** (a `flip=` field) and
+switch to v2 together at that point — the mixed-binary coexistence and one-flip story of
+[Lesson 6](/tutorial/6-rolling-upgrade-thinking.md), live. Because a new binary reads both
+formats, the peers need not switch in the same instant, only at the same agreed message
+(decode both, send one).
 
 ## See also
 

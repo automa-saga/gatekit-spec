@@ -1,58 +1,35 @@
 package main
 
-import "fmt"
+import (
+	"net"
+	"sync"
+)
 
-// Run plays out the rolling upgrade: ping and pong take turns sending a message, while
-// a coordinator rolls out the new binary peer by peer and then finalizes. Each stage
-// is reported via logf. It returns an error only if a peer ever fails to decode a
-// message it was sent — which, if the model is right, never happens.
-func Run(logf func(string, ...any)) error {
-	c := &cluster{active: 5}
-	ping, err := newPeer("ping", false, c) // both start on the OLD binary
-	if err != nil {
-		return err
-	}
-	pong, err := newPeer("pong", false, c)
-	if err != nil {
-		return err
+// runDemo plays ping and pong in a single process, connected by an in-memory pipe
+// instead of a real socket. It runs the exact same runPeer code the two-terminal
+// commands use, so the demo is faithful — only the transport differs. main uses it for a
+// one-command run; the test uses it for a deterministic check.
+func runDemo(cfg Config, logf func(string, ...any)) error {
+	c1, c2 := net.Pipe()
+	tag := func(name string) func(string, ...any) {
+		return func(format string, args ...any) { logf("["+name+"] "+format, args...) }
 	}
 
-	logf("start   both on the OLD binary; cluster active=5 → both speak v1")
+	var wg sync.WaitGroup
+	var pongErr error
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer c2.Close()
+		pongErr = runPeer(c2, "pong", false, cfg.UpgradePong, cfg, tag("pong"))
+	}()
 
-	peers := [2]*peer{ping, pong}
-	const rounds = 10
-	for round := 1; round <= rounds; round++ {
-		// The coordinator applies fleet changes before this round.
-		switch round {
-		case 3:
-			pong.canV2 = true
-			logf("rollout pong upgraded to the NEW binary (v2-capable); active still 5, so it stays dormant and keeps sending v1")
-		case 5:
-			ping.canV2 = true
-			logf("rollout ping upgraded too → every peer supports v2 (readiness); still active=5, still sending v1")
-		case 7:
-			c.active = 6
-			logf("FINALIZE cluster active 5 → 6; MessageFormatV2 is ON for the whole fleet")
-		}
+	pingErr := runPeer(c1, "ping", true, cfg.UpgradePing, cfg, tag("ping"))
+	c1.Close()
+	wg.Wait()
 
-		sender := peers[(round-1)%2]
-		receiver := peers[round%2]
-
-		m := Msg{From: sender.name, Seq: round, Key: "k", Value: fmt.Sprintf("%d", round)}
-		wire := sender.encode(m)
-		ver, err := receiver.decode(wire)
-		if err != nil {
-			return err // a decode failure is a broken rollout
-		}
-
-		note := ""
-		if sender.canV2 && !sender.speaksV2() {
-			note = "  (sender is v2-capable but still dormant → v1)"
-		}
-		logf("round %2d %-4s → %-4s  %-34q  %s reads %s%s",
-			round, sender.name, receiver.name, wire, receiver.name, ver, note)
+	if pingErr != nil {
+		return pingErr
 	}
-
-	logf("done    no peer ever failed to read a message — the rollout was safe")
-	return nil
+	return pongErr
 }
