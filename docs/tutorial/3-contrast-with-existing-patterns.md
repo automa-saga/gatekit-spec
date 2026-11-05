@@ -27,6 +27,40 @@ CockroachDB cluster version, Kafka protocol version — and gatekit.*
 gatekit is firmly Family B. The quickest way to understand it is to see what each
 neighbor does.
 
+## Which *kind* of toggle? (Fowler's taxonomy)
+
+Family A vs. B is about the *tool*. There is a second, orthogonal lens worth
+holding alongside it: the *job the flag is doing*. Martin Fowler's
+[feature-toggle taxonomy](/tutorial/1-why-feature-gating.md) sorts flags into four
+categories along two axes — how long they live, and whether they are decided at
+compile time or at runtime:
+
+| Category | Job | Longevity | Decided | gatekit? |
+|----------|-----|-----------|---------|----------|
+| **Release** | hide not-yet-finished work so it can merge to trunk | short | can be static | **yes — this is gatekit's cell** |
+| **Experiment** | A/B test, measure a variant | long | runtime, per user | no |
+| **Ops** | kill switch, throttle, degrade | long | runtime, flip *now* | no |
+| **Permissioning** | per user / tenant / plan | long | runtime | no |
+
+gatekit implements exactly one cell: **short-lived, static, in-binary release
+toggles**. The other three all need runtime, per-request decisions — which is
+Family A's job, not gatekit's. That narrowness buys two things Fowler warns you to
+watch for:
+
+- **It resists flag rot.** Fowler's biggest caution is that toggles are "inventory
+  with a carrying cost" and release toggles should be *short-lived*. A gatekit
+  feature is a typed constant whose whole lifecycle is written down as versioned
+  specs (Beta@5, GA@6), so the compiler finds every call site and "this one is done,
+  delete it" is a legible decision, not an archaeology dig.
+- **It makes "flip it on" an auditable, ordered event** — advancing one monotonic
+  activation version — rather than an ad-hoc config edit. That is what lets release
+  toggling scale to a fleet you do not upgrade atomically (the rest of this page).
+
+So gatekit is the *release-toggle* corner of Fowler's taxonomy, built for software
+that ships as versioned releases. For experiment, ops, or permissioning toggles,
+reach for a Family A service instead — and you can run both at once (see
+[How to choose](#how-to-choose)).
+
 ## LaunchDarkly / Unleash (Family A)
 
 These are **runtime flag services**. Your code asks a client library "is this flag
