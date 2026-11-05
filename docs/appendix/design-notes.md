@@ -20,7 +20,7 @@ Where code and spec disagree, the spec wins and the code is a bug.
 **Why.** For a library meant to exist in many languages, two runtimes that resolve a
 feature differently are worthless to a user. Pinning behavior in language-neutral
 prose + fixtures is the only way N implementations stay in agreement. See
-[Appendix B](conformance.md).
+[Appendix B](/appendix/conformance.md).
 
 ## 2. In-binary and deterministic, not a flag service
 
@@ -137,6 +137,6 @@ responsibility. Tracked in the epic.
 
 ## See also
 
-- [Appendix A: the resolution algorithm](algorithm.md)
-- [Appendix D: spot the failure](spot-the-failure.md) — these decisions seen through
+- [Appendix A: the resolution algorithm](/appendix/algorithm.md)
+- [Appendix D: spot the failure](/appendix/spot-the-failure.md) — these decisions seen through
   the bugs they prevent.

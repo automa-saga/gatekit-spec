@@ -36,9 +36,9 @@ The pages below are **placeholders**. The lessons and examples for these languag
 are written *as each implementation lands and passes the shared conformance
 fixtures* — so this site never implies a library that does not exist yet.
 
-- [Kotlin (coming)](kotlin.md)
-- [Rust (coming)](rust.md)
-- [Python (coming)](python.md)
+- [Kotlin (coming)](/tutorial/kotlin.md)
+- [Rust (coming)](/tutorial/rust.md)
+- [Python (coming)](/tutorial/python.md)
 
 Because every implementation must pass the same fixtures, the *concepts* in Lessons
 1–6 are identical across languages. Only the syntax changes. If you have read the Go

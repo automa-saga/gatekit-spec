@@ -44,12 +44,12 @@ By the end you should be able to, on your own product:
 
 | # | Lesson | The question it answers |
 |---|--------|-------------------------|
-| [1](1-why-feature-gating.md) | Why feature gating is needed | What problem are we actually solving? |
-| [2](2-why-gatekit.md) | Why gatekit is built this way | Why *this* design, and not a flag service? |
-| [3](3-contrast-with-existing-patterns.md) | How it compares to other tools | LaunchDarkly, Kubernetes, CockroachDB, Kafka — which, when? |
-| [4](4-build-and-release-a-feature.md) | Build and release a feature | Hands-on: declare a feature and ship it dormant. |
-| [5](5-activation-use-cases.md) | Activation use cases | One version axis or two? Immediate or deferred? |
-| [6](6-rolling-upgrade-thinking.md) | Rolling-upgrade thinking | How to design a product that upgrades with no downtime. |
+| [1](/tutorial/1-why-feature-gating.md) | Why feature gating is needed | What problem are we actually solving? |
+| [2](/tutorial/2-why-gatekit.md) | Why gatekit is built this way | Why *this* design, and not a flag service? |
+| [3](/tutorial/3-contrast-with-existing-patterns.md) | How it compares to other tools | LaunchDarkly, Kubernetes, CockroachDB, Kafka — which, when? |
+| [4](/tutorial/4-build-and-release-a-feature.md) | Build and release a feature | Hands-on: declare a feature and ship it dormant. |
+| [5](/tutorial/5-activation-use-cases.md) | Activation use cases | One version axis or two? Immediate or deferred? |
+| [6](/tutorial/6-rolling-upgrade-thinking.md) | Rolling-upgrade thinking | How to design a product that upgrades with no downtime. |
 
 Read them in order the first time — each builds on the last.
 
@@ -92,21 +92,21 @@ You take only the layer you need.
 
 **I just want to gate a feature** — the whole "ship it dormant, flip it later" story:
 
-1. [1. Why feature gating is needed](1-why-feature-gating.md)
-2. [2. Why gatekit is built this way](2-why-gatekit.md)
-3. [4. Build and release a feature](4-build-and-release-a-feature.md)
+1. [1. Why feature gating is needed](/tutorial/1-why-feature-gating.md)
+2. [2. Why gatekit is built this way](/tutorial/2-why-gatekit.md)
+3. [4. Build and release a feature](/tutorial/4-build-and-release-a-feature.md)
 
 **I am upgrading a fleet without downtime** — the model, then deferred activation,
 `finalize`, and the design rules:
 
-1. [1. Why feature gating is needed](1-why-feature-gating.md)
-2. [2. Why gatekit is built this way](2-why-gatekit.md)
-3. [5. Activation use cases](5-activation-use-cases.md)
-4. [6. Rolling-upgrade thinking](6-rolling-upgrade-thinking.md)
+1. [1. Why feature gating is needed](/tutorial/1-why-feature-gating.md)
+2. [2. Why gatekit is built this way](/tutorial/2-why-gatekit.md)
+3. [5. Activation use cases](/tutorial/5-activation-use-cases.md)
+4. [6. Rolling-upgrade thinking](/tutorial/6-rolling-upgrade-thinking.md)
 
 **I am choosing a tool for my team** — the comparison and the common questions:
 
-1. [3. How it compares to other tools](3-contrast-with-existing-patterns.md)
+1. [3. How it compares to other tools](/tutorial/3-contrast-with-existing-patterns.md)
 2. [FAQ](/faq.md)
 
 **I want to see it all on one real tool** — a capstone that rolls a format change
@@ -122,4 +122,4 @@ Go is the reference implementation and every Go example in this course is **real
 code against the live API. Kotlin, Rust, and Python are planned; their lesson pages
 exist as clearly-marked placeholders until those implementations land, so the site
 never implies a library that does not exist yet. See
-[Other languages](go.md).
+[Other languages](/tutorial/go.md).

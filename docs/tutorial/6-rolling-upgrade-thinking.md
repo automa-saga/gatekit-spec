@@ -4,8 +4,8 @@
 > designing a *product* so that a whole fleet of machines can move to a new version,
 > one at a time, while users keep using it. What principles make that possible?
 
-> **Prerequisites:** [Lesson 2](2-why-gatekit.md) (the triple, the run invariant) and
-> [Lesson 5](5-activation-use-cases.md) (migrations, finalize, the one-way line).
+> **Prerequisites:** [Lesson 2](/tutorial/2-why-gatekit.md) (the triple, the run invariant) and
+> [Lesson 5](/tutorial/5-activation-use-cases.md) (migrations, finalize, the one-way line).
 
 **You will learn:** the five design rules behind a zero-downtime upgrade, and how
 gatekit's pieces enforce each one. This lesson has less new API and more thinking —
@@ -198,4 +198,4 @@ you the machinery; these rules are how you *use* it well.
 - [Appendix C: design notes](/appendix/design-notes.md) — why these rules are
   shaped the way they are.
 
-**Next:** [Other languages](go.md) · or jump to the [FAQ](/faq.md).
+**Next:** [Other languages](/tutorial/go.md) · or jump to the [FAQ](/faq.md).

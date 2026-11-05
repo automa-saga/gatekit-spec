@@ -18,10 +18,10 @@ A Rust tutorial mirroring the Go lessons, but idiomatic Rust:
 
 gatekit is **spec-first**: every implementation must pass the same language-neutral
 conformance fixtures, so feature resolution and activation behave identically across
-languages. The ideas in [Lessons 1–6](1-why-feature-gating.md) are the real content;
+languages. The ideas in [Lessons 1–6](/tutorial/1-why-feature-gating.md) are the real content;
 only the syntax will differ here.
 
-To preview the shape, read the [Go lessons](go.md) — the Rust API will follow the
+To preview the shape, read the [Go lessons](/tutorial/go.md) — the Rust API will follow the
 same model.
 
 > Interested in building the Rust implementation? See

@@ -117,7 +117,7 @@ A new implementation becomes "conformant" by doing the same: load every file nam
 
 ## Why this matters for *you*
 
-If you are **choosing** gatekit for a [polyglot](glossary.md#polyglot) system (one
+If you are **choosing** gatekit for a [polyglot](/appendix/glossary.md#polyglot) system (one
 built in more than one language), the fixtures are your guarantee that the Go service
 and (later) the Kotlin service will not silently disagree about whether a feature is
 on. If you are **implementing** gatekit in a new
@@ -125,7 +125,7 @@ language, the fixtures are your to-do list and your definition of done.
 
 ## See also
 
-- [Appendix A: the resolution algorithm](algorithm.md) — the rules the `resolution/`
+- [Appendix A: the resolution algorithm](/appendix/algorithm.md) — the rules the `resolution/`
   and `invariant/` fixtures encode.
 - [Lesson 5](/tutorial/5-activation-use-cases.md) — the plan computation the
   `planning/` fixtures encode.

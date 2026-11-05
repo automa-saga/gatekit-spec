@@ -5,7 +5,7 @@
 > data that you cannot un-rewrite? This is where one version axis sometimes becomes
 > two.
 
-> **Prerequisites:** [Lesson 4](4-build-and-release-a-feature.md). You need the
+> **Prerequisites:** [Lesson 4](/tutorial/4-build-and-release-a-feature.md). You need the
 > activation version, specs, and the support window. This lesson uses the optional
 > **migration/activation** layer.
 
@@ -324,7 +324,7 @@ Two design notes worth holding onto:
 
 - **Zero-dependency core.** `automa` is imported only inside `gatekit-automa`, never in
   gatekit itself — so a consumer that uses `StdRunner` never inherits the dependency.
-  This is the "take only the layer you need" principle ([Lesson 2](2-why-gatekit.md))
+  This is the "take only the layer you need" principle ([Lesson 2](/tutorial/2-why-gatekit.md))
   carried all the way down to the execution engine.
 - **The spec fixes behavior, not the engine.** The migration spec pins the observable
   semantics (order, compensation, the one-way line); it does not mandate a runtime. Any
@@ -356,4 +356,4 @@ migration, finalize, and a crash-safe runner together, see
 - [Appendix B: conformance fixtures](/appendix/conformance.md) — the `planning/`
   fixtures that pin down plan computation.
 
-**Next:** [6. Rolling-upgrade thinking](6-rolling-upgrade-thinking.md)
+**Next:** [6. Rolling-upgrade thinking](/tutorial/6-rolling-upgrade-thinking.md)

@@ -245,5 +245,5 @@ coordinated finalize — the mixed-binary coexistence and one-flip story of
   mechanics used here, in general form.
 - [Lesson 6: rolling-upgrade thinking](/tutorial/6-rolling-upgrade-thinking.md) — the
   five design rules this rollout follows.
-- [Appendix D: spot the failure](spot-the-failure.md) — what happens when a rollout
+- [Appendix D: spot the failure](/appendix/spot-the-failure.md) — what happens when a rollout
   skips one of these steps.

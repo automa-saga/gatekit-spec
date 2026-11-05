@@ -12,13 +12,13 @@ to the specification, the conformance fixtures, and the implementations.
 
 | I want to… | Go to |
 |---|---|
-| **Learn** the ideas from first principles, with runnable examples | [Tutorials](tutorial/index.md) |
-| **Do** a specific task with gatekit (install, gate a feature, run a migration, finalize) | [User manual](manual/index.md) |
-| Look up the **exact rules** (resolution algorithm, conformance, design decisions) | [Reference & appendix](appendix/algorithm.md) |
-| Find a term | [Glossary](appendix/glossary.md) |
-| Get quick answers | [FAQ](faq.md) |
+| **Learn** the ideas from first principles, with runnable examples | [Tutorials](/tutorial/index.md) |
+| **Do** a specific task with gatekit (install, gate a feature, run a migration, finalize) | [User manual](/manual/index.md) |
+| Look up the **exact rules** (resolution algorithm, conformance, design decisions) | [Reference & appendix](/appendix/algorithm.md) |
+| Find a term | [Glossary](/appendix/glossary.md) |
+| Get quick answers | [FAQ](/faq.md) |
 | Read the **normative specs** | [core](https://github.com/automa-saga/gatekit-spec/blob/main/core-spec.md), [activation](https://github.com/automa-saga/gatekit-spec/blob/main/activation-spec.md), [migration](https://github.com/automa-saga/gatekit-spec/blob/main/migration-spec.md) |
-| **Add** a tutorial or manual page | [Contributing to the docs](contributing-docs.md) |
+| **Add** a tutorial or manual page | [Contributing to the docs](/contributing-docs.md) |
 
 ## Repositories
 
@@ -32,4 +32,4 @@ to the specification, the conformance fixtures, and the implementations.
 ## Languages
 
 Go is the reference implementation. Kotlin, Rust, and Python are planned; see
-[Other languages](tutorial/go.md).
+[Other languages](/tutorial/go.md).

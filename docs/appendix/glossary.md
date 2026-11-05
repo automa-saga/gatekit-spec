@@ -83,7 +83,7 @@ The guard that stops a stale binary from undermining a flip.
 
 <a id="resolution"></a>**Resolution.** Computing whether a feature is on. A pure
 function of the [registry](#registry) and the [active](#active) version — no clock,
-environment, or network. See [Appendix A](algorithm.md).
+environment, or network. See [Appendix A](/appendix/algorithm.md).
 
 <a id="registry"></a>**Registry.** The in-binary table mapping each [feature](#feature)
 to its definition (an optional description plus its versioned specs).
@@ -193,7 +193,7 @@ can be a static value, config, or the migration layer's store.
 
 <a id="conformance-fixture"></a>**Conformance fixture.** A language-neutral JSON file
 of inputs and expected outcomes that every implementation must pass. The source of
-truth for cross-language agreement. See [Appendix B](conformance.md).
+truth for cross-language agreement. See [Appendix B](/appendix/conformance.md).
 
 ## General terms
 

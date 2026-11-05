@@ -7,7 +7,7 @@
 > control that prevents it.
 >
 > This is the "failure modes" companion to [Lesson 6](/tutorial/6-rolling-upgrade-thinking.md)
-> and the [design notes](design-notes.md). It is a teaching tool, not a changelog.
+> and the [design notes](/appendix/design-notes.md). It is a teaching tool, not a changelog.
 
 The impact labels: 🟡 *silent wrong behavior* · 🟠 *outage / broken fleet* · 🔴
 *data loss*.
@@ -73,7 +73,7 @@ rolling upgrade must avoid.
 
 **The control:** when a contract-breaking change happens, **add a new spec at the next
 activation version** (`{ActiveFrom: 6, Default: true}`), never mutate the old one
-(Lesson 4, Step 4a; [design note 3](design-notes.md)). The old spec must keep
+(Lesson 4, Step 4a; [design note 3](/appendix/design-notes.md)). The old spec must keep
 resolving the old behavior so machines still at 5 stay correct.
 </details>
 
@@ -99,7 +99,7 @@ change that `v2.4.1` does not understand — the release minor says nothing abou
 *behavior generation* a binary runs.
 
 **The control:** compare the **activation version**, not the release version (Lesson 2;
-[design note 3](design-notes.md)). The activation version moves *only* on a behavior
+[design note 3](/appendix/design-notes.md)). The activation version moves *only* on a behavior
 change, so `min ≤ active ≤ max` is a meaningful compatibility test and the semver
 comparison is not.
 </details>
@@ -139,7 +139,7 @@ misbehaves — a within-window logic bug, not an out-of-range refusal.
 
 **The control:** the **support window** defines exactly when a path is safe to delete,
 and the planned **removal lint** keys this to `W` so it is not purely a human judgment
-call ([design note 5](design-notes.md)). Delete on the window's schedule, not on "it's
+call ([design note 5](/appendix/design-notes.md)). Delete on the window's schedule, not on "it's
 on in production now."
 </details>
 
@@ -196,7 +196,7 @@ restart the migration runs again. Every overdue account is charged a late fee tw
 returned true and `Execute` ran a second time.
 
 **The control:** `Applies` MUST read **ground truth**, not a record of past runs
-(Lesson 5; [design note 7](design-notes.md)). Here it should ask "does this account
+(Lesson 5; [design note 7](/appendix/design-notes.md)). Here it should ask "does this account
 *already have* this period's late fee?" — then a re-run is a safe no-op. Reading the
 data, not a log, is what makes the migration idempotent and the saga crash-safe.
 </details>
@@ -222,7 +222,7 @@ An **unmapped scope resolves to `held`**, not `run-now`. The author forgot to ma
 held step never fires automatically at install.
 
 **The control / design intent:** scopes are consumer-defined and unmapped scopes
-**fail closed** to `held` ([design note 8](design-notes.md); migration-spec §2.1). The
+**fail closed** to `held` ([design note 8](/appendix/design-notes.md); migration-spec §2.1). The
 bug — forgetting the mapping — produces a *delayed* migration, never a *surprise*
 one. If the opposite default had been chosen, a forgotten mapping would auto-fire a
 reshard across the fleet at install. The lesson: map every scope explicitly, and be
@@ -334,6 +334,6 @@ When something surprises you, check first whether it is a guard rail doing its j
 
 ## See also
 
-- [Appendix C: design notes](design-notes.md) — the decisions these failures justify.
+- [Appendix C: design notes](/appendix/design-notes.md) — the decisions these failures justify.
 - [Lesson 6](/tutorial/6-rolling-upgrade-thinking.md) — the five rules, stated
   positively.

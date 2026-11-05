@@ -4,7 +4,7 @@
 > *what*, stored *where*? The answers are what make gatekit different from a flag
 > service — and what make it safe for upgrading a whole fleet.
 
-> **Prerequisites:** [Lesson 1](1-why-feature-gating.md). You should be comfortable
+> **Prerequisites:** [Lesson 1](/tutorial/1-why-feature-gating.md). You should be comfortable
 > with *deploy*, *activate*, and *gate*.
 
 **You will learn:** the four design choices behind gatekit — in-binary resolution,
@@ -29,7 +29,7 @@ Let us turn each need into a design choice.
 
 The first instinct is a **flag service**: a server somewhere that every machine asks,
 "is `new-checkout` on?" This is how tools like LaunchDarkly work, and it is great
-for some jobs (we compare them in [Lesson 3](3-contrast-with-existing-patterns.md)).
+for some jobs (we compare them in [Lesson 3](/tutorial/3-contrast-with-existing-patterns.md)).
 But for our goal it has a problem.
 
 If the answer comes from a network call, then the answer can **differ between two
@@ -99,7 +99,7 @@ ever goes up, never down), you can compare two machines at a glance: a
 machine at activation 6 and one at activation 5 differ by exactly one behavior
 generation, so they are one step apart — inside a support window of one, they are
 compatible. That simple arithmetic is the backbone of the rolling upgrade in
-[Lesson 6](6-rolling-upgrade-thinking.md).
+[Lesson 6](/tutorial/6-rolling-upgrade-thinking.md).
 
 ### The "protocol version" pattern
 
@@ -115,7 +115,7 @@ Teams often call this a **protocol version**.
 > examples. In gatekit's vocabulary, "protocol version" is a *use* of the activation
 > version, not a different thing.
 
-[Lesson 5](5-activation-use-cases.md) shows when to just reuse your release version
+[Lesson 5](/tutorial/5-activation-use-cases.md) shows when to just reuse your release version
 as the activation version (the single-axis case) and when to run a dedicated
 protocol-version counter (the two-axis case).
 
@@ -169,7 +169,7 @@ Migrations are where the need to **go back** (need #4) gets sharp. Running new c
 is easy to undo — just run the old code. But a migration can be **irreversible**:
 once you have thrown away the old-format data, there may be no way back. So the flip
 that runs a migration has to be handled with extra care — a deliberate, one-way
-step called **finalize**, covered in [Lesson 5](5-activation-use-cases.md).
+step called **finalize**, covered in [Lesson 5](/tutorial/5-activation-use-cases.md).
 
 gatekit keeps this as a **separate, opt-in layer** on purpose:
 
@@ -202,7 +202,7 @@ runtime over the network — which is exactly the split-brain and the "what if i
 down" problem from Choice 1. gatekit is for a different job: **a fleet of machines
 must agree, deterministically, on which generation of behavior they run, and move to
 the next one together, safely, with the option to go back.** For that job, in-binary
-and deterministic wins. [Lesson 3](3-contrast-with-existing-patterns.md) lays the
+and deterministic wins. [Lesson 3](/tutorial/3-contrast-with-existing-patterns.md) lays the
 two side by side.
 
 ## Check yourself
@@ -228,4 +228,4 @@ two side by side.
 - Kubernetes [KEP-4330: Compatibility Versions](https://github.com/kubernetes/enhancements/tree/master/keps/sig-api-machinery/4330-compatibility-versions)
   — the same idea in a large real system.
 
-**Next:** [3. How it compares to other tools](3-contrast-with-existing-patterns.md)
+**Next:** [3. How it compares to other tools](/tutorial/3-contrast-with-existing-patterns.md)
