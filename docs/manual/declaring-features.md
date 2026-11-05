@@ -10,7 +10,7 @@ Declare each identifier once as a constant and use it everywhere, so a typo is a
 compile error rather than a feature that silently resolves off.
 
 ```go
-const SplitCatalog gatekit.Feature = "split-catalog"
+const SplitCatalog gatekit.Feature = "SplitCatalog"
 ```
 
 ## Declare its lifecycle

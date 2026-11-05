@@ -26,7 +26,7 @@ round  4 pong → ping  "v1 pong seq=4 k=4"                 ping reads v1  (send
 rollout ping upgraded too → every peer supports v2 (readiness); still active=5, still sending v1
 round  5 ping → pong  "v1 ping seq=5 k=5"                 pong reads v1  (sender is v2-capable but still dormant → v1)
 round  6 pong → ping  "v1 pong seq=6 k=6"                 ping reads v1  (sender is v2-capable but still dormant → v1)
-FINALIZE cluster active 5 → 6; message-format-v2 is ON for the whole fleet
+FINALIZE cluster active 5 → 6; MessageFormatV2 is ON for the whole fleet
 round  7 ping → pong  "v2 ping seq=7 k=7 crc=c359b9b2"    pong reads v2
 round  8 pong → ping  "v2 pong seq=8 k=8 crc=7153ec2f"    ping reads v2
 round  9 ping → pong  "v2 ping seq=9 k=9 crc=9bd12ad4"    pong reads v2

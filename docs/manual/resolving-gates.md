@@ -58,7 +58,7 @@ source. It is useful in tests and when planning an upgrade.
 ```go
 fmt.Print(gate.ReportAt(6))
 // Features at activation 6:
-//   - split-catalog [GA] on  Load the per-minor split catalog
+//   - SplitCatalog [GA] on  Load the per-minor split catalog
 ```
 
 `FeatureReport` also exposes the data (`Version`, and per feature its description,

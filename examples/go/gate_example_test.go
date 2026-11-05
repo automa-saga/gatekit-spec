@@ -9,7 +9,7 @@ import (
 // SplitCatalog is declared once as a typed constant and used by both the registry
 // and every call site, so a mistyped identifier can never silently resolve a
 // different (unknown) feature off. See course Lesson 4, Step 1.
-const SplitCatalog gatekit.Feature = "split-catalog"
+const SplitCatalog gatekit.Feature = "SplitCatalog"
 
 // catalogRegistry is the feature's lifecycle: born dormant (Beta, default off) at
 // activation version 5, promoted to GA (default on) at 6.
@@ -59,7 +59,7 @@ func Example_override() {
 // Example_alphaOptIn shows that an ALPHA feature stays off even with Default: true,
 // unless the gate is opted in (Lesson 4; Appendix A, step 3).
 func Example_alphaOptIn() {
-	const NewIndexer gatekit.Feature = "new-indexer"
+	const NewIndexer gatekit.Feature = "NewIndexer"
 	reg := gatekit.Registry{
 		NewIndexer: {Specs: gatekit.VersionedSpecs{
 			{ActiveFrom: 7, Default: true, Maturity: gatekit.Alpha},
@@ -82,5 +82,5 @@ func Example_report() {
 	fmt.Print(gate.Report())
 	// Output:
 	// Features at activation 6:
-	//   - split-catalog [GA] on  Load the per-minor split catalog
+	//   - SplitCatalog [GA] on  Load the per-minor split catalog
 }

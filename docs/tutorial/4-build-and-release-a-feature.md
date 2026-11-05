@@ -41,10 +41,10 @@ import "github.com/automa-saga/gatekit"
 
 // One source of truth for the identifier. Registration and every call site use
 // this constant — so a typo can never silently resolve a *different* feature off.
-const SplitCatalog gatekit.Feature = "split-catalog"
+const SplitCatalog gatekit.Feature = "SplitCatalog"
 ```
 
-> **Why a constant and not a bare string?** If you type `"split-catalog"` by hand at
+> **Why a constant and not a bare string?** If you type `"SplitCatalog"` by hand at
 > the call site and misspell it as `"split-catlog"`, gatekit sees an *unknown*
 > feature — and an unknown feature resolves **off, silently.** No error, no warning,
 > just the old path forever. A named constant makes the compiler catch the typo.
@@ -64,7 +64,7 @@ var Registry = gatekit.Registry{
 }
 ```
 
-Read the spec out loud: *"From activation version 5 onward, `split-catalog` exists.
+Read the spec out loud: *"From activation version 5 onward, `SplitCatalog` exists.
 Its default is off. It is Beta."* That is the entire declaration.
 
 ### A word on maturity
