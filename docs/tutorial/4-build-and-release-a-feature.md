@@ -188,11 +188,43 @@ Overrides map directly to Kubernetes' `--feature-gates=Foo=true`. gatekit reject
 override for a feature that is not registered, so a typo in an override is caught at
 startup rather than silently doing nothing.
 
+### 4c. From the environment: an operator override
+
+`WithOverrides` lives in your code. To let an **operator** flip a feature on an
+already-shipped binary — no code change, no recompile — read overrides from the
+environment with `WithEnvOverrides`:
+
+```go
+gate, _ := gatekit.New(
+    catalog.Registry,
+    versionSource,
+    gatekit.WithEnvOverrides("SOLO_PROVISIONER_ENABLE_"), // scan env for this prefix
+)
+```
+
+gatekit maps each `<prefix>NAME` variable back to a feature with `EnvVarName`: the
+prefix is yours, the suffix is the feature identifier in `UPPER_SNAKE_CASE`. This is
+why feature identifiers are CamelCase — `SplitCatalog` becomes:
+
+```
+SOLO_PROVISIONER_ENABLE_SPLIT_CATALOG=true
+```
+
+Set it, restart, and the feature is forced on — beating version and maturity exactly
+like `WithOverrides`. It **fails loudly**: the binary refuses to start if a
+`<prefix>*` variable names no known feature or holds a non-boolean value, so a
+mistyped opt-in never silently does nothing.
+
+Use it for a per-box canary, a per-environment default (on in staging, off in prod),
+or the 2 a.m. kill switch on a binary that is already deployed — the operator-facing
+counterpart to `WithOverrides`.
+
 ### The precedence, once and for all
 
 When gatekit resolves a feature, it checks, highest priority first:
 
-1. **An explicit override** (`WithOverrides`) — wins, regardless of version.
+1. **An explicit override** (`WithOverrides`, or `WithEnvOverrides` from the
+   environment) — wins, regardless of version.
 2. **The version-resolved default** of the effective spec — *except* an `Alpha` spec
    resolves off unless the gate is opted in (`WithExperimental`).
 3. **Off** — unknown feature, or the first spec not yet reached.

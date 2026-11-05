@@ -13,6 +13,11 @@ compile error rather than a feature that silently resolves off.
 const SplitCatalog gatekit.Feature = "SplitCatalog"
 ```
 
+Spell the identifier in **CamelCase** (`SplitCatalog`, not `split-catalog`).
+`WithEnvOverrides` derives an environment-variable name from it, and only a
+CamelCase identifier maps to a valid `UPPER_SNAKE_CASE` variable — see
+[Resolving gates](/manual/resolving-gates.md).
+
 ## Declare its lifecycle
 
 ```go
