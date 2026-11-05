@@ -20,7 +20,7 @@ The impact labels: 🟡 *silent wrong behavior* · 🟠 *outage / broken fleet* 
 
 ```go
 // registered once:
-const SplitCatalog gatekit.Feature = "split-catalog"
+const SplitCatalog gatekit.Feature = "SplitCatalog"
 // registry has SplitCatalog...
 
 // at the call site, months later, a different engineer:
@@ -31,7 +31,7 @@ if gate.Enabled("split-catalouge") { // <- look closely
 }
 ```
 
-The team flips the activation version to turn `split-catalog` on. Nothing happens.
+The team flips the activation version to turn `SplitCatalog` on. Nothing happens.
 Metrics are flat. Why?
 
 <details>

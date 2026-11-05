@@ -4,7 +4,7 @@ import "github.com/automa-saga/gatekit"
 
 // RecordFormatV2 gates the new on-disk / on-wire record format. It is declared once
 // as a typed constant and used at both registration and the call site.
-const RecordFormatV2 gatekit.Feature = "record-format-v2"
+const RecordFormatV2 gatekit.Feature = "RecordFormatV2"
 
 // Registry is kv's feature table: RecordFormatV2 is born dormant (Beta, off) at
 // activation 5 and turns on (GA, on) at 6.

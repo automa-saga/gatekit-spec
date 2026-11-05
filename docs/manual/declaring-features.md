@@ -10,8 +10,13 @@ Declare each identifier once as a constant and use it everywhere, so a typo is a
 compile error rather than a feature that silently resolves off.
 
 ```go
-const SplitCatalog gatekit.Feature = "split-catalog"
+const SplitCatalog gatekit.Feature = "SplitCatalog"
 ```
+
+Spell the identifier in **CamelCase** (`SplitCatalog`, not `split-catalog`).
+`WithEnvOverrides` derives an environment-variable name from it, and only a
+CamelCase identifier maps to a valid `UPPER_SNAKE_CASE` variable — see
+[Resolving gates](/manual/resolving-gates.md).
 
 ## Declare its lifecycle
 

@@ -75,7 +75,7 @@ same version. Because it changes the **wire** format too, its scope is `interop`
 must be **held** for a coordinated finalize, not run at install.
 
 ```go
-const RecordFormatV2 gatekit.Feature = "record-format-v2"
+const RecordFormatV2 gatekit.Feature = "RecordFormatV2"
 
 var Registry = gatekit.Registry{
     RecordFormatV2: {

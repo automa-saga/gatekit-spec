@@ -32,7 +32,7 @@ func Run(logf func(string, ...any)) error {
 			logf("rollout ping upgraded too → every peer supports v2 (readiness); still active=5, still sending v1")
 		case 7:
 			c.active = 6
-			logf("FINALIZE cluster active 5 → 6; message-format-v2 is ON for the whole fleet")
+			logf("FINALIZE cluster active 5 → 6; MessageFormatV2 is ON for the whole fleet")
 		}
 
 		sender := peers[(round-1)%2]

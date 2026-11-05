@@ -125,23 +125,23 @@ far-behind state; `active > max` means the binary is too old.
 Registry:
 
 ```
-split-catalog:
+SplitCatalog:
     { activeFrom: 5, default: false, maturity: BETA }
     { activeFrom: 6, default: true,  maturity: GA   }
-new-indexer:
+NewIndexer:
     { activeFrom: 7, default: true,  maturity: ALPHA }
 ```
 
 So `max = 7`. With `W = 1`, `firstVersion = 5`, `min = max(5, 7−1) = 6`.
 
-| `v` | `split-catalog` | `new-indexer` | notes |
+| `v` | `SplitCatalog` | `NewIndexer` | notes |
 |-----|-----------------|---------------|-------|
 | 4 | off | off | no spec with `activeFrom ≤ 4` for either |
-| 5 | off | off | split-catalog's 5-spec: default off |
-| 6 | **on** | off | split-catalog's 6-spec: default on, GA |
-| 7 | on | off | new-indexer reached but ALPHA → off unless opted in |
+| 5 | off | off | SplitCatalog's 5-spec: default off |
+| 6 | **on** | off | SplitCatalog's 6-spec: default on, GA |
+| 7 | on | off | NewIndexer reached but ALPHA → off unless opted in |
 | 7 + `allowAlpha` | on | **on** | ALPHA opt-in lets its default apply |
-| 7 + override `new-indexer=false` | on | off | override beats the default |
+| 7 + override `NewIndexer=false` | on | off | override beats the default |
 
 Run invariant at `max = 7`, `min = 6`: `active` must be 6 or 7. An `active` of 5
 would make the binary refuse to start.

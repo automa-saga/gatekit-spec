@@ -4,7 +4,7 @@ import "github.com/automa-saga/gatekit"
 
 // MessageFormatV2 gates the new message wire format. Born dormant (off) at activation
 // 5, on at 6.
-const MessageFormatV2 gatekit.Feature = "message-format-v2"
+const MessageFormatV2 gatekit.Feature = "MessageFormatV2"
 
 // registry is the peers' shared feature table.
 var registry = gatekit.Registry{
