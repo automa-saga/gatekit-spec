@@ -295,7 +295,7 @@ registry and the support window, so it needs no running fleet:
 ```go
 func TestRegistryLifecycle(t *testing.T) {
     // Use the same window you pass to gatekit.New: min depends on it.
-    violations, err := gatekit.Lint(Registry, gatekit.WithSupportWindow(1))
+    violations, err := gatekit.Lint(Registry, 1)
     if err != nil {
         t.Fatal(err) // the registry itself is invalid
     }

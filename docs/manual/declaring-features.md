@@ -77,7 +77,7 @@ runs it for you.
 
 ```go
 func TestRegistryLifecycle(t *testing.T) {
-	violations, err := gatekit.Lint(registry, gatekit.WithSupportWindow(1))
+	violations, err := gatekit.Lint(registry, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
