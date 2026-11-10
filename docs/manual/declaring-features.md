@@ -82,7 +82,11 @@ func TestRegistryLifecycle(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, v := range violations {
-		t.Errorf("%s: %s (spec %d)", v.Feature, v.Kind, v.ActiveFrom)
+		if v.Kind == gatekit.StaleSpec {
+			t.Errorf("%s: %s (spec %d)", v.Feature, v.Kind, v.ActiveFrom)
+		} else {
+			t.Errorf("%s: %s", v.Feature, v.Kind)
+		}
 	}
 }
 ```
