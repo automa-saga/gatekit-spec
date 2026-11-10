@@ -27,6 +27,7 @@ and are enumerated in
 | `resolution/` | feature-gate resolution: specs, defaults, maturity, overrides, alpha opt-in | core §3–5 |
 | `invariant/` | the run invariant `min ≤ active ≤ max` and window arithmetic | activation §3 |
 | `planning/` | migration plan computation: range, `applies`, scope→policy, ordering | migration §2 |
+| `lint/` | the lifecycle removal lint: stale specs, `removeBy`, deprecated features | core §8 |
 | `serialization/` | *(reserved)* activation-state and message round-trips | activation §8 |
 
 ## A resolution fixture, read line by line

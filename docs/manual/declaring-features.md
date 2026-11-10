@@ -47,6 +47,10 @@ when you build the gate.
 `Description` is optional and informational. It appears in reports but never
 affects resolution.
 
+`RemoveBy` is an optional activation version by which the feature must be deleted.
+It is lint metadata only: it never affects resolution. See
+[Removing features](#removing-features-the-lint).
+
 ## Maturity
 
 | Maturity | Behavior |
@@ -64,6 +68,40 @@ affects resolution.
 - a feature has two specs with the same `ActiveFrom`,
 - an override names a feature that is not in the registry,
 - the support window is negative.
+
+## Removing features: the lint
+
+A gate that is never deleted is a bug, and moving `min` forward breaks nothing, so
+nobody notices. `gatekit.Lint` makes it a test failure. Call it from your own tests; gatekit never
+runs it for you.
+
+```go
+func TestRegistryLifecycle(t *testing.T) {
+	violations, err := gatekit.Lint(registry, gatekit.WithSupportWindow(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range violations {
+		t.Errorf("%s: %s (spec %d)", v.Feature, v.Kind, v.ActiveFrom)
+	}
+}
+```
+
+| Kind | Reported when |
+|---|---|
+| `StaleSpec` | a later spec has `ActiveFrom <= Min`, so this one can never be selected |
+| `PastRemoveBy` | `RemoveBy` is set and `Min >= RemoveBy` |
+| `DeprecatedDue` | the latest spec is `Deprecated` |
+
+- Pass the **same** support window you give `New`; `Min` depends on it.
+- Keep it in tests or CI. Use `gate.Check()` at startup instead; a hygiene problem must
+  not stop an operator's binary.
+- `DeprecatedDue` fires on every run until the feature is deleted. Skip that kind in
+  your loop if you only want to enforce the window.
+- Lint reports the spec, not your code. Search for the feature constant to find the
+  branches to delete.
+
+Normative rules: [core spec §8](https://github.com/automa-saga/gatekit-spec/blob/main/core-spec.md).
 
 ## Choosing the activation version
 
