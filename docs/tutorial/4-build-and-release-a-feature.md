@@ -279,8 +279,48 @@ loadSplitCatalog()
 
 Eventually you remove the feature entirely. The gate was **scaffolding** — it held
 the two paths apart while the fleet crossed from one to the other, and then it comes
-down. A feature gate that never gets deleted is a bug, and lints should remind you
-(see [design notes](/appendix/design-notes.md)).
+down. A feature gate that never gets deleted is a bug.
+
+### Let a test remind you
+
+Everything above depends on someone *remembering*. Nobody does, for long. The release
+that moves `min` past version 5 looks like any other release: nothing breaks, nothing
+fails, and the old path quietly stays. Months later the registry is full of specs no
+supported binary can reach, and every `if` still has two branches. Kubernetes' long-lived
+feature gates are the cautionary tale.
+
+The **removal lint** turns "remember to delete" into a failing test. It reads only the
+registry and the support window, so it needs no running fleet:
+
+```go
+func TestRegistryLifecycle(t *testing.T) {
+    // Use the same window you pass to gatekit.New: min depends on it.
+    violations, err := gatekit.Lint(Registry, gatekit.WithSupportWindow(1))
+    if err != nil {
+        t.Fatal(err) // the registry itself is invalid
+    }
+    for _, v := range violations {
+        t.Errorf("%s: %s (spec %d)", v.Feature, v.Kind, v.ActiveFrom)
+    }
+}
+```
+
+gatekit never runs this for you, so add it to your own test suite. Your normal CI job
+then picks it up. The day you add a spec at version 7 and `min` moves to 6, this test
+fails and names the stale spec (`SplitCatalog stale-spec 5`). You delete it, and the old
+code path with it, in the same change. That is the contract step, enforced.
+
+It reports three things:
+
+| Kind | Meaning |
+|---|---|
+| `stale-spec` | A later spec is already at or below `min`, so this spec can never be chosen. |
+| `past-remove-by` | You set an optional `RemoveBy` deadline on the feature and `min` has reached it. |
+| `deprecated` | The latest spec is `Deprecated`, so the feature is due for removal. |
+
+The lint points at the spec, not at your code. After it fires, search for the feature
+constant to find the branches to delete. See
+[Declaring features](/manual/declaring-features.md) for `RemoveBy`.
 
 ## Do I even need a gate?
 
@@ -304,7 +344,7 @@ meaningful signal — spend it only on real behavior changes.
 | Ship | merge to main, deploy | nothing changes for users |
 | Flip | add a spec at the next version (`Default: true`) **or** an override | behavior turns on |
 | Support | keep both paths while the version is in the window | rolling upgrade works |
-| Delete | remove the old path + the stale spec once it leaves the window | scaffolding comes down |
+| Delete | remove the old path + the stale spec once it leaves the window; a `Lint` test tells you when | scaffolding comes down |
 
 ## Check yourself
 
@@ -316,6 +356,9 @@ meaningful signal — spend it only on real behavior changes.
   active version is actually ≥ a later spec whose default is on.)*
 - When is it *safe* to delete the old code path? *(Once its activation version drops
   below `min` — no supported binary runs it anymore.)*
+- Why add a `Lint` test instead of trusting the team to remember? *(Moving `min` breaks
+  nothing, so no one notices the dead paths. The test fails the moment a spec becomes
+  unreachable.)*
 - Which release should bump the activation version: a refactor, a perf fix, or a
   contract-breaking behavior change? *(Only the contract-breaking change.)*
 
@@ -325,6 +368,8 @@ meaningful signal — spend it only on real behavior changes.
   — resolution, maturity, overrides, and the author obligation, stated normatively.
 - [Appendix A: the resolution algorithm](/appendix/algorithm.md) — the exact rule
   behind every example above.
+- [core spec §8: lifecycle lint](https://github.com/automa-saga/gatekit-spec/blob/main/core-spec.md)
+  — the normative rules for the three violation kinds.
 - [`examples/go/`](https://github.com/automa-saga/gatekit-spec/tree/main/examples/go)
   — the runnable versions of these snippets.
 
