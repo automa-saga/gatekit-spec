@@ -126,14 +126,25 @@ runs) lets a simple consumer stay dependency-free while a demanding one gets
 durability — without changing any call sites, and without the automa dependency
 leaking into a plain consumer's module graph. See migration-spec §3.4.
 
-## Lifecycle / removal lint (planned)
+## Lifecycle / removal lint
 
-**Status: prose, not yet enforced.** The spec says that when a version leaves the
-window the author must delete the now-unreachable specs and dead code paths (the
-contract step), and that lints *should* enforce this keyed to `W`. That lint is not
-yet built or conformance-tested. Until it is, the discipline from
-[Lesson 4, Step 6](/tutorial/4-build-and-release-a-feature.md) is a human
-responsibility. Tracked in the epic.
+**Status: specified (core-spec §8) with conformance fixtures; implementations are catching up.**
+When a version leaves the window the author must delete the now-unreachable specs and
+dead code paths (the contract step). The lint reports three kinds of violation, all
+derived from the registry and `W`: `stale-spec` (a spec superseded at or below `min`),
+`past-remove-by` (a feature whose optional `removeBy` is at or below `min`), and
+`deprecated` (a feature whose latest spec is `DEPRECATED`).
+
+**Why.** A gate that is never deleted is a bug (see
+[Lesson 4, Step 6](/tutorial/4-build-and-release-a-feature.md)); Kubernetes' long-lived
+gates show the failure mode. Keying the check to `W` turns "delete old paths" from a
+human judgment into a test failure.
+
+**Why no separate window-violation kind.** Live specs per feature are bounded by
+`W + 1`, so any excess is exactly the `stale-spec` set.
+
+**What it does not do.** It does not scan source code. Locating the dead branches a
+stale spec guarded stays with the consumer.
 
 ## See also
 

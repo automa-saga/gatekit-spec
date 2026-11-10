@@ -1,0 +1,23 @@
+{
+  "name": "stale_spec",
+  "description": "W=1, max=7, so min=6. Spec 3 and spec 5 of Catalog are fully superseded at or below min (the next spec is at 5 and 6, both <= 6) and can never be selected: both are stale. Spec 6 is the effective spec at min and stays live. NewIndexer only pins max.",
+  "window": 1,
+  "registry": {
+    "Catalog": {
+      "specs": [
+        { "activeFrom": 3, "default": false, "maturity": "BETA" },
+        { "activeFrom": 5, "default": true, "maturity": "BETA" },
+        { "activeFrom": 6, "default": true, "maturity": "GA" }
+      ]
+    },
+    "NewIndexer": {
+      "specs": [
+        { "activeFrom": 7, "default": false, "maturity": "ALPHA" }
+      ]
+    }
+  },
+  "violations": [
+    { "feature": "Catalog", "kind": "stale-spec", "activeFrom": 3 },
+    { "feature": "Catalog", "kind": "stale-spec", "activeFrom": 5 }
+  ]
+}

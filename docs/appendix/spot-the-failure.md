@@ -138,7 +138,7 @@ pushes `min` to 6); until then, both paths must stay. Note the run invariant doe
 misbehaves — a within-window logic bug, not an out-of-range refusal.
 
 **The control:** the **support window** defines exactly when a path is safe to delete,
-and the planned **removal lint** keys this to `W` so it is not purely a human judgment
+and the **removal lint** (core-spec §8) keys this to `W` so it is not purely a human judgment
 call ([design note 5](/appendix/design-notes.md)). Delete on the window's schedule, not on "it's
 on in production now."
 </details>

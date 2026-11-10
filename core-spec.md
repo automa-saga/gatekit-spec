@@ -31,6 +31,12 @@ and how it is resolved against an activation version. It is language-neutral; th
     only**: it MUST NOT affect resolution (§3), the `maturity` policy (§4),
     overrides (§5), or the run invariant (activation-spec §3). It MAY be empty or
     absent.
+  - `removeBy` (activation version, optional) — the activation version by which the
+    feature MUST be deleted: once `min ≥ removeBy` (activation-spec §2), no supported
+    version predates it. It is **lint metadata only** (§8): it MUST NOT affect
+    resolution, overrides, or the run invariant. Absent means no removal deadline;
+    `0` is not meaningful (`min ≥ 0` always holds) and an implementation MAY treat it
+    as absent.
   - `specs` — the feature's `VersionedSpecs`.
 - **Registry** — a map from `Feature` to its `FeatureDef`.
 
@@ -95,3 +101,30 @@ so older behavior remains resolvable within the support window.
 `MaxActivation(registry)` is the greatest `activeFrom` across all specs, or `0` for an
 empty registry. Implementations derive `max` (see activation-spec) from this rather
 than hand-maintaining it.
+
+## 8. Lifecycle lint
+
+An implementation SHOULD provide a lint that enforces the contract step
+(activation-spec §4). It is a pure function of the registry and the support window
+`W`: it derives `max` and `min` as in activation-spec §2, needs no version source,
+and so can run in a consumer's test suite or CI. It returns a list of violations,
+each a `{feature, kind, activeFrom?}`.
+
+| Kind | Reported when | `activeFrom` |
+|---|---|---|
+| `stale-spec` | the feature has a later spec whose `activeFrom ≤ min`, so this spec can never be the effective spec for any permitted `active`. Delete it and its dead code path. | the stale spec's `activeFrom` |
+| `past-remove-by` | the feature declares `removeBy` and `min ≥ removeBy`. Delete the feature. | absent |
+| `deprecated` | the feature's latest spec has `maturity` `DEPRECATED` (§4). It is due for removal. | absent |
+
+Violations are ordered by feature name ascending, then by kind in the order above,
+then by `activeFrom` ascending. A clean registry yields an empty list.
+
+A spec window violation (more live specs than the window allows) is not a separate
+kind. At most one spec per feature is effective at `min` and each later `activeFrom`
+adds at most one more, so live specs are bounded by `W + 1`; any excess is exactly the
+`stale-spec` set.
+
+The lint does not look at source code. Finding and deleting the dead code paths that a
+reported spec guarded is the consumer's responsibility.
+
+The [conformance/lint](conformance/lint) fixtures are the source of truth.

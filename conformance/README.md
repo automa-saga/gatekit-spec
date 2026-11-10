@@ -23,6 +23,11 @@ source of truth for cross-language agreement. Groups are enumerated in
   (optional) is the consumer scope→run-policy classifier, each policy one of `run-now`
   or `run-at-finalize`; when omitted the built-in default applies (`local`→run-now,
   `shared`→run-at-finalize), and any scope the classifier does not map resolves to `run-at-finalize`.
+- **lint/** — the lifecycle lint (core-spec §8). Schema:
+  `{ name, description, window, registry: {feature: {removeBy?, specs: [spec]}}, violations: [{ feature, kind, activeFrom? }] }`
+  where `kind` is `stale-spec`, `past-remove-by`, or `deprecated`, and `violations` is in
+  the order core-spec §8 defines (feature, then kind, then `activeFrom`). `min` and `max`
+  are derived from `registry` and `window`; an empty `violations` is a clean registry.
 - **serialization/** — *(reserved)* activation-state and message round-trips.
 
 ## Running

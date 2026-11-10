@@ -46,7 +46,7 @@ catch-up to proceed within the window.
   §5) at that integer — never by hand-editing `min`/`max`.
 - Advancing the floor so a version leaves the window (`version < min`) obliges the
   author to delete that version's now-unreachable specs and dead code paths (the
-  contract step). Lints SHOULD enforce this, keyed to `W`.
+  contract step). Lints SHOULD enforce this, keyed to `W` (core-spec §8).
 
 ## 5. Activation and migrations
 
