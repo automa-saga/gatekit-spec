@@ -17,6 +17,12 @@
       "planning/default_mapping.json",
       "planning/custom_scope_policy.json"
     ],
+    "lint": [
+      "lint/stale_spec.json",
+      "lint/window_keyed.json",
+      "lint/past_remove_by.json",
+      "lint/deprecated_and_ordering.json"
+    ],
     "serialization": []
   }
 }

@@ -1,0 +1,27 @@
+{
+  "name": "past_remove_by",
+  "description": "W=1, max=8, so min=7. OldPath has removeBy=7 and min >= 7, so it is overdue for removal. Pending has removeBy=9 and min < 9, so it is not. Bare has no removeBy.",
+  "window": 1,
+  "registry": {
+    "OldPath": {
+      "removeBy": 7,
+      "specs": [
+        { "activeFrom": 6, "default": true, "maturity": "GA" }
+      ]
+    },
+    "Pending": {
+      "removeBy": 9,
+      "specs": [
+        { "activeFrom": 8, "default": true, "maturity": "GA" }
+      ]
+    },
+    "Bare": {
+      "specs": [
+        { "activeFrom": 8, "default": true, "maturity": "GA" }
+      ]
+    }
+  },
+  "violations": [
+    { "feature": "OldPath", "kind": "past-remove-by" }
+  ]
+}

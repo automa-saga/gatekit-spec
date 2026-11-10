@@ -1,0 +1,29 @@
+{
+  "name": "deprecated_and_ordering",
+  "description": "W=1, max=6, so min=5. Legacy's latest spec is DEPRECATED (reported as due for removal) and its spec 4 is stale (superseded at 5 <= 5). Violations are ordered by feature, then kind (stale-spec, past-remove-by, deprecated), then activeFrom. Ratelimit is clean, and Other has removeBy=5 which is also overdue.",
+  "window": 1,
+  "registry": {
+    "Legacy": {
+      "specs": [
+        { "activeFrom": 4, "default": true, "maturity": "BETA" },
+        { "activeFrom": 5, "default": true, "maturity": "DEPRECATED" }
+      ]
+    },
+    "Ratelimit": {
+      "specs": [
+        { "activeFrom": 6, "default": true, "maturity": "GA" }
+      ]
+    },
+    "Other": {
+      "removeBy": 5,
+      "specs": [
+        { "activeFrom": 5, "default": true, "maturity": "GA" }
+      ]
+    }
+  },
+  "violations": [
+    { "feature": "Legacy", "kind": "stale-spec", "activeFrom": 4 },
+    { "feature": "Legacy", "kind": "deprecated" },
+    { "feature": "Other", "kind": "past-remove-by" }
+  ]
+}

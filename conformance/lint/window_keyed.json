@@ -1,0 +1,20 @@
+{
+  "name": "window_keyed",
+  "description": "Same registry as stale_spec but W=3, so min=4. Spec 3 is superseded at 5 (> 4) and spec 5 at 6 (> 4): every spec is still reachable inside the window, so nothing is stale. The stale rule is keyed to W.",
+  "window": 3,
+  "registry": {
+    "Catalog": {
+      "specs": [
+        { "activeFrom": 3, "default": false, "maturity": "BETA" },
+        { "activeFrom": 5, "default": true, "maturity": "BETA" },
+        { "activeFrom": 6, "default": true, "maturity": "GA" }
+      ]
+    },
+    "NewIndexer": {
+      "specs": [
+        { "activeFrom": 7, "default": false, "maturity": "ALPHA" }
+      ]
+    }
+  },
+  "violations": []
+}
