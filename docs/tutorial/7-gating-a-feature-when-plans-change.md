@@ -145,8 +145,21 @@ regardless of maturity or default.
 > A release hands out the *next* integer when a gated change actually becomes reachable.
 > Until then, a feature has no version of its own.
 
-Keep the roadmap in your tickets ("targets the next bump"), never in the registry. The
-registry only holds versions that exist or are about to ship.
+Two things follow, and they are worth saying plainly:
+
+- **The activation version is not a milestone.** Milestones, target dates and roadmap
+  order live in your project tracker, not in the registry. The registry only holds
+  versions that exist or are about to ship. Keep the wish in a ticket label ("targets the
+  next bump").
+- **Bump it only when turning the behavior on requires the fleet to flip together** — a
+  shared wire or storage format, or a one-time migration, where new and old behavior
+  cannot safely run side by side during the rolling upgrade. An additive, node-local
+  feature never needs a bump: deploy it dormant and flip it on in place at the current
+  version (Step C). Every deploy is a rolling upgrade; only a coordinated *behavior* flip
+  needs a new activation version.
+
+See the FAQ: [Is the activation version a milestone?](/faq.md) and
+[When do I bump the activation version?](/faq.md)
 
 ## When a dormant feature slips below the window
 
