@@ -83,6 +83,16 @@ To add a fixture:
 - Keep PRs focused, and ensure the fixtures check is green before requesting
   review.
 
+## Releases
+
+Releases are cut by the **Deploy Release Artifact** workflow (Actions tab, run on
+`main`), which uses [semantic-release](https://semantic-release.gitbook.io/) to
+read the Conventional Commit titles since the last tag, pick the next version,
+tag it, and publish the GitHub release notes. Tick **Perform Dry Run** first to
+preview the version. Only `feat`, `fix`, `perf` and breaking changes trigger a
+release; `docs`, `ci` and `chore` do not. While the spec is `0.x`, a breaking
+change bumps the minor version.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the
