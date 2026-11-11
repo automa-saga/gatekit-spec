@@ -23,6 +23,17 @@
       "lint/past_remove_by.json",
       "lint/deprecated_and_ordering.json"
     ],
+    "rollback": [
+      "rollback/pure_gate_flip.json",
+      "rollback/reversible_descending.json",
+      "rollback/irreversible_refused.json",
+      "rollback/below_min.json"
+    ],
+    "floor": [
+      "floor/new_format_blocked.json",
+      "floor/released_when_min_advances.json",
+      "floor/only_planned_steps.json"
+    ],
     "serialization": []
   }
 }

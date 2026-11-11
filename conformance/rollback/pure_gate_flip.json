@@ -1,0 +1,20 @@
+{
+  "name": "pure_gate_flip",
+  "description": "No migration lies in (to, from], so the step is a pure gate flip: lowering is allowed and has nothing to reverse. A migration at the target version (5) and one above from (7) are outside the range and ignored, even though they are irreversible.",
+  "min": 4,
+  "from": 6,
+  "to": 5,
+  "migrations": [
+    {
+      "id": "at-target",
+      "version": 5
+    },
+    {
+      "id": "above-from",
+      "version": 7
+    }
+  ],
+  "outcome": {
+    "order": []
+  }
+}

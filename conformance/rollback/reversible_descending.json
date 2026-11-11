@@ -1,0 +1,36 @@
+{
+  "name": "reversible_descending",
+  "description": "Every migration in (4, 6] is reversible, so lowering is allowed. The reverse plan runs by version descending, then id descending: c and b (version 6), then a (version 5). The version-4 migration (at the target) is excluded.",
+  "min": 4,
+  "from": 6,
+  "to": 4,
+  "migrations": [
+    {
+      "id": "a",
+      "version": 5,
+      "reversible": true
+    },
+    {
+      "id": "b",
+      "version": 6,
+      "reversible": true
+    },
+    {
+      "id": "c",
+      "version": 6,
+      "reversible": true
+    },
+    {
+      "id": "old",
+      "version": 4,
+      "reversible": false
+    }
+  ],
+  "outcome": {
+    "order": [
+      "c",
+      "b",
+      "a"
+    ]
+  }
+}

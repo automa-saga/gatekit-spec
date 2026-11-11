@@ -190,7 +190,7 @@ if err := runner.Finalize(ctx, plan, store); err != nil {
 ### A deferred migration, start to finish
 
 Put the whole sequence on one timeline, using the `RewriteReceipts` migration above
-(an `shared` step tied to activation version 6). Watch *when* the migration actually
+(a `shared` step tied to activation version 6). Watch *when* the migration actually
 runs — not at deploy, but at finalize:
 
 ```
@@ -209,7 +209,7 @@ Read it left to right:
 
 1. **Monday — deploy.** You install the new binaries across the fleet. `active` is
    still 5, so every node behaves exactly as before. You compute the plan for `5 → 6`;
-   `RewriteReceipts` is an `shared` migration, so it is **run-at-finalize** — `RunNow` has
+   `RewriteReceipts` is a `shared` migration, so it is **run-at-finalize** — `RunNow` has
    nothing to do. **The data has not been touched.**
 2. **The days in between — the preserve-downgrade window.** The new code sits dormant.
    Nothing irreversible has happened, so rolling back to the old binary is clean. You
@@ -253,22 +253,69 @@ yet."
 ## Reversibility: when *can* you go back?
 
 Crossing the line is only dangerous if the migration is irreversible. gatekit is
-precise about this:
+precise about this, and it makes you say so explicitly:
 
 > An activation step is **reversible** if it has **no migration**, or if **every**
-> migration in it provides a working `Rollback` *and* writes nothing that an older
+> migration in it is **declared `reversible`** *and* writes nothing that an older
 > supported version could not read (the **write floor**).
 
-- For a **reversible** step, you may lower the active version again — the runner runs
-  the reverse migrations.
-- For an **irreversible** step, lowering the active version across it is **refused**
-  with a typed error. gatekit will not let you pretend you can go back when you
-  cannot.
+Two details matter:
 
-> **Term — write floor.** A migration must never write data in a format too new for
-> the oldest supported version (`min`) to read. Honoring the floor is what keeps
-> "lower the active version" safe *within* the support window. Crossing *below* `min`
-> is never supported — and the run invariant forbids running there anyway.
+- **Irreversible is the default.** A migration is only reversible if its author says so.
+  gatekit does not guess from the fact that a `Rollback` method exists, because a stub
+  `Rollback` would then let you "go back" and quietly lose data.
+- **A step with no migration is always reversible.** It is a pure gate flip, so going
+  back just means resolving against the lower version again.
+
+### Going back: lowering the active version
+
+When a reversible step has gone wrong, you **lower** the active version. This is its own
+operation, separate from finalize: finalize only raises `active`, and lowering only
+lowers it. Say `active` is 6 and you want 4:
+
+1. **Check the target.** It must be at or above `min`. Below `min`, no supported binary
+   could run, so gatekit refuses (**below-min**).
+2. **Collect what to undo.** Every migration for versions 5 and 6, newest first.
+3. **Check each one is reversible.** If any is not, gatekit refuses and names them all
+   (**irreversible-step**). Nothing has run yet, so there is nothing to clean up.
+4. **Undo them, one by one.** If an undo fails, gatekit stops and leaves `active`
+   alone. Because `Rollback` must be safe to repeat, you just run the lowering again.
+5. **Lower `active`**, last of all. It is the same data-first order as finalize.
+
+Raising `active` again later is an ordinary finalize. That is how you "roll forward".
+
+### The write floor, in practice
+
+> **Term — write floor.** A migration must never write data in a format too new for the
+> oldest supported version (`min`) to read. A migration declares this with
+> **`readableFrom`**: the oldest version that can read what it writes (the default, `0`,
+> means every version). If `readableFrom` is **above** `min`, the migration is
+> **blocked**, and `RunNow` and `Finalize` refuse to run it before they touch anything.
+
+Why block it? Because someone could lower `active` to `min`. If the data were already in
+a format that version cannot read, going back would corrupt or lose it. Honoring the
+floor is what keeps "lower the active version" safe *within* the support window.
+Crossing *below* `min` is never supported, and the run invariant forbids running there.
+
+**What it means for `RewriteReceipts`.** The migration above writes the v6 receipt
+format. With `W = 1` and `max = 6`, `min` is 5. For the rewrite to be allowed at
+finalize, version 5 must already be able to *read* v6 receipts, so the migration
+declares `readableFrom = 5`. If version 5 could not read them, the floor would block
+the migration. You would split the change across two releases (expand, then contract):
+
+| Release | What ships |
+|---|---|
+| **N (expand)** | Code that reads **both** receipt formats but still writes the old one. No data change, so this step is reversible. |
+| **N+1 (contract)** | Once `min` has reached the version that reads both, run the rewrite. Its `readableFrom` is no longer above `min`, so it is allowed. |
+
+A format change that cannot finalize in the same release is the price of being able to
+go back safely. gatekit just makes the runner enforce what good teams do by habit.
+
+> **Where this stands.** The rules above are specified in the
+> [migration spec §3.5–3.6](https://github.com/automa-saga/gatekit-spec/blob/main/migration-spec.md)
+> and pinned by the `rollback/` and `floor/` conformance fixtures. The Go API for
+> `reversible`, `readableFrom` and the lowering operation is still being built, so the
+> snippets in this lesson do not show them yet.
 
 ## Putting the cases together
 
@@ -344,8 +391,11 @@ migration, finalize, and a crash-safe runner together, see
 - You deployed the new binaries an hour ago but have not finalized. Can you still
   roll back to the old binary? *(Yes — you are in the preserve-downgrade window,
   before the one-way line.)*
-- When will gatekit refuse to lower the active version? *(Across an irreversible step
-  — one whose migration has no working rollback or violates the write floor.)*
+- When will gatekit refuse to lower the active version? *(When the target is below `min`,
+  or when a step it crosses is not declared reversible.)*
+- Why does a migration that is "reversible" still get blocked sometimes? *(Its output is
+  not readable by the oldest supported version, so `readableFrom > min`. Expand first,
+  then contract once `min` catches up.)*
 
 ## Further reading
 

@@ -1,0 +1,24 @@
+{
+  "name": "released_when_min_advances",
+  "description": "Same migrations as new_format_blocked but min has advanced to 6, so readableFrom 6 is no longer above min and nothing is blocked.",
+  "min": 6,
+  "from": 5,
+  "to": 6,
+  "migrations": [
+    {
+      "id": "a",
+      "version": 6,
+      "readableFrom": 6
+    },
+    {
+      "id": "b",
+      "version": 6,
+      "readableFrom": 5
+    },
+    {
+      "id": "c",
+      "version": 6
+    }
+  ],
+  "blocked": []
+}

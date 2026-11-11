@@ -50,9 +50,10 @@ per user, or a reactive flip — which is Family A's job, not gatekit's.
 > **"Isn't an operator running `activate` just an Ops kill switch?"** Release and
 > Ops both flip the *whole* system, so an operator command (a CLI `activate`, or a
 > trigger like a block height) can look like either. The difference is intent and
-> reversibility: a gatekit activation is **planned and forward-only** — it advances
-> the shared version, and for migrations `finalize` is a one-way line — not a
-> reversible switch you toggle back off mid-incident. That is what keeps it a
+> reversibility: a gatekit activation is **planned and deliberate** — it advances
+> the shared version, and for migrations `finalize` is a one-way line. Going back is a
+> separate, explicit operation that is refused across anything irreversible — not a
+> switch you toggle back off mid-incident. That is what keeps it a
 > *release* toggle. (For a true manual override, see `WithOverrides` — a narrow
 > escape hatch, not an Ops-toggle system.)
 

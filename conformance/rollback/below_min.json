@@ -1,0 +1,16 @@
+{
+  "name": "below_min",
+  "description": "The target (3) is below min (4), so lowering is refused with below-min. This check comes before reversibility: the irreversible migration in range is not reported.",
+  "min": 4,
+  "from": 6,
+  "to": 3,
+  "migrations": [
+    {
+      "id": "x",
+      "version": 5
+    }
+  ],
+  "outcome": {
+    "error": "below-min"
+  }
+}

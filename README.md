@@ -73,7 +73,7 @@ behavior every conformant implementation MUST exhibit, so that:
 ## Conformance
 
 See [conformance/README.md](conformance/README.md). Fixtures are grouped by
-`resolution/`, `invariant/`, `planning/`, `lint/`, and `serialization/`, and enumerated in
+`resolution/`, `invariant/`, `planning/`, `lint/`, `rollback/`, `floor/`, and `serialization/`, and enumerated in
 [conformance/manifest.json](conformance/manifest.json).
 
 ## Relationship to Kubernetes

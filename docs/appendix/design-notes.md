@@ -112,6 +112,22 @@ an irreversible step — means you can never silently assume a retreat that is n
 actually possible. This is CockroachDB's `preserve_downgrade_option` generalized. See
 activation-spec §6 and migration-spec §3.
 
+**Lowering and the write floor.** The retreat is a real operation, not a promise
+(migration-spec §3.5). It runs the reverse migrations (version descending) and lowers
+`active` last, the mirror of finalize, so a failure leaves the recorded version
+unchanged and the operation can simply be run again. Two rules keep it honest:
+
+- A migration is **irreversible unless it declares `reversible`**. Presence of a
+  `rollback()` is not enough, because a stub would otherwise permit a retreat that
+  loses data.
+- A migration declares `readableFrom`, the oldest version able to read its output, and
+  the runner **refuses to execute it while `min < readableFrom`** (the write floor,
+  activation-spec §7). That is what makes lowering to `min` data-safe.
+
+The cost of the floor is that a data-format change cannot finalize in the release that
+introduces it. Ship code that reads both formats first, then flip the format once `min`
+has caught up: expand/contract, enforced by the runner instead of by habit.
+
 ## 10. Execution is a saga; the runtime is swappable
 
 **Decision.** The spec fixes the observable semantics — run in order, compensate
