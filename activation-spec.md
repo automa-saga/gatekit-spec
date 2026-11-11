@@ -8,6 +8,11 @@ This document defines the version model that drives resolution
 invariant, the configurable support window, activation and finalize, reversibility,
 and the serialized formats.
 
+**In short.** A binary supports a small range of activation versions. It runs at one
+of them (`active`). Moving `active` up is a deliberate step called **finalize**, and
+moving it back down is **lowering**. The rules below keep every move inside the range
+and keep data readable on the way.
+
 ## 1. Two version axes
 
 - **Release version** — the artifact's own version (e.g. semver). Out of scope
@@ -21,22 +26,34 @@ the release version.
 
 ## 2. The triple
 
-- **max** — the newest activation version an implementation supports. It MUST equal
-  `MaxActivation(registry)` (core-spec §7).
-- **W (support window)** — a configurable non-negative integer, default **1**. It
-  is the number of prior activation versions the implementation also supports.
-- **min** — derived as `max(firstVersion, max − W)`, where `firstVersion` is the
-  lowest `activeFrom` in the registry (0 if empty).
-- **active** — the activation version currently in force; the value resolution
-  (core-spec §3) uses. It is supplied by a **version source** and MAY be persisted.
+Every binary has three numbers:
+
+| Name | Meaning | How it is set |
+|---|---|---|
+| **max** | The newest activation version this binary supports. | MUST equal `MaxActivation(registry)` (core-spec §7). Never edited by hand. |
+| **min** | The oldest activation version this binary still supports. | Derived: `max(firstVersion, max − W)`. `firstVersion` is the lowest `activeFrom` in the registry (0 if empty). |
+| **active** | The activation version in force right now. Resolution (core-spec §3) uses it. | Supplied by a **version source**. MAY be persisted. |
+
+**W (support window)** is a non-negative integer, default **1**. It is how many earlier
+versions the binary also supports.
+
+*Example.* If the registry's highest `activeFrom` is 6, `W` is 1 and the lowest
+`activeFrom` is 4, then `max = 6` and `min = max(4, 6 − 1) = 5`. This binary supports
+`active` values 5 and 6.
 
 ## 3. Run invariant
 
-At startup an implementation MUST verify `min ≤ active ≤ max`. If `active < min`
-(the binary is too new for a far-behind state) or `active > max` (the binary is
-too old), it MUST refuse to operate and report a typed error. This guard is what
-prevents a stale implementation from undermining a flip, and it forces
-catch-up to proceed within the window.
+At startup an implementation MUST verify that `min ≤ active ≤ max`. If not, it MUST
+refuse to operate and report a typed error.
+
+| Case | What it means | Fix |
+|---|---|---|
+| `active > max` | The binary is too old for the stored state. | Run a newer binary. |
+| `active < min` | The stored state is too far behind for this binary. | Catch up in steps through the intermediate releases, or widen `W`. |
+| `min ≤ active ≤ max` | Supported. | None. |
+
+This guard stops a stale binary from undermining a flip, and it forces catch-up to
+proceed one window at a time.
 
 ## 4. Increment rules
 
@@ -50,31 +67,34 @@ catch-up to proceed within the window.
 
 ## 5. Activation and migrations
 
-A activation step MAY carry a one-time **migration** (a data/state transformation)
-in addition to gated code paths. Each migration declares a `scope`:
+An activation step MAY carry a one-time **migration**: a change to stored data or
+state, on top of the gated code paths. Each migration declares a `scope`, which decides
+when it may run:
 
-- `local` — affects only the local participant; MAY run when its
-  activation version activates (e.g. at install).
-- `shared` — requires agreement across participants; MUST be **run-at-finalize** until a
-  coordinated finalize (§6).
+| Scope (built-in default) | Meaning | Timing |
+|---|---|---|
+| `local` | Affects only this participant. | MAY run as soon as its version activates, for example at install. |
+| `shared` | Needs agreement across participants. | MUST wait for a coordinated finalize (§6). |
 
-Activation modes:
+There are two **activation modes**:
 
-- **Immediate** — `active` is set to the migration's version on install; the
+- **Immediate.** At install, `active` is set to the migration's version and the
   migration runs then. Valid for `local`.
-- **Deferred** — the implementation operates at the prior `active` (reading older
-  formats down to `min`) and **holds** the migration until finalize. Required for
-  `shared`; permitted for `local` when an operator wants rollback-safe
-  staged validation.
+- **Deferred.** The binary keeps running at the previous `active`, reading older
+  formats down to `min`, and **holds** the migration until finalize. Required for
+  `shared`. Permitted for `local` when an operator wants to validate in stages with a
+  clean way back.
 
-Implementations MUST be able to preview, before running, which migrations run now
-versus run at finalize (a plan / dry-run).
+Before running anything, an implementation MUST be able to preview which migrations run
+now and which run at finalize (a plan, or dry-run).
 
 ## 6. Finalize and reversibility
 
-**Finalize** advances `active`. Before advancing it runs the run-at-finalize migrations for
-the target version. Finalize is the **one-way line**: because a migration MAY be
-irreversible, rollback is only guaranteed *before* finalize has run any migration.
+**Finalize** moves `active` up. It first runs the run-at-finalize migrations for the
+target version, then advances `active`.
+
+Finalize is the **one-way line**. A migration MAY be irreversible, so going back is only
+guaranteed *before* finalize has run any migration.
 
 An activation step is **reversible** when both of these hold:
 

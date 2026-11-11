@@ -14,101 +14,113 @@ resolution). Implementations that provide it MUST conform to this document.
 
 ## 1. Migration contract
 
-A **Migration** is a one-time transformation tied to an activation version:
+A **Migration** is a one-time change tied to an activation version. It has these fields:
 
-- `id` (string) — a stable, unique identifier (stable across releases).
-- `description` (string) — human-readable summary.
-- `version` (integer) — the activation version this migration activates with.
-- `scope` (string) — a **consumer-defined** classification of the migration. gatekit
-  does not fix the set of scopes; a consumer MAY define as many as it needs. Each
-  scope is mapped to a **run-policy** (§2.1) that decides the migration's timing.
-  gatekit predefines `local` and `shared` only as the keys of the built-in
-  default policy (activation-spec §5), not as a closed enum.
-- `applies()` → boolean — whether the migration still needs to run. It MUST read
-  **ground truth** (on-disk/cluster state), NOT a ledger of past runs, so that a
-  migration is safe to re-run and `applies()` returns false once the effect is
-  already present.
-- `execute()` — performs the forward transformation. It SHOULD be safe to re-run.
-- `rollback()` — reverses `execute()` on a best-effort basis, used to compensate
-  when a later step in the same run fails, and (for reversible migrations) to lower
-  `active` (see activation-spec §6). It MUST be idempotent.
-- `reversible` (boolean, default `false`) — declares that `rollback()` fully and
-  safely reverses `execute()`. The default is **irreversible**: an implementation
-  MUST NOT infer reversibility from the mere presence of `rollback()`, because a
-  stub would then silently allow a retreat that loses data.
-- `readableFrom` (activation version, optional, default `0`) — the oldest
-  activation version able to read what `execute()` produces. `0` means every
-  version can. See the write floor, activation-spec §7.
+| Field | Type | Meaning |
+|---|---|---|
+| `id` | string | Stable, unique, and unchanged across releases. |
+| `description` | string | Human-readable summary. |
+| `version` | integer | The activation version this migration belongs to. |
+| `scope` | string | A **consumer-defined** label. gatekit does not fix the set of scopes. Each scope maps to a run-policy (§2.1) that decides timing. `local` and `shared` are only the keys of the built-in default policy (activation-spec §5), not a closed list. |
+| `reversible` | boolean, default `false` | Declares that `rollback()` fully and safely undoes `execute()`. See the note below. |
+| `readableFrom` | activation version, default `0` | The oldest version able to read what `execute()` writes. `0` means every version. See the write floor, activation-spec §7. |
+
+And these operations:
+
+- `applies()` returns whether the migration still needs to run. It MUST read **ground
+  truth** (on-disk or cluster state), not a ledger of past runs. That makes a migration
+  safe to re-run, and `applies()` returns false once the effect is already there.
+- `execute()` does the forward change. It SHOULD be safe to re-run.
+- `rollback()` undoes `execute()` on a best-effort basis. It is used to compensate when
+  a later step in the same run fails, and, for reversible migrations, to lower `active`
+  (activation-spec §6). It MUST be idempotent.
+
+**Reversible defaults to false on purpose.** An implementation MUST NOT infer
+reversibility from the mere presence of `rollback()`, because a stub would then
+silently allow a retreat that loses data.
 
 ## 2. Plan computation
 
-Given a current version `from` and a target version `to` (`from ≤ to`), a **plan**
-is computed as follows. A migration is included iff:
+A **plan** answers: given where `active` is now (`from`) and where it is going (`to`,
+with `from ≤ to`), which migrations must run?
 
-1. `from < version ≤ to` (the half-open range), **and**
+A migration is included when **both** are true:
+
+1. its `version` is above `from` and at or below `to` (that is, `from < version ≤ to`),
 2. `applies()` returns true.
 
-Migrations failing (1) or (2) MUST be omitted. Omitting already-satisfied
-migrations makes the plan **idempotent** across re-runs.
+Everything else is left out. Leaving out migrations that are already satisfied makes
+plans **idempotent**: computing one again after a run gives a shorter plan.
 
-Each included migration becomes a **step** whose timing is its scope's run-policy
-(§2.1).
+Each included migration becomes a **step**. Its timing comes from its scope's
+run-policy (§2.1).
 
 Steps MUST be ordered by `version` ascending, then by `id` ascending, so plans are
-deterministic. A plan is a pure value: computed on demand, never persisted.
+deterministic. A plan is a plain value: computed when needed and never stored.
 
 ### 2.1 Run-policy and scope classification
 
-A **run-policy** is the timing a step is eligible for, one of:
+A **run-policy** is when a step is allowed to run. There are two:
 
-- `run-now` — eligible to run at install / immediate activation.
-- `run-at-finalize` — deferred until a deliberate `finalize` (§3.2).
+- `run-now`: eligible at install or immediate activation.
+- `run-at-finalize`: held until a deliberate finalize (§3.2).
 
-An implementation MUST resolve each migration's `scope` to a run-policy through a
-**consumer-supplied classifier** (a scope→policy map or equivalent). It MUST NOT
-hardcode a fixed scope→policy mapping. A consumer MUST be able to define **three or
-more** scopes, each mapped to a run-policy.
+**Classifying scopes.** An implementation MUST turn each migration's `scope` into a
+run-policy through a **classifier** supplied by the consumer (a scope-to-policy map or
+equivalent). It MUST NOT hardcode the mapping, and a consumer MUST be able to define
+**three or more** scopes.
 
-The implementation MUST provide a **built-in default classifier** used when the
-consumer supplies none, so existing consumers are unaffected:
+**The default classifier.** When the consumer supplies none, the implementation MUST use
+this built-in one, so existing consumers are unaffected:
 
-- `local` → `run-now`,
-- `shared` → `run-at-finalize`.
+| Scope | Policy |
+|---|---|
+| `local` | `run-now` |
+| `shared` | `run-at-finalize` |
 
-A scope that the effective classifier does not map MUST resolve to `run-at-finalize` — the
-conservative default, since `run-at-finalize` never fires automatically at install. An
-implementation MAY let a consumer's classifier extend or override the built-in
-default.
+**Unmapped scopes.** A scope the classifier does not map MUST resolve to
+`run-at-finalize`. That is the safe choice, since it never fires automatically at
+install. An implementation MAY let a consumer's classifier extend or override the
+built-in default.
 
-The scope string itself is opaque to gatekit: the per-host/cross-host meaning of
-`local`/`shared` (activation-spec §5) is a property of the *default* policy, not
-of the scope axis. A consumer MAY classify by any axis it needs (blast radius,
-deliberateness, …) without gatekit ascribing meaning to the names.
+**The scope name carries no meaning.** The scope string is opaque to gatekit. The
+host-local versus cross-host meaning of `local` and `shared` (activation-spec §5)
+belongs to the default policy only. A consumer may classify along any axis it needs,
+such as blast radius or how deliberate the step is.
 
-An implementation MUST be able to render a plan before executing it (a
-`--plan` / dry-run preview): for each step, its `id`, `description`, `scope`, and
-whether it is run-now or run-at-finalize, whether it is `reversible`, and whether
-the write floor blocks it (§3.6).
+**Previewing a plan.** An implementation MUST be able to show a plan before running it
+(a `--plan` or dry-run preview). For each step it shows:
+
+- the `id`, `description` and `scope`,
+- whether the step is `run-now` or `run-at-finalize`,
+- whether it is `reversible`,
+- whether the write floor blocks it (§3.6).
 
 ## 3. Execution
 
 ### 3.1 Run-now
-Executing the run-now steps MUST run them in plan order. On the first failure the
-implementation MUST roll back the steps it already executed, in reverse order
-(best-effort), and MUST NOT advance `active`.
+
+Run the `run-now` steps in plan order. On the first failure, the implementation MUST
+undo the steps it already ran, in reverse order (best-effort), and MUST NOT advance
+`active`.
 
 ### 3.2 Finalize
-Finalize MUST run the run-at-finalize steps in plan order; on failure it MUST roll back the
-executed run-at-finalize steps (reverse order) and MUST NOT advance `active`. On success it
-MUST advance `active` to `to`. Finalize is the **one-way line** (activation-spec §6):
-rollback is only guaranteed before any migration in it has run.
+
+Run the `run-at-finalize` steps in plan order. On the first failure, undo the steps
+already run, in reverse order, and MUST NOT advance `active`. If every step succeeds,
+advance `active` to `to`.
+
+Finalize is the **one-way line** (activation-spec §6): going back is only guaranteed
+before any of its migrations has run.
 
 ### 3.3 Reversibility
-A step is **reversible** iff it has no migration, or every migration in it declares
+
+A step is **reversible** when it has no migration, or when every migration in it has
 `reversible = true` (§1) and honors the write floor (activation-spec §7). A step with
-no migration is a pure gate flip and is always reversible. Lowering `active`
-(activation-spec §6) is permitted only across reversible steps and MUST be refused
-across an irreversible step (§3.5).
+no migration is a pure gate flip, so it is always reversible.
+
+Lowering `active` (activation-spec §6) is allowed only across reversible steps. An
+implementation MUST refuse to lower across an irreversible step (§3.5).
 
 ### 3.4 Execution is a saga
 The execution model in §3.1–§3.2 is a **saga / compensation** model: steps run in
