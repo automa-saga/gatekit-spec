@@ -30,8 +30,15 @@ A **Migration** is a one-time transformation tied to an activation version:
   already present.
 - `execute()` — performs the forward transformation. It SHOULD be safe to re-run.
 - `rollback()` — reverses `execute()` on a best-effort basis, used to compensate
-  when a later step in the same run fails, and (for reversible steps) to lower
-  `active` (see activation-spec §6).
+  when a later step in the same run fails, and (for reversible migrations) to lower
+  `active` (see activation-spec §6). It MUST be idempotent.
+- `reversible` (boolean, default `false`) — declares that `rollback()` fully and
+  safely reverses `execute()`. The default is **irreversible**: an implementation
+  MUST NOT infer reversibility from the mere presence of `rollback()`, because a
+  stub would then silently allow a retreat that loses data.
+- `readableFrom` (activation version, optional, default `0`) — the oldest
+  activation version able to read what `execute()` produces. `0` means every
+  version can. See the write floor, activation-spec §7.
 
 ## 2. Plan computation
 
@@ -80,7 +87,8 @@ deliberateness, …) without gatekit ascribing meaning to the names.
 
 An implementation MUST be able to render a plan before executing it (a
 `--plan` / dry-run preview): for each step, its `id`, `description`, `scope`, and
-whether it is run-now or run-at-finalize.
+whether it is run-now or run-at-finalize, whether it is `reversible`, and whether
+the write floor blocks it (§3.6).
 
 ## 3. Execution
 
@@ -96,9 +104,11 @@ MUST advance `active` to `to`. Finalize is the **one-way line** (activation-spec
 rollback is only guaranteed before any migration in it has run.
 
 ### 3.3 Reversibility
-Lowering `active` (activation-spec §6) is permitted only across **reversible** steps
-(no migration, or every migration provides a working `rollback()` and honors the
-write floor, activation-spec §7) and MUST be refused across an irreversible step.
+A step is **reversible** iff it has no migration, or every migration in it declares
+`reversible = true` (§1) and honors the write floor (activation-spec §7). A step with
+no migration is a pure gate flip and is always reversible. Lowering `active`
+(activation-spec §6) is permitted only across reversible steps and MUST be refused
+across an irreversible step (§3.5).
 
 ### 3.4 Execution is a saga
 The execution model in §3.1–§3.2 is a **saga / compensation** model: steps run in
@@ -107,6 +117,60 @@ order and a failure compensates the completed steps in reverse. Execution SHOULD
 run-now/run-at-finalize/one-way semantics, not the runtime; an implementation MAY realize them
 with a saga runtime (the Go implementation uses `automa-saga/automa`, which carries
 its own durability specification).
+
+### 3.5 Lowering `active`
+
+Lowering is the way back after a finalize: it moves `active` from a higher version
+(`from`) to a lower one (`to`) without changing the binary. It MUST be its own
+operation. Finalize only ever raises `active`, and lowering only ever lowers it.
+
+For example, `active` is 6 and you want 4. The migrations that belong to versions 5
+and 6 must be undone, newest first, and then `active` becomes 4.
+
+**Steps.** An implementation MUST do these in order, and stop at the first refusal:
+
+1. **Check the target.** If `to < min`, refuse with a **below-min** error. No supported
+   binary can run below `min`, so there is nothing safe to go back to.
+2. **Build the reverse plan.** Take every migration whose `version` is above `to` and at
+   or below `from`. Include a migration even when `applies()` is true. Reversal cannot
+   tell a migration that ran from one whose effect was already there, so it plays safe
+   and relies on `rollback()` being idempotent. Order the plan by `version`, highest
+   first, then by `id`, highest first.
+3. **Check every step can be undone.** If any migration in the plan is not `reversible`,
+   refuse with an **irreversible-step** error that lists all of them. Nothing has run
+   yet, so nothing needs cleaning up.
+4. **Undo the steps.** Run `rollback()` for each migration, in plan order. If one fails,
+   stop and report the error. MUST NOT lower `active`. Running the lowering again is the
+   recovery, because `rollback()` is safe to repeat.
+5. **Lower `active`** to `to`, only after every step has succeeded.
+
+**Why this order.** It is the mirror of finalize (§3.2): data first, `active` last. A
+failure at any point leaves the recorded version unchanged, so the operation can simply
+be retried. Raising `active` again later is an ordinary finalize.
+
+**One more rule.** A persisted `active` MUST NOT be lowered by anything other than this
+operation.
+
+**Which error, and when**
+
+| Situation | Result |
+|---|---|
+| `to < min` | refused: **below-min** (checked first, even if steps are also irreversible) |
+| any step in the plan is not `reversible` | refused: **irreversible-step**, naming each one |
+| a `rollback()` fails | stopped: error reported, `active` unchanged, safe to re-run |
+| every step succeeded | `active` lowered to `to` |
+
+### 3.6 Write-floor preflight
+
+The write floor (activation-spec §7) stops a migration from writing data that the oldest
+supported version cannot read. This section says when that check happens.
+
+A step is **blocked** if any of its migrations has `readableFrom` above `min`.
+
+Before `RunNow` or `Finalize` runs anything, it MUST check the steps it is about to run.
+If any step is blocked, it MUST refuse with a **write-floor** error that names every
+blocked step. Nothing is executed and `active` does not change. A blocked step can run
+later, once a new release moves `max` and `min` up to `readableFrom` (activation-spec §2).
 
 ## 4. Relationship to the existing frameworks
 This model generalizes conventional version-boundary migration frameworks: instead

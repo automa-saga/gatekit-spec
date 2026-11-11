@@ -1,0 +1,34 @@
+{
+  "name": "only_planned_steps",
+  "description": "Only steps in the plan can be blocked. a is satisfied (applies false) and so is not planned; d is above the target version so is out of range; e is planned and blocked. Blocked ids are ordered by version, then id.",
+  "min": 5,
+  "from": 5,
+  "to": 7,
+  "migrations": [
+    {
+      "id": "a",
+      "version": 6,
+      "readableFrom": 6,
+      "applies": false
+    },
+    {
+      "id": "d",
+      "version": 8,
+      "readableFrom": 8
+    },
+    {
+      "id": "e",
+      "version": 7,
+      "readableFrom": 7
+    },
+    {
+      "id": "b",
+      "version": 6,
+      "readableFrom": 9
+    }
+  ],
+  "blocked": [
+    "b",
+    "e"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "new_format_blocked",
+  "description": "min=5, plan (5, 6]. Migration a writes a format only version 6 can read (readableFrom 6 > min 5), so it is blocked. b is readable from 5 and c declares no readableFrom (default 0); neither is blocked.",
+  "min": 5,
+  "from": 5,
+  "to": 6,
+  "migrations": [
+    {
+      "id": "a",
+      "version": 6,
+      "readableFrom": 6
+    },
+    {
+      "id": "b",
+      "version": 6,
+      "readableFrom": 5
+    },
+    {
+      "id": "c",
+      "version": 6
+    }
+  ],
+  "blocked": [
+    "a"
+  ]
+}

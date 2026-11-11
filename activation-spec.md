@@ -76,11 +76,19 @@ versus run at finalize (a plan / dry-run).
 the target version. Finalize is the **one-way line**: because a migration MAY be
 irreversible, rollback is only guaranteed *before* finalize has run any migration.
 
-A activation step is **reversible** iff it has no migration, or every migration in it
-provides a working reverse and writes nothing that an older version in the window
-cannot read (the write floor, §7). For a reversible step an implementation MAY
-lower `active` (running reverse migrations). Lowering `active` across an
-**irreversible** step MUST be refused with a typed error.
+An activation step is **reversible** when both of these hold:
+
+- it has no migration, or every migration in it declares itself `reversible`
+  (migration-spec §1), and
+- it writes nothing that an older supported version cannot read (the write floor, §7).
+
+A step with no migration is a pure gate flip, so it is always reversible.
+
+An implementation that provides the migration layer MUST offer a **lowering**
+operation (migration-spec §3.5). It undoes the migrations in descending version order
+and then lowers `active`. It MUST refuse, with a typed error, when the target is below
+`min` or when any step it crosses is irreversible. Lowering is the only way to lower
+`active`; finalize never does.
 
 *(reserved)* The coordinated/negotiated finalize across multiple participants
 (readiness = every participant reports `max ≥ target`) and its message format are
@@ -88,12 +96,29 @@ not yet specified.
 
 ## 7. Min-compatibility write floor
 
-To keep lowering `active` data-safe, an implementation MUST NOT emit on-disk or
-on-wire data in a format that a version below `min` could not read. A
-writer/migration MAY declare the minimum activation version required to read its
-output; emitting below the floor MUST be rejected. Within `[min, max]`, lowering
-`active` is data-safe; crossing below `min` is not supported (and the run invariant
-forbids running there).
+**The rule.** Lowering `active` is only safe if the older version can still read what the
+newer one wrote. So an implementation MUST NOT write on-disk or on-wire data in a format
+that a version at `min` could not read.
+
+**How a migration says so.** A migration declares `readableFrom`: the oldest activation
+version that can read its output (migration-spec §1). The default is `0`, meaning every
+version can.
+
+**What is enforced.** A migration is **blocked** when `readableFrom > min`. `RunNow` and
+`Finalize` MUST refuse to execute a blocked migration (migration-spec §3.6). With that
+rule in place, lowering `active` anywhere inside `[min, max]` is data-safe. Going below
+`min` is not supported, and the run invariant forbids running there.
+
+**What it means for authors.** Because `min = max(firstVersion, max − W)`, `min` only
+moves when a new release raises `max`. A change that makes data unreadable to older
+versions therefore cannot finalize in the release that introduces it. Split it in the
+**expand/contract** style:
+
+1. **Release N (expand).** Ship code that can read both formats but still writes the old
+   one. This is a reversible step with a low `readableFrom`.
+2. **Release N+1 (contract).** Once `min` has reached the version that can read the new
+   format, run the migration that converts the data. Its `readableFrom` is no longer
+   above `min`, so it is allowed.
 
 ## 8. Serialized formats *(draft)*
 

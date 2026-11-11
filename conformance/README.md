@@ -23,6 +23,17 @@ source of truth for cross-language agreement. Groups are enumerated in
   (optional) is the consumer scope→run-policy classifier, each policy one of `run-now`
   or `run-at-finalize`; when omitted the built-in default applies (`local`→run-now,
   `shared`→run-at-finalize), and any scope the classifier does not map resolves to `run-at-finalize`.
+- **rollback/** — lowering `active` (migration-spec §3.5). Schema:
+  `{ name, description, min, from, to, migrations: [{ id, version, reversible? }], outcome }`
+  with `to < from`. `reversible` defaults to false. `outcome` is `{ order: [id] }` (the
+  reverse plan, by version then id descending) or `{ error, steps? }`, where `error` is
+  `below-min` (checked first) or `irreversible-step` with `steps` listing every
+  irreversible step in the same order.
+- **floor/** — the write floor (activation-spec §7, migration-spec §3.6). Schema:
+  `{ name, description, min, from, to, migrations: [{ id, version, readableFrom?, applies? }], blocked: [id] }`.
+  `readableFrom` defaults to 0 and `applies` to true. `blocked` lists the planned steps
+  (version in `(from, to]` and `applies`) whose `readableFrom > min`, ordered by version
+  then id.
 - **lint/** — the lifecycle lint (core-spec §8). Schema:
   `{ name, description, window, registry: {feature: {removeBy?, specs: [spec]}}, violations: [{ feature, kind, activeFrom? }] }`
   where `kind` is `stale-spec`, `past-remove-by`, or `deprecated`, and `violations` is in
