@@ -40,7 +40,7 @@ By the end you should be able to, on your own product:
 - and tell when to reach for gatekit versus a tool like LaunchDarkly or
   Kubernetes' built-in feature gates.
 
-## The six lessons
+## The seven lessons
 
 | # | Lesson | The question it answers |
 |---|--------|-------------------------|
@@ -50,6 +50,7 @@ By the end you should be able to, on your own product:
 | [4](/tutorial/4-build-and-release-a-feature.md) | Build and release a feature | Hands-on: declare a feature and ship it dormant. |
 | [5](/tutorial/5-activation-use-cases.md) | Activation use cases | One version axis or two? Immediate or deferred? |
 | [6](/tutorial/6-rolling-upgrade-thinking.md) | Rolling-upgrade thinking | How to design a product that upgrades with no downtime. |
+| [7](/tutorial/7-gating-a-feature-when-plans-change.md) | Gating a feature while plans change | What do I write in the registry when a feature slips? |
 
 Read them in order the first time — each builds on the last.
 

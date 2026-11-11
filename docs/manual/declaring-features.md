@@ -55,7 +55,7 @@ It is lint metadata only: it never affects resolution. See
 
 | Maturity | Behavior |
 |---|---|
-| `Alpha` | Off unless the gate is opted in with `WithExperimental(true)` (or the feature is overridden), even if `Default` is true. |
+| `Alpha` | Off unless the gate is opted in with `WithExperimental(true)` (or the feature is overridden), even if `Default` is true. Once opted in it follows `Default`, so `Default: false` stays off. |
 | `Beta`, `GA` | Follow `Default`. |
 | `Deprecated` | Follows `Default`; marks a feature on its way out. |
 
@@ -115,4 +115,6 @@ supported range; it is derived from the registry. See
 [Activation](/manual/activation.md).
 
 Normative rules: [core spec](https://github.com/automa-saga/gatekit-spec/blob/main/core-spec.md).
-Worked walkthrough: [Lesson 4](/tutorial/4-build-and-release-a-feature.md).
+Worked walkthrough: [Lesson 4](/tutorial/4-build-and-release-a-feature.md). The stage-by-stage
+runbook for a feature that is still being built, and what to do when plans slip, is
+[Lesson 7](/tutorial/7-gating-a-feature-when-plans-change.md).
