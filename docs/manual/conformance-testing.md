@@ -14,6 +14,7 @@ want to confirm yours agrees with the spec, run them.
 | `rollback/` | Lowering `active`: reverse order, refusals | migration §3.5 |
 | `floor/` | The write floor: blocked steps | activation §7 |
 | `lint/` | The removal lint: stale specs, `removeBy`, deprecated | core §8 |
+| `baseline/` | The baseline lint: version jumps, rewritten shipped specs | activation §10 |
 | `serialization/` | Reserved; empty until the formats are fixed | activation §8 |
 
 Every fixture is listed in

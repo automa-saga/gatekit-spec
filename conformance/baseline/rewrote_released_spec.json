@@ -1,0 +1,97 @@
+{
+  "name": "rewrote_released_spec",
+  "description": "Baseline max 5. W changes an ALPHA spec at 3 to BETA (crosses the alpha boundary) and X flips its default at 3 from false to true: both are below the ceiling, so both are rewrote-history, ordered by feature. Y relabels BETA to GA at 4 (same resolution) and Z is a new spec at the frontier 5: neither is flagged.",
+  "baseline": {
+    "registry": {
+      "W": {
+        "specs": [
+          {
+            "activeFrom": 3,
+            "default": true,
+            "maturity": "ALPHA"
+          }
+        ]
+      },
+      "X": {
+        "specs": [
+          {
+            "activeFrom": 3,
+            "default": false,
+            "maturity": "BETA"
+          },
+          {
+            "activeFrom": 5,
+            "default": true,
+            "maturity": "GA"
+          }
+        ]
+      },
+      "Y": {
+        "specs": [
+          {
+            "activeFrom": 4,
+            "default": true,
+            "maturity": "BETA"
+          }
+        ]
+      }
+    }
+  },
+  "current": {
+    "registry": {
+      "W": {
+        "specs": [
+          {
+            "activeFrom": 3,
+            "default": true,
+            "maturity": "BETA"
+          }
+        ]
+      },
+      "X": {
+        "specs": [
+          {
+            "activeFrom": 3,
+            "default": true,
+            "maturity": "BETA"
+          },
+          {
+            "activeFrom": 5,
+            "default": true,
+            "maturity": "GA"
+          }
+        ]
+      },
+      "Y": {
+        "specs": [
+          {
+            "activeFrom": 4,
+            "default": true,
+            "maturity": "GA"
+          }
+        ]
+      },
+      "Z": {
+        "specs": [
+          {
+            "activeFrom": 5,
+            "default": true,
+            "maturity": "GA"
+          }
+        ]
+      }
+    }
+  },
+  "violations": [
+    {
+      "kind": "rewrote-history",
+      "feature": "W",
+      "activeFrom": 3
+    },
+    {
+      "kind": "rewrote-history",
+      "feature": "X",
+      "activeFrom": 3
+    }
+  ]
+}

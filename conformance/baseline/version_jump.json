@@ -1,0 +1,44 @@
+{
+  "name": "version_jump",
+  "description": "Baseline max 5, current max 7: the activation version jumped by more than one release. A new feature B sits at 7. Reported as version-jump regardless of maturity or default.",
+  "baseline": {
+    "registry": {
+      "A": {
+        "specs": [
+          {
+            "activeFrom": 5,
+            "default": true,
+            "maturity": "GA"
+          }
+        ]
+      }
+    }
+  },
+  "current": {
+    "registry": {
+      "A": {
+        "specs": [
+          {
+            "activeFrom": 5,
+            "default": true,
+            "maturity": "GA"
+          }
+        ]
+      },
+      "B": {
+        "specs": [
+          {
+            "activeFrom": 7,
+            "default": false,
+            "maturity": "ALPHA"
+          }
+        ]
+      }
+    }
+  },
+  "violations": [
+    {
+      "kind": "version-jump"
+    }
+  ]
+}

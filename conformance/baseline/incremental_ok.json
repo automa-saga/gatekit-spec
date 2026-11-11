@@ -1,0 +1,50 @@
+{
+  "name": "incremental_ok",
+  "description": "Baseline max 5, current max 6 (a legal single bump). A new feature B activates at 6, and no spec below the released ceiling 5 changed. No violations.",
+  "baseline": {
+    "registry": {
+      "A": {
+        "specs": [
+          {
+            "activeFrom": 3,
+            "default": true,
+            "maturity": "GA"
+          },
+          {
+            "activeFrom": 5,
+            "default": true,
+            "maturity": "GA"
+          }
+        ]
+      }
+    }
+  },
+  "current": {
+    "registry": {
+      "A": {
+        "specs": [
+          {
+            "activeFrom": 3,
+            "default": true,
+            "maturity": "GA"
+          },
+          {
+            "activeFrom": 5,
+            "default": true,
+            "maturity": "GA"
+          }
+        ]
+      },
+      "B": {
+        "specs": [
+          {
+            "activeFrom": 6,
+            "default": true,
+            "maturity": "BETA"
+          }
+        ]
+      }
+    }
+  },
+  "violations": []
+}
