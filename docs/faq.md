@@ -21,6 +21,27 @@ corresponds to which activation version" correctly, reusing the release number w
 You lose the ability to tell compatibility from the number alone (see the next
 question), which is why coordinated fleets prefer a dedicated counter.
 
+## Is the activation version a milestone or roadmap position?
+
+**No.** It is a technical coordination counter, not a schedule. Milestones, target dates
+and release order belong in your project tracker; the registry only holds versions that
+exist or are about to ship. Writing a future target like "version 11" into the registry
+raises `max`, drops `min`, and can stop the whole fleet from starting over a feature that
+is still off. Keep the plan in a ticket label ("targets the next bump") and let each
+release hand out the next integer when a change actually becomes reachable. See
+[Lesson 7](/tutorial/7-gating-a-feature-when-plans-change.md).
+
+## When do I bump the activation version?
+
+**Only when turning the behavior on requires the whole fleet to flip together** — a shared
+wire or storage format, or a one-time migration, where new and old behavior cannot safely
+run side by side during the rolling upgrade. Those are the cases that need deploy-dormant,
+then a single coordinated `finalize`. An additive, node-local feature does **not** need a
+bump: deploy it dormant and flip it on in place at the current version. Every deploy is a
+rolling upgrade; what forces a new activation version is a *coordinated behavior flip*, not
+the rollout itself. See [Lesson 7](/tutorial/7-gating-a-feature-when-plans-change.md) and
+[Lesson 5](/tutorial/5-activation-use-cases.md).
+
 ## How is this different from LaunchDarkly / Unleash?
 
 They are **runtime flag services**: a flag lives on a server, is decided per user at
