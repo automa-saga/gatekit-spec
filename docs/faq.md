@@ -144,6 +144,17 @@ Add the migration/activation layer only if you also move stored/wire data or coo
 fleet with `finalize`. A consumer whose active version is set externally can use the core
 with no activation model at all. See [Lesson 2](/tutorial/2-why-gatekit.md).
 
+## Why don't gatekit's errors carry hints or remediation?
+
+**By design — enrichment is the consumer's job.** The gate core is dependency-free and
+language-portable, so it returns **typed, branchable** errors (`VersionRangeError`,
+`BelowMinError`, `IrreversibleStepError`, `WriteFloorError`) but no reason codes, operator
+hints, or suggested fixes. Which flag to try or which backup to restore is *application*
+knowledge, so you decorate gatekit's error **once, at the boundary** where it enters your
+code, using your own error stack. See the Go example in
+[*Enriching gatekit's errors*](/tutorial/go.md#enriching-gatekits-errors-in-your-consumer)
+and [Design note 11](/appendix/design-notes.md).
+
 ## Which languages are supported?
 
 Go is the reference implementation and is real today. Kotlin, Rust, and Python are
