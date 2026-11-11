@@ -162,6 +162,31 @@ human judgment into a test failure.
 **What it does not do.** It does not scan source code. Locating the dead branches a
 stale spec guarded stays with the consumer.
 
+## 11. Errors are typed; enrichment is the consumer's job
+
+**Decision.** gatekit carries **no dependencies** and never will for the gate core.
+It reports failures as plain stdlib errors plus a small set of **typed, branchable**
+errors — `VersionRangeError` (the run invariant), `BelowMinError`,
+`IrreversibleStepError`, and `WriteFloorError` (lowering and the write floor). It does
+**not** attach reason codes, operator hints, or remediation text of its own.
+
+**Why dependency-free.** The gate core must drop into any project — a CLI, a daemon, a
+tiny library — without dragging a dependency graph behind it, and the activation model
+must behave identically across Go, Kotlin, Rust, and Python. An error-decoration library
+is the opposite of both goals: it would force a transitive dependency on *every* consumer
+and bind the error contract to one language's idioms, which the language-neutral
+[conformance fixtures](/appendix/conformance.md) could never pin down. The fixtures
+express failures as stable kinds (`below-min`, `irreversible-step`, …); the typed Go
+errors mirror those kinds, nothing more.
+
+**Why consumers enrich.** A reason code, an operator-facing hint, and a suggested fix are
+*application* knowledge, not library knowledge. Only the consumer knows which flag to
+suggest, which backup to restore, or how its CLI renders diagnostics. So gatekit draws the
+line at a **branchable** error and hands the enrichment to the consumer, which decorates it
+**once, at the boundary** where gatekit's error crosses into application code. A Go consumer
+does this with its own error stack — see
+[the Go page, *Enriching gatekit's errors*](/tutorial/go.md#enriching-gatekits-errors-in-your-consumer).
+
 ## See also
 
 - [Appendix A: the resolution algorithm](/appendix/algorithm.md)
