@@ -64,6 +64,10 @@ proceed one window at a time.
 - Advancing the floor so a version leaves the window (`version < min`) obliges the
   author to delete that version's now-unreachable specs and dead code paths (the
   contract step). Lints SHOULD enforce this, keyed to `W` (core-spec §8).
+- The at-most-1 rule and the "never rewrite a shipped spec" rule are relative to the
+  previous release, so they cannot be checked from one registry alone. A **baseline
+  lint** (§10) SHOULD enforce them by comparing the registry against the last released
+  one.
 
 ## 5. Activation and migrations
 
@@ -164,3 +168,46 @@ Not yet specified; depends on §6.
 `activation version`, a configurable window `W` (K8s fixes ~3), and bundling the
 optional migration/activation layer (K8s keeps storage migration/conversion
 separate).
+
+## 10. Baseline lint
+
+The increment rule (§4) — at most +1 per release, and never rewrite a shipped spec —
+is **relative to the previous release**, so a single registry cannot reveal a
+violation. A spec at `activeFrom: 11` is valid on its own; what makes it wrong is that
+the last release was at 5. The violation is caught at runtime by the run invariant (§3)
+when the fleet refuses to start, but that is too late. A **baseline lint** moves it to
+review time.
+
+The lint is a pure function of two registries: `current` (at HEAD) and `baseline` (the
+last released registry). It needs no version source. It derives `bmax =
+MaxActivation(baseline)` and `cmax = MaxActivation(current)` (core-spec §7) and returns
+violations `{kind, feature?, activeFrom?}`:
+
+| Kind | Reported when | Fields |
+|---|---|---|
+| `version-jump` | `cmax > bmax + 1`: the activation version rose by more than one release's worth. | none |
+| `rewrote-history` | a spec in `current` at `activeFrom < bmax` is **new** (no spec for that feature at that version in `baseline`) or **changed** (its `default` differs, or it crosses the `ALPHA` boundary, versus `baseline`). | `feature`, `activeFrom` |
+
+Rules:
+
+- The `activeFrom < bmax` bound is **strict**. A spec **at** `bmax` is the activation
+  frontier, where an in-place promotion (flipping the current version's spec from off to
+  on, or `ALPHA` to `BETA`) is the normal way to activate — so it is not a rewrite. Only
+  versions strictly below the released ceiling are frozen.
+- A pure relabel that does not change resolution (`BETA` ↔ `GA`, same `default`) is **not**
+  a `rewrote-history` violation, because the feature resolves identically.
+- **Deletion is out of scope here.** Removing a spec that has left the window is the
+  contract step, governed by the removal lint (core-spec §8); the baseline lint never
+  flags a deletion.
+- Violations are ordered `version-jump` first, then `rewrote-history` by feature then
+  `activeFrom`. A clean pair yields an empty list.
+
+Unlike the lifecycle lint (a warning), a baseline violation SHOULD **fail** the build:
+a version jump or a rewritten shipped spec will break or split a running fleet.
+
+**Limits.** The lint cannot see the fleet's actual `active`, so it cannot catch a change
+to a spec exactly at `bmax` once the fleet has finalized onto it, nor a deletion that is
+premature. It also needs a `baseline` the consumer keeps current — typically a committed
+snapshot regenerated when a release is tagged.
+
+The [conformance/baseline](conformance/baseline) fixtures are the source of truth.

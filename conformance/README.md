@@ -39,6 +39,11 @@ source of truth for cross-language agreement. Groups are enumerated in
   where `kind` is `stale-spec`, `past-remove-by`, or `deprecated`, and `violations` is in
   the order core-spec §8 defines (feature, then kind, then `activeFrom`). `min` and `max`
   are derived from `registry` and `window`; an empty `violations` is a clean registry.
+- **baseline/** — the baseline lint (activation-spec §10). Schema:
+  `{ name, description, baseline: {registry}, current: {registry}, violations: [{ kind, feature?, activeFrom? }] }`
+  where `kind` is `version-jump` (no feature) or `rewrote-history` (with `feature` and
+  `activeFrom`). `violations` is ordered `version-jump` first, then `rewrote-history` by
+  feature then `activeFrom`. `bmax`/`cmax` are derived as `MaxActivation` of each registry.
 - **serialization/** — *(reserved)* activation-state and message round-trips.
 
 ## Running

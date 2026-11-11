@@ -30,6 +30,7 @@ and are enumerated in
 | `rollback/` | lowering `active`: reverse-plan order, irreversible and below-min refusals | migration §3.5 |
 | `floor/` | the write floor: which planned steps are blocked by `readableFrom > min` | activation §7 |
 | `lint/` | the lifecycle removal lint: stale specs, `removeBy`, deprecated features | core §8 |
+| `baseline/` | the baseline lint: an activation-version jump or a rewritten shipped spec, vs the last release | activation §10 |
 | `serialization/` | *(reserved)* activation-state and message round-trips | activation §8 |
 
 ## A resolution fixture, read line by line

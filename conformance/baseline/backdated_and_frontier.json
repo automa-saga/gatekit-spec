@@ -1,0 +1,74 @@
+{
+  "name": "backdated_and_frontier",
+  "description": "Baseline max 4. A is promoted in place at the frontier 4 (ALPHA off to BETA on): allowed, not flagged. B is a brand-new feature back-dated to 2, and C adds a new spec at 3 to an existing feature: both are below 4, so both are rewrote-history, ordered by feature then activeFrom. No version jump (current max stays 4).",
+  "baseline": {
+    "registry": {
+      "A": {
+        "specs": [
+          {
+            "activeFrom": 4,
+            "default": false,
+            "maturity": "ALPHA"
+          }
+        ]
+      },
+      "C": {
+        "specs": [
+          {
+            "activeFrom": 4,
+            "default": true,
+            "maturity": "BETA"
+          }
+        ]
+      }
+    }
+  },
+  "current": {
+    "registry": {
+      "A": {
+        "specs": [
+          {
+            "activeFrom": 4,
+            "default": true,
+            "maturity": "BETA"
+          }
+        ]
+      },
+      "B": {
+        "specs": [
+          {
+            "activeFrom": 2,
+            "default": true,
+            "maturity": "BETA"
+          }
+        ]
+      },
+      "C": {
+        "specs": [
+          {
+            "activeFrom": 3,
+            "default": true,
+            "maturity": "BETA"
+          },
+          {
+            "activeFrom": 4,
+            "default": true,
+            "maturity": "BETA"
+          }
+        ]
+      }
+    }
+  },
+  "violations": [
+    {
+      "kind": "rewrote-history",
+      "feature": "B",
+      "activeFrom": 2
+    },
+    {
+      "kind": "rewrote-history",
+      "feature": "C",
+      "activeFrom": 3
+    }
+  ]
+}

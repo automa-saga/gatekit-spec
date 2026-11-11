@@ -34,6 +34,12 @@
       "floor/released_when_min_advances.json",
       "floor/only_planned_steps.json"
     ],
+    "baseline": [
+      "baseline/incremental_ok.json",
+      "baseline/version_jump.json",
+      "baseline/rewrote_released_spec.json",
+      "baseline/backdated_and_frontier.json"
+    ],
     "serialization": []
   }
 }
