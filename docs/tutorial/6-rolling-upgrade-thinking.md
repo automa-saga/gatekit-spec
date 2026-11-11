@@ -172,9 +172,14 @@ Two design habits keep this door open:
 - **Delay finalize** as long as you reasonably can. The longer the preserve-downgrade
   window, the more time to catch a problem while retreat is still free.
 - **Honor the write floor.** Never write data an older supported version cannot read
-  (Lesson 5). This is what makes *lowering* the active version safe within the window,
-  and it is a property you design into every migration, not something gatekit can add
-  afterwards.
+  (Lesson 5). You declare it with `readableFrom`, and gatekit refuses to run a migration
+  whose output the oldest supported version could not read. This is what makes
+  *lowering* the active version safe within the window. It is still a property you
+  design into every migration, and gatekit can only enforce what you declare.
+- **Split format changes across two releases.** Ship code that reads both formats
+  first, and convert the data only once `min` has caught up (expand, then contract).
+  A change that makes data unreadable to older versions cannot finalize in the release
+  that introduces it.
 
 Once you cross the one-way line (finalize runs an irreversible migration), retreat is
 no longer guaranteed — so you cross it *deliberately*, after readiness, with eyes
@@ -220,6 +225,9 @@ you the machinery; these rules are how you *use* it well.
 - Why does finalize come *after* readiness, not before? *(So the risky, possibly
   irreversible flip happens only once every machine can handle the new version —
   inverting the all-at-once ordering.)*
+- Why can't a format change finalize in the release that introduces it? *(Its output is
+  unreadable to the oldest supported version, so the write floor blocks it. Ship dual
+  reading first, convert once `min` has caught up.)*
 - What single promise, held by every machine, makes a rolling upgrade possible? *(The
   run invariant: `min ≤ active ≤ max`.)*
 

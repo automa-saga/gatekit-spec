@@ -34,11 +34,14 @@ A migration may be irreversible, so **binary rollback is only guaranteed before
 2. Verify the fleet.
 3. Only then run `Finalize`.
 
-A step is **reversible** only if it has no migration, or every migration provides a
-working reverse and writes nothing an older version inside the window cannot read
-(the write floor). The spec requires lowering `active` across an irreversible step to
-be refused. The Go API does not yet expose a lowering operation; treat rollback as
-"before finalize".
+A step is **reversible** only if it has no migration, or every migration is declared
+`reversible` (the default is irreversible) and writes nothing an older version inside
+the window cannot read (the write floor, declared with `readableFrom`). The spec
+requires lowering `active` to be its own operation, refused when the target is below
+`min` or when it crosses an irreversible step
+([migration spec §3.5](https://github.com/automa-saga/gatekit-spec/blob/main/migration-spec.md)).
+The Go API does not yet expose `reversible`, `readableFrom` or a lowering operation;
+until it does, treat rollback as "before finalize".
 
 ## Crash-safe finalize
 

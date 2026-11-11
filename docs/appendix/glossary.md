@@ -156,13 +156,15 @@ rolling back to the old binary is still safe. Named after CockroachDB's
 `preserve_downgrade_option`.
 
 <a id="reversible"></a>**Reversible.** An activation step is reversible if it has no
-migration, or every migration provides a working `rollback` and honors the
-[write floor](#write-floor). Only reversible steps may be undone by lowering
-[active](#active).
+migration, or every migration is declared `reversible` (the default is irreversible)
+and honors the [write floor](#write-floor). Only reversible steps may be undone by
+lowering [active](#active).
 
 <a id="write-floor"></a>**Write floor.** The rule that a migration must never write
-data in a format too new for the oldest supported version ([min](#min)) to read.
-Honoring it is what keeps lowering `active` data-safe within the window.
+data in a format too new for the oldest supported version ([min](#min)) to read. A
+migration declares `readableFrom`, the oldest version able to read its output, and is
+blocked while `readableFrom > min`. Honoring the floor is what keeps lowering `active`
+data-safe within the window.
 
 <a id="saga"></a>**Saga.** An execution model where steps run in order and a failure
 compensates the completed steps in reverse (each step has an undo). gatekit's migration
