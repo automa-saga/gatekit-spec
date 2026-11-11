@@ -84,6 +84,12 @@ is opted in with `WithExperimental(true)` (the equivalent of an `--experimental`
 switch an operator would set). This lets you merge genuinely unfinished work without
 any risk that it turns itself on.
 
+Once opted in, an `Alpha` spec simply follows its `Default`. So an Alpha spec with
+`Default: false` stays off even with `WithExperimental(true)`; only an
+[override](#4b-right-now-for-one-machine-an-override) can turn it on. How to use this
+well across a whole feature's life, including what to do when plans slip, is
+[Lesson 7](/tutorial/7-gating-a-feature-when-plans-change.md).
+
 ## Step 2: Gate the code
 
 Build the gate from the registry and a **version source** (where the current

@@ -240,4 +240,4 @@ you the machinery; these rules are how you *use* it well.
 - [Appendix C: design notes](/appendix/design-notes.md) — why these rules are
   shaped the way they are.
 
-**Next:** [Other languages](/tutorial/go.md) · or jump to the [FAQ](/faq.md).
+**Next:** [7. Gating a feature while plans change](/tutorial/7-gating-a-feature-when-plans-change.md) · or [Other languages](/tutorial/go.md) · or the [FAQ](/faq.md).

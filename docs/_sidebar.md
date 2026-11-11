@@ -7,6 +7,7 @@
   - [4. Build and release a feature](tutorial/4-build-and-release-a-feature.md)
   - [5. Activation use cases](tutorial/5-activation-use-cases.md)
   - [6. Rolling-upgrade thinking](tutorial/6-rolling-upgrade-thinking.md)
+  - [7. Gating a feature while plans change](tutorial/7-gating-a-feature-when-plans-change.md)
 - User manual
   - [Overview](manual/index.md)
   - [Installing](manual/installing.md)
