@@ -112,6 +112,67 @@ func (RewriteReceipts) Rollback(ctx context.Context) error { return restoreRecei
 > itself — "is any receipt still old-format?" — the migration is **idempotent**: safe
 > to run again and again, doing nothing once the effect is already present.
 
+## Features and migrations: two lists, one activation axis
+
+A common question: *where does the list of migrations come from — isn't it derived from my
+features?* No. You keep **two separate declarations**, linked only by the activation-version
+number they share:
+
+- the **`Registry`** — your features, for the gate (what resolves on/off);
+- a **`[]migration.Migration`** slice — your migrations, for the planner and runner (what
+  data gets transformed).
+
+gatekit never derives one from the other, and — the key rule — **not every feature needs a
+migration.** A feature earns one *only* when turning it on reshapes stored or wire data
+(a compatibility gate). A development gate (an `Alpha` feature you flip on in place) or a
+pure behavior flip carries **none**: there is nothing to transform.
+
+Here are both lists for one app. `ReceiptsV6` changes stored data, so it pairs with a
+migration at the **same activation version (6)**; `FastScan` is a dev gate, so it has none:
+
+```go
+// features.go — the gate side
+var Registry = gatekit.Registry{
+    ReceiptsV6: { // compatibility gate: new on-disk format, on fleet-wide at 6
+        Description: "Store receipts in the v6 format",
+        Specs: gatekit.VersionedSpecs{{ActiveFrom: 6, Default: true, Maturity: gatekit.GA}},
+    },
+    FastScan: { // development gate: experimental, off unless opted in — no data change
+        Description: "Experimental faster scan path",
+        Specs: gatekit.VersionedSpecs{{ActiveFrom: 6, Default: false, Maturity: gatekit.Alpha}},
+    },
+}
+
+// migrations.go — the migration side: a hand-maintained slice, ONE entry per
+// data-changing activation. ReceiptsV6's change rides RewriteReceipts (Version() == 6).
+// FastScan appears nowhere here — a dev gate has no migration.
+var Migrations = []migration.Migration{
+    RewriteReceipts{}, // the companion to the ReceiptsV6 feature, at version 6
+}
+```
+
+That slice *is* the `migs...` you pass to the planner; the same active version drives both
+sides, so "which features are on" and "which migrations run" stay in lock-step:
+
+```go
+active := store.Current()
+gate, _    := gatekit.New(Registry, gatekit.StaticVersion(active), gatekit.WithSupportWindow(1))
+planner    := migration.NewPlanner(Migrations...).WithMin(gate.EffectiveVersion().Min)
+plan, _    := planner.Plan(ctx, active, target)
+```
+
+When you add a feature later, you append to the registry — and to `Migrations` **only if it
+reshapes data**:
+
+| Feature kind | In `Registry`? | In `Migrations`? | Why |
+|---|---|---|---|
+| Reshapes stored/wire data (compat gate) | yes | **yes** — `Version()` = its `ActiveFrom` | the data must be transformed when it activates |
+| Additive / node-local dev gate (`Alpha`) | yes | **no** | nothing to transform; flip in place |
+| Pure behavior flip, no data | yes | **no** | lowering it is just resolving the old version again |
+
+So `migs` is not pulled from your feature list — it is the short, explicit set of migrations,
+one per data-changing activation, matched to its feature by the activation version they share.
+
 ## Scope: local vs shared
 
 A migration's **scope** decides *when* it is allowed to run. gatekit does not hardwire
