@@ -63,6 +63,13 @@ If your rollout can leave a machine two generations behind before it catches up,
 1` is too narrow — you need `W = 2` or more. Choose `W` from how slowly your slowest
 machine upgrades.
 
+Keep one thing straight: **`min` is computed, not measured.** It is `max − W` (floored
+at the first activation version) — a function of what your binary *knows* (`max`, from
+the registry) and the `W` you chose, **not** of how many machines have finished
+upgrading. So `min` does not creep up as a rollout completes; it moves only when a **new
+release raises `max`**, sliding the whole window forward by one. This is the detail that
+makes the write floor below land a release later than people expect.
+
 This is also why Lesson 4's "delete the old path" has a *precondition*: you may only
 delete it once its version drops **below `min`**, i.e. out of the window. Delete it
 earlier and a lagging machine loses the behavior it is still running.

@@ -311,6 +311,22 @@ the migration. You would split the change across two releases (expand, then cont
 A format change that cannot finalize in the same release is the price of being able to
 go back safely. gatekit just makes the runner enforce what good teams do by habit.
 
+Two points sharpen this:
+
+- **It is the *write*, not the version, that is blocked.** Activating the new version is
+  fine — you can finalize the behavior flip normally. Only the migration that *writes* the
+  newer-than-`min` format is deferred.
+- **"`min` has reached" does not mean the rollout finished.** `min` is `max − W`, computed
+  from the registry (Lesson 6), so it rises only when the **next release raises `max`** —
+  not when every machine has upgraded. That is why the contract step lands in release N+1,
+  the one that introduces the next activation version: with `W = 1`, `max` becomes 6 there,
+  so `min` becomes 5, and the `readableFrom = 5` rewrite is finally allowed.
+
+The deferral is really just `W` showing its cost: with `W = 0`, `min = max`, so a format
+newer than `min` is never blocked — you could write it immediately, but you would have
+given up any rollback to the prior version. The one-release wait is the price of a
+one-generation rollback window.
+
 > **Where this stands.** The rules above are specified in the
 > [migration spec §3.5–3.6](https://github.com/automa-saga/gatekit-spec/blob/main/migration-spec.md)
 > and pinned by the `rollback/` and `floor/` conformance fixtures. The Go API for
