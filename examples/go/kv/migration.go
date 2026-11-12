@@ -68,3 +68,10 @@ func (m RewriteToV2) Rollback(context.Context) error {
 	}
 	return nil
 }
+
+// Reversible declares that Rollback is a true inverse of Execute (v2 decodes back to the
+// same value, re-encoded as v1), so lowering the active version across this migration is
+// allowed (migration-spec §1). gatekit never infers this from the presence of Rollback —
+// a stub would otherwise permit a data-losing retreat — so a reversible migration must say
+// so explicitly.
+func (RewriteToV2) Reversible() bool { return true }
